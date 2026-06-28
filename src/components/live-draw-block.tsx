@@ -1,0 +1,71 @@
+import { activeDraw } from "@/lib/mock-data";
+import { niceDateTime } from "@/lib/format";
+import Link from "next/link";
+import { Tv2, Radio, Drum, ArrowRight } from "lucide-react";
+import { Label } from "@/components/sticker";
+
+export function LiveDrawBlock() {
+  return (
+    <section className="mx-auto max-w-[1400px] px-5 py-24">
+      <div className="relative border-2 border-ink bg-bg-dark text-fg overflow-hidden grain grain-dark shadow-[8px_8px_0_0_var(--color-ink)]">
+        <span aria-hidden className="absolute -top-6 -left-6 display-mega text-fg/[0.08] select-none">LIVE</span>
+
+        <div
+          aria-hidden
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(800px 300px at 80% 30%, rgba(208,44,30,0.22), transparent 60%), radial-gradient(600px 200px at 10% 90%, rgba(26,77,48,0.22), transparent 60%)",
+          }}
+        />
+        <div className="relative grid gap-10 p-8 lg:grid-cols-12 lg:p-14 border-b-2 border-paper/30">
+          <div className="lg:col-span-7">
+            <p className="section-eyebrow on-dark section-eyebrow-rule">The draw, on camera</p>
+            <h2 className="mt-4 hero-headline on-dark" style={{ fontSize: "clamp(2.25rem,5vw,4.25rem)" }}>
+              Every winner is pulled<br />
+              from <span className="accent-serif">a real drum.</span>
+            </h2>
+            <p className="mt-6 max-w-xl text-lg text-fg font-serif">
+              Every entry is printed onto paper and dropped into a physical drum. Two cameras. One pull. The phone rings on stream.
+            </p>
+
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                href="/live"
+                className="inline-flex h-12 items-center gap-2 bg-paper text-ink px-5 border-2 border-paper font-condensed uppercase tracking-[0.22em] text-[12px] font-bold hover:bg-brass"
+              >
+                Watch the next draw live <ArrowRight size={14} />
+              </Link>
+              <span className="inline-flex h-12 items-center border-2 border-paper/40 px-5 text-fg-2 font-condensed uppercase tracking-[0.22em] text-[11px]">
+                {niceDateTime(activeDraw.drawDateISO)}
+              </span>
+            </div>
+
+            <div className="mt-6 flex flex-wrap gap-2">
+              <Label tone="brass" variant="solid">Fully transparent</Label>
+              <Label tone="paper" variant="solid">Archived to YouTube</Label>
+            </div>
+          </div>
+
+          <ul className="lg:col-span-5 grid gap-3 self-center">
+            <Step icon={<Drum size={20} />} label="Drum loaded" body="Every printed entry is dropped into the drum on draw day." />
+            <Step icon={<Radio size={20} />} label="Simulcast" body="Facebook Live primary, YouTube mirror, captioned." />
+            <Step icon={<Tv2 size={20} />} label="Phone call on air" body="We dial the winner the moment the ticket is read." />
+          </ul>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Step({ icon, label, body }: { icon: React.ReactNode; label: string; body: string }) {
+  return (
+    <li className="flex gap-4 border-2 border-paper/40 bg-paper/[0.05] p-4">
+      <span className="inline-flex h-11 w-11 items-center justify-center bg-brass text-ink border-2 border-paper shrink-0">{icon}</span>
+      <div>
+        <p className="font-display font-bold text-lg leading-tight text-fg">{label}</p>
+        <p className="text-[14px] text-fg-2 mt-0.5">{body}</p>
+      </div>
+    </li>
+  );
+}

@@ -1,0 +1,212 @@
+@import url('https://api.fontshare.com/v2/css?f[]=general-sans@200,300,400,500,600,700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* CREAM-FIRST MAXIMALIST with GM teal as accent */
+  --color-paper: #f1e9d3;
+  --color-paper-2: #e6dcc0;
+  --color-paper-3: #f7f0db;
+  --color-paper-4: #ffffff;
+
+  --color-ink: #16110f;
+  --color-ink-2: #3d352c;
+  --color-ink-3: #7a6f5c;
+  --color-rule: #16110f;
+  --color-rule-soft: #c8b98e;
+
+  /* Dark surfaces (used sparingly: header, footer, occasional bands) */
+  --color-bg-dark: #0a0a0a;
+  --color-bg-dark-2: #141414;
+  --color-bg-dark-3: #1a1a1a;
+  --color-fg: #ffffff;
+  --color-fg-2: #b0b2b5;
+  --color-fg-3: #6e7174;
+
+  /* ACCENT — Generous Motors teal */
+  --color-accent: #00a89a;         /* darker variant, legible as text on cream (AA at 14pt+) */
+  --color-accent-hover: #007a6e;
+  --color-accent-bright: #00d1bd;  /* GM brand-bright, used for button BGs + on dark surfaces */
+  --color-accent-soft: #c5f0e9;
+
+  --color-charity: #1a4d30;
+  --color-charity-hover: #0f3520;
+  --color-charity-soft: #d2decb;
+
+  /* Red — warm secondary paired with the teal accent.
+     "brass" name kept as an alias so existing usages keep working. */
+  --color-brass: #c8362a;        /* vintage racing red */
+  --color-brass-hover: #9c1d10;  /* darker red for hover + small text on cream */
+  --color-brass-soft: #fad7cf;   /* pale tint for soft backgrounds */
+
+  --color-navy: #163252;
+  --color-navy-soft: #cfd6df;
+
+  /* legacy aliases */
+  --color-bg: #f1e9d3;
+  --color-bg-2: #e6dcc0;
+  --color-bg-3: #2e261f;
+  --color-bg-alt: #e6dcc0;
+  --color-surface: #f7f0db;
+  --color-ink-muted: #3d352c;
+  --color-ink-subtle: #7a6f5c;
+  --color-divider: #16110f;
+
+  --font-sans: "General Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "General Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+  --font-condensed: var(--font-oswald), Impact, "Arial Narrow Bold", sans-serif;
+}
+
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-size: 18px;
+  line-height: 1.55;
+  font-family: var(--font-sans);
+  font-weight: 400;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+::selection { background: var(--color-accent); color: var(--color-paper-3); }
+
+.font-display { font-family: var(--font-display); letter-spacing: -0.025em; font-weight: 700; }
+.font-serif { font-family: var(--font-serif); letter-spacing: 0; }
+.font-condensed { font-family: var(--font-condensed); letter-spacing: 0.01em; font-weight: 500; }
+
+.hero-headline {
+  font-family: var(--font-display);
+  font-size: clamp(2.75rem, 7vw + 1rem, 7.5rem);
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+.hero-headline .accent-serif {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  color: var(--color-accent);
+  font-style: italic;
+}
+.hero-headline .accent-brass {
+  /* the secondary headline accent — coral, paired with teal */
+  color: var(--color-brass);
+  font-style: italic;
+  font-family: var(--font-serif);
+  font-weight: 400;
+}
+
+.hero-headline.on-dark { color: var(--color-fg); }
+.hero-headline.on-dark .accent-serif { color: var(--color-accent-bright); }
+
+.display-mega {
+  font-family: var(--font-condensed);
+  font-size: clamp(4rem, 14vw, 14rem);
+  line-height: 0.82;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.section-eyebrow {
+  font-family: var(--font-condensed);
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--color-ink-2);
+}
+.section-eyebrow.on-dark { color: var(--color-fg-2); }
+.section-eyebrow.on-paper { color: var(--color-ink-2); }
+
+.section-eyebrow-rule {
+  position: relative;
+  padding-left: 36px;
+}
+.section-eyebrow-rule::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 26px;
+  height: 2px;
+  background: var(--color-accent);
+}
+
+.dateline {
+  font-family: var(--font-condensed);
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--color-ink-3);
+}
+.dateline.on-dark { color: var(--color-fg-3); }
+.dateline.on-paper { color: var(--color-ink-3); }
+
+.numeral { font-family: var(--font-condensed); font-feature-settings: "tnum"; font-weight: 600; }
+
+/* Paper grain overlay */
+.grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.12;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.grain-dark::before { mix-blend-mode: overlay; opacity: 0.22; }
+
+/* Marquee */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: marquee 64s linear infinite;
+  will-change: transform;
+}
+.marquee-track-fast { animation-duration: 28s; }
+
+.dropcap::first-letter {
+  font-family: var(--font-serif);
+  font-size: 4.5rem;
+  line-height: 0.85;
+  float: left;
+  margin-right: 0.4rem;
+  margin-top: 0.1rem;
+  color: var(--color-accent);
+}
+
+.scrollbar-thin::-webkit-scrollbar { height: 6px; width: 6px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: var(--color-rule-soft); }
+
+.border-heavy { border-width: 2px; border-color: var(--color-ink); }
+.border-heavy-3 { border-width: 3px; border-color: var(--color-ink); }
+
+/* GM-style parallelogram clip for CTAs (lifts from generousmotors.org) */
+.btn-poly {
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+}
+.btn-poly-lg {
+  clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+}
