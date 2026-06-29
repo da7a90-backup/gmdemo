@@ -179,7 +179,7 @@ export function CheckoutClient() {
             <Field label="Phone" defaultValue={MOCK.phone} name="phone" autoComplete="tel" />
           </Section>
 
-          <Section title="Payment" sub="All transactions are secure and encrypted." pill="Stripe">
+          <Section title="Payment" sub="All transactions are secure and encrypted.">
             <div className="border border-ink bg-paper-2 p-4 grid gap-3">
               <Field label="Card number" defaultValue={MOCK.cardNumber} icon={<CreditCard size={14} className="text-ink-3" />} name="card" autoComplete="cc-number" />
               <div className="grid grid-cols-2 gap-3">
