@@ -3,6 +3,7 @@ import { Countdown } from "@/components/countdown";
 import { activeDraw } from "@/lib/mock-data";
 import { intl, usd, niceWeekday } from "@/lib/format";
 import { Tv2, Radio, HeartHandshake, Drum, ArrowRight } from "lucide-react";
+import { PrizePlate } from "@/components/prize-plate";
 
 export function Hero() {
   const sold = activeDraw.ticketsSold;
@@ -78,53 +79,7 @@ export function Hero() {
 
         {/* RIGHT — compact vehicle plate + ticker */}
         <div className="lg:col-span-5 flex flex-col border-2 border-ink bg-paper-3 shadow-[6px_6px_0_0_var(--color-ink)]">
-          <div className="group relative aspect-[5/3] overflow-hidden border-b-2 border-ink">
-            {/* Primary image */}
-            <div
-              className="absolute inset-0 transition-opacity duration-500 group-hover:opacity-0"
-              style={{
-                backgroundImage: `linear-gradient(to bottom, rgba(22,17,15,0.18) 0%, rgba(22,17,15,0.05) 35%, rgba(22,17,15,0.75) 100%), url(${v.images[0]})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-            />
-            {/* Hover-swap image */}
-            <div
-              className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-              style={{
-                backgroundImage: `linear-gradient(to bottom, rgba(22,17,15,0.18) 0%, rgba(22,17,15,0.05) 35%, rgba(22,17,15,0.75) 100%), url(${v.images[1] ?? v.images[0]})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-              aria-hidden
-            />
-
-            <span className="absolute top-3 left-3 bg-brass text-paper-3 font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border-2 border-ink z-10">
-              {v.year} · {v.make}
-            </span>
-            <span className="absolute top-3 right-3 bg-accent-bright text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border-2 border-ink z-10">
-              {usd(v.valueUSD)}
-            </span>
-
-            <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end z-10">
-              <div>
-                <p className="font-condensed uppercase tracking-[0.22em] text-[10px] text-paper/70">Prize</p>
-                <p className="font-display font-bold text-2xl text-paper leading-tight drop-shadow">
-                  {v.make} {v.model}
-                </p>
-              </div>
-              <p className="text-[11px] text-paper/80 max-w-[55%] text-right font-serif italic">
-                {v.trim}
-              </p>
-            </div>
-
-            <span className="absolute bottom-2 left-1/2 -translate-x-1/2 z-10 opacity-0 group-hover:opacity-0 transition-opacity">
-              {/* placeholder */}
-            </span>
-            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 px-2.5 py-1 bg-paper text-ink border border-ink font-condensed uppercase tracking-[0.22em] text-[10px] pointer-events-none opacity-100 group-hover:opacity-0 transition-opacity">
-              ↻ hover for another angle
-            </span>
-          </div>
+          <PrizePlate />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 divide-y-2 sm:divide-y-0 sm:divide-x-2 divide-ink border-b-2 border-ink bg-paper-3">
             <div className="p-4">
