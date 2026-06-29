@@ -26,15 +26,27 @@ export function TicketsBuy() {
   const charityCut = +(total * 0.10).toFixed(2);
   const v = activeDraw.vehicle;
   const [activeImage, setActiveImage] = useState(0);
+  const [redirecting, setRedirecting] = useState(false);
 
   const onBuy = () => {
+    setRedirecting(true);
     const tier = ticketTiers.find((t) => t.entries === qty);
-    if (tier) router.push(`/checkout?tier=${tier.id}&type=once`);
-    else router.push(`/checkout?qty=${qty}`);
+    const target = tier ? `/checkout?tier=${tier.id}&type=once` : `/checkout?qty=${qty}`;
+    // Brief delay sells the "leaving the merchant site for Shopify checkout" handoff.
+    setTimeout(() => router.push(target), 900);
   };
 
   return (
     <div className="bg-paper text-ink">
+      {redirecting && (
+        <div className="fixed inset-0 z-50 bg-white/95 flex items-center justify-center">
+          <div className="text-center px-5">
+            <div className="mx-auto h-10 w-10 border-4 border-[#e1e3e5] border-t-[#1773b0] rounded-full animate-spin" />
+            <p className="mt-5 text-[15px] text-[#202223]">Redirecting to secure checkout…</p>
+            <p className="mt-1 text-[12px] text-[#6b7177]">Powered by Shopify</p>
+          </div>
+        </div>
+      )}
       {/* PRIZE STRIP */}
       <div className="bg-bg-dark text-fg border-b-2 border-ink">
         <div className="mx-auto max-w-[1400px] px-5 py-3 flex flex-wrap items-center justify-between gap-3 font-condensed uppercase tracking-[0.22em] text-[12px]">

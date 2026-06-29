@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Source_Serif_4, Oswald } from "next/font/google";
 import "./globals.css";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
-import { TopAnnounce } from "@/components/marquee";
+import { SiteShell } from "@/components/site-shell";
 import { EmailPopup } from "@/components/email-popup";
 
 const sourceSerif = Source_Serif_4({
@@ -36,10 +34,7 @@ export default function RootLayout({
       className={`${sourceSerif.variable} ${oswald.variable} h-full`}
     >
       <body className="min-h-full flex flex-col bg-paper text-ink">
-        <TopAnnounce />
-        <SiteHeader />
-        <main className="flex-1">{children}</main>
-        <SiteFooter />
+        <SiteShell>{children}</SiteShell>
         <EmailPopup />
       </body>
     </html>
