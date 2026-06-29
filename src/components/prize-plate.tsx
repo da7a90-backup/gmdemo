@@ -4,9 +4,10 @@ import { activeDraw } from "@/lib/mock-data";
 import { usd } from "@/lib/format";
 
 /**
- * Home-page prize plate with hover-OR-press-and-hold image swap.
- * Uses pointer events so both mouse hover (desktop) and touch-and-hold (mobile)
- * cross-fade between the primary and alternate vehicle images.
+ * Home-page prize plate.
+ *  - Desktop (mouse): pure hover swap (mouseenter / mouseleave).
+ *  - Mobile (touch): tap-and-hold swap (pointerdown filtered by pointerType, pointerup).
+ *  - Pen / stylus: treated like touch (press-and-hold).
  */
 export function PrizePlate() {
   const v = activeDraw.vehicle;
@@ -16,15 +17,21 @@ export function PrizePlate() {
 
   return (
     <div
-      className="relative aspect-[5/3] overflow-hidden border-b-2 border-ink select-none touch-pan-y"
+      className="relative aspect-[5/3] overflow-hidden border-b-2 border-ink select-none"
       style={{ WebkitTouchCallout: "none", WebkitUserSelect: "none" }}
+      onMouseEnter={() => setActive(true)}
+      onMouseLeave={() => setActive(false)}
       onPointerDown={(e) => {
-        // Prevent the iOS long-press image preview / context menu
-        e.currentTarget.setPointerCapture?.(e.pointerId);
-        setActive(true);
+        if (e.pointerType === "touch" || e.pointerType === "pen") {
+          e.currentTarget.setPointerCapture?.(e.pointerId);
+          setActive(true);
+        }
       }}
-      onPointerUp={() => setActive(false)}
-      onPointerLeave={() => setActive(false)}
+      onPointerUp={(e) => {
+        if (e.pointerType === "touch" || e.pointerType === "pen") {
+          setActive(false);
+        }
+      }}
       onPointerCancel={() => setActive(false)}
       onContextMenu={(e) => e.preventDefault()}
     >
@@ -68,11 +75,25 @@ export function PrizePlate() {
       </div>
 
       <span
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 px-2.5 py-1 bg-paper text-ink border border-ink font-condensed uppercase tracking-[0.22em] text-[10px] pointer-events-none transition-opacity duration-200"
+        className="hint-hover absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 px-2.5 py-1 bg-paper text-ink border border-ink font-condensed uppercase tracking-[0.22em] text-[10px] pointer-events-none transition-opacity duration-200"
+        style={{ opacity: active ? 0 : 1 }}
+      >
+        ↻ hover for another angle
+      </span>
+      <span
+        className="hint-press absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 px-2.5 py-1 bg-paper text-ink border border-ink font-condensed uppercase tracking-[0.22em] text-[10px] pointer-events-none transition-opacity duration-200"
         style={{ opacity: active ? 0 : 1 }}
       >
         ↻ press for another angle
       </span>
+
+      <style>{`
+        .hint-press { display: none; }
+        @media (hover: none) {
+          .hint-hover { display: none; }
+          .hint-press { display: inline-flex; }
+        }
+      `}</style>
     </div>
   );
 }
