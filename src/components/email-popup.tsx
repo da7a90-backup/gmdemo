@@ -1,6 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { X, Mail, ArrowRight, HeartHandshake } from "lucide-react";
+
+/** Routes where the newsletter popup should never appear (interrupts the buy / confirmation flow). */
+const SUPPRESS_PATHS = ["/checkout", "/thank-you"];
 
 /**
  * Email-capture popup.
@@ -18,12 +22,15 @@ const DELAY_MS = 8000;
 const SCROLL_PCT = 0.5;
 
 export function EmailPopup() {
+  const pathname = usePathname();
+  const suppressed = SUPPRESS_PATHS.some((p) => pathname?.startsWith(p));
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (suppressed) return; // no listeners at all on checkout / thank-you
 
     // Manual open via window event (footer "Get drawing alerts" button).
     const onManualOpen = () => {
@@ -59,7 +66,11 @@ export function EmailPopup() {
       cleanup();
       window.removeEventListener("gm:open-popup", onManualOpen);
     };
-  }, []);
+  }, [suppressed]);
+
+  // Hard suppress: don't render the modal markup at all on these paths,
+  // even if some stale state would otherwise show it.
+  if (suppressed) return null;
 
   const onClose = () => setOpen(false);
   const onSubmit = (e: React.FormEvent) => {
