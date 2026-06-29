@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { AnimatedCounter } from "@/components/animated-counter";
 import { activeDraw } from "@/lib/mock-data";
-import { niceDateTime, usdc } from "@/lib/format";
+import { niceDateTime, usdc, usd } from "@/lib/format";
 import { buildTicketsPdf, downloadPdf } from "@/lib/pdf";
 import { generateTicketIDs } from "@/lib/ticket-gen";
 import { Label } from "@/components/sticker";
@@ -151,18 +151,51 @@ export function ThankYouClient() {
           <Label tone="ink" variant="outline">{order.entries} tickets</Label>
         </motion.div>
 
+        <motion.div
+          initial={{ y: 24, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.45, type: "spring", stiffness: 170, damping: 18 }}
+          className="mt-9 mx-auto max-w-xl border-heavy bg-paper-3 shadow-[8px_8px_0_0_var(--color-ink)]"
+        >
+          <div
+            className="relative aspect-[16/9] overflow-hidden"
+            style={{
+              backgroundImage: `linear-gradient(to bottom, rgba(22,17,15,0.15) 0%, rgba(22,17,15,0.05) 35%, rgba(22,17,15,0.65) 100%), url(${activeDraw.vehicle.images[0]})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          >
+            <span className="absolute top-3 left-3 bg-brass text-paper-3 font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border-2 border-ink">
+              You&apos;re in for
+            </span>
+            <span className="absolute top-3 right-3 bg-accent-bright text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border-2 border-ink">
+              {usd(activeDraw.vehicle.valueUSD)}
+            </span>
+            <div className="absolute bottom-3 left-4 right-4 flex justify-between items-end text-left">
+              <div>
+                <p className="font-condensed uppercase tracking-[0.22em] text-[10px] text-paper/70">Prize</p>
+                <p className="font-display font-bold text-2xl text-paper leading-tight drop-shadow">
+                  {activeDraw.vehicle.make} {activeDraw.vehicle.model}
+                </p>
+              </div>
+              <p className="text-[11px] text-paper/80 max-w-[55%] text-right font-serif italic">
+                {activeDraw.vehicle.trim}
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
         <motion.p
           initial={{ y: 16, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.25 }}
+          transition={{ delay: 0.55 }}
           className="mt-8 text-lg text-ink-2 max-w-xl mx-auto font-serif"
         >
           We just printed{" "}
           <strong className="font-condensed numeral text-2xl text-accent">
             <AnimatedCounter value={order.entries} />
           </strong>{" "}
-          {order.entries === 1 ? "ticket" : "tickets"} for{" "}
-          <strong className="text-ink font-condensed uppercase tracking-[0.04em]">{order.vehicleLabel}</strong>.
+          {order.entries === 1 ? "ticket" : "tickets"} for the draw.
         </motion.p>
 
         <motion.div
