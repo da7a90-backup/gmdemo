@@ -48,23 +48,12 @@ export function HowItWorks() {
           ))}
         </ol>
 
-        <div className="mt-12 grid lg:grid-cols-12 gap-8 items-end">
-          <div className="lg:col-span-4">
-            <p className="section-eyebrow section-eyebrow-rule">The whole process</p>
-            <h3 className="mt-3 font-display font-bold text-ink leading-tight" style={{ fontSize: "clamp(1.5rem, 2.5vw, 2rem)" }}>
-              Two minutes <span className="accent-serif">on the drum.</span>
-            </h3>
-            <p className="mt-3 text-[15px] text-ink-2 font-serif">
-              A quick look at what a cycle actually looks like — tickets printed, drum loaded, winner pulled live.
-            </p>
-          </div>
-          <div className="lg:col-span-8 shadow-[8px_8px_0_0_var(--color-ink)]">
-            <YouTubeFacade
-              videoId="dQw4w9WgXcQ"
-              poster="/vehicles/drum-poster.jpg"
-              title="How a Generous Motors cycle runs"
-            />
-          </div>
+        <div className="mt-12 mx-auto max-w-4xl shadow-[8px_8px_0_0_var(--color-ink)]">
+          <YouTubeFacade
+            videoId="dQw4w9WgXcQ"
+            poster="/vehicles/drum-poster.jpg"
+            title="How a Generous Motors cycle runs"
+          />
         </div>
       </div>
     </section>
