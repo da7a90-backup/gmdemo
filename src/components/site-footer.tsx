@@ -65,8 +65,8 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-16 border-t border-fg/15 pt-6 grid gap-5 md:grid-cols-[1fr_auto]">
-          <p className="font-condensed uppercase tracking-[0.22em] text-[10px] text-fg-2 leading-[1.7]">
-            NO PURCHASE NECESSARY · A purchase will not improve your chances of winning · Void where prohibited · Open to legal residents of the 50 United States and DC, age 18 and over · See <Link href="/legal/rules" className="underline">Official Rules</Link>
+          <p className="font-condensed uppercase tracking-[0.18em] text-[10px] text-fg-2 leading-[1.7]">
+            Generous Motors is a registered 501(c)(3) nonprofit organization. No purchase necessary to enter or win. A purchase does not increase your chances of winning. Open to legal residents of the United States, 18 years of age or older. Void where prohibited. Charitable contribution: 10% of gross profits per cycle donated to featured nonprofit partner.
           </p>
           <p className="font-serif italic text-[13px] text-fg-3 md:text-right">
             Generous Motors · 120 Cedar Ave · Brooklyn, NY 11215 · © {new Date().getFullYear()}
