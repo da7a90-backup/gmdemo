@@ -41,7 +41,7 @@ export function Hero() {
             className="hero-headline"
             style={{ fontSize: "clamp(2.5rem, 5vw + 0.5rem, 5rem)" }}
           >
-            Drive the <span className="accent-serif">car.</span><br />
+            Win the <span className="accent-serif">car.</span><br />
             Fund the <span className="accent-brass">cause.</span>
           </h1>
 
