@@ -22,8 +22,41 @@ export function Hero() {
         }}
       />
 
-      <div className="mx-auto max-w-[1400px] grid gap-8 px-5 pt-8 pb-10 lg:grid-cols-12 lg:gap-10 lg:pt-10 lg:pb-12">
-        <div className="lg:col-span-7 relative flex flex-col">
+      <div className="mx-auto max-w-[1400px] flex flex-col gap-8 px-5 pt-8 pb-10 lg:gap-10 lg:pt-10 lg:pb-12">
+        {/* TOP — prize plate spanning most of the hero, image centered */}
+        <div className="w-full lg:w-[92%] mx-auto flex flex-col border-2 border-ink bg-paper-3 shadow-[6px_6px_0_0_var(--color-ink)]">
+          <PrizePlate />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 divide-y-2 sm:divide-y-0 sm:divide-x-2 divide-ink border-b-2 border-ink bg-paper-3">
+            <div className="p-4">
+              <p className="section-eyebrow on-paper">Next draw</p>
+              <p className="mt-1 font-condensed uppercase tracking-[0.06em] text-[14px] text-ink leading-tight">
+                {niceWeekday(activeDraw.drawDateISO)}
+              </p>
+            </div>
+            <div className="p-4 flex items-center justify-center sm:justify-end">
+              <Countdown targetISO={activeDraw.drawDateISO} />
+            </div>
+          </div>
+
+          <div className="p-4 bg-paper-3">
+            <div className="flex items-baseline justify-between mb-2 text-[13px]">
+              <span className="text-ink-2">
+                <strong className="text-ink font-condensed numeral text-base">{intl(sold)}</strong>
+                {" / "}
+                <span className="numeral">{intl(cap)}</span> sold
+              </span>
+              <span className="font-condensed numeral text-accent font-bold">{pct}%</span>
+            </div>
+            <div className="h-2.5 bg-paper border-2 border-ink overflow-hidden">
+              <div className="h-full bg-accent" style={{ width: `${pct}%` }} aria-hidden />
+            </div>
+            <p className="mt-2 dateline on-paper">Sales close when the cap is reached.</p>
+          </div>
+        </div>
+
+        {/* BELOW — headline + copy under the prize plate */}
+        <div className="w-full lg:w-[92%] mx-auto relative flex flex-col">
           {/* Serial + dateline */}
           <div className="flex items-baseline gap-4 mb-4">
             <span className="font-condensed numeral font-bold text-5xl text-accent leading-none">
@@ -69,44 +102,12 @@ export function Hero() {
           </div>
 
           {/* Trust chips — compressed to a single row */}
-          <ul className="mt-auto pt-7 flex flex-wrap gap-2">
+          <ul className="mt-7 flex flex-wrap gap-2">
             <TrustChip icon={<HeartHandshake size={14} />} label="10% to charity" tone="charity" />
             <TrustChip icon={<Tv2 size={14} />} label="Drawn live" tone="ink" />
             <TrustChip icon={<Drum size={14} />} label="Real drum" tone="ink" />
             <TrustChip icon={<Radio size={14} />} label="501(c)(3)" tone="ink" />
           </ul>
-        </div>
-
-        {/* RIGHT — compact vehicle plate + ticker */}
-        <div className="lg:col-span-5 flex flex-col border-2 border-ink bg-paper-3 shadow-[6px_6px_0_0_var(--color-ink)]">
-          <PrizePlate />
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 divide-y-2 sm:divide-y-0 sm:divide-x-2 divide-ink border-b-2 border-ink bg-paper-3">
-            <div className="p-4">
-              <p className="section-eyebrow on-paper">Next draw</p>
-              <p className="mt-1 font-condensed uppercase tracking-[0.06em] text-[14px] text-ink leading-tight">
-                {niceWeekday(activeDraw.drawDateISO)}
-              </p>
-            </div>
-            <div className="p-4 flex items-center justify-center sm:justify-end">
-              <Countdown targetISO={activeDraw.drawDateISO} />
-            </div>
-          </div>
-
-          <div className="p-4 bg-paper-3">
-            <div className="flex items-baseline justify-between mb-2 text-[13px]">
-              <span className="text-ink-2">
-                <strong className="text-ink font-condensed numeral text-base">{intl(sold)}</strong>
-                {" / "}
-                <span className="numeral">{intl(cap)}</span> sold
-              </span>
-              <span className="font-condensed numeral text-accent font-bold">{pct}%</span>
-            </div>
-            <div className="h-2.5 bg-paper border-2 border-ink overflow-hidden">
-              <div className="h-full bg-accent" style={{ width: `${pct}%` }} aria-hidden />
-            </div>
-            <p className="mt-2 dateline on-paper">Sales close when the cap is reached.</p>
-          </div>
         </div>
       </div>
     </section>

@@ -17,7 +17,7 @@ export function PrizePlate() {
 
   return (
     <div
-      className="relative aspect-[5/3] overflow-hidden border-b-2 border-ink select-none"
+      className="relative aspect-[5/3] md:aspect-[2/1] lg:aspect-[21/9] overflow-hidden border-b-2 border-ink select-none"
       style={{ WebkitTouchCallout: "none", WebkitUserSelect: "none" }}
       onMouseEnter={() => setActive(true)}
       onMouseLeave={() => setActive(false)}
