@@ -32,11 +32,13 @@
   --color-charity-hover: #0f3520;
   --color-charity-soft: #d2decb;
 
-  /* Red — warm secondary paired with the teal accent.
-     "brass" name kept as an alias so existing usages keep working. */
-  --color-brass: #c8362a;        /* vintage racing red */
-  --color-brass-hover: #9c1d10;  /* darker red for hover + small text on cream */
-  --color-brass-soft: #fad7cf;   /* pale tint for soft backgrounds */
+  /* Marker yellow — warm secondary paired with the teal accent.
+     "brass" name kept as an alias so existing usages keep working.
+     Yellow carries dark ink text only — never white. */
+  --color-brass: #f2b90d;        /* marker / highlighter yellow */
+  --color-brass-hover: #d9a406;  /* darker amber for hover states */
+  --color-brass-soft: #fdf0c2;   /* pale tint for soft backgrounds */
+  --color-brass-deep: #8a6d00;   /* legible amber for small text on cream */
 
   --color-navy: #163252;
   --color-navy-soft: #cfd6df;
@@ -50,6 +52,15 @@
   --color-ink-muted: #3d352c;
   --color-ink-subtle: #7a6f5c;
   --color-divider: #16110f;
+
+  /* Rounded-modernist shape + elevation scale */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --shadow-soft: 0 1px 2px rgba(22, 17, 15, 0.05), 0 8px 24px rgba(22, 17, 15, 0.08);
+  --shadow-lift: 0 2px 4px rgba(22, 17, 15, 0.06), 0 16px 40px rgba(22, 17, 15, 0.12);
 
   --font-sans: "General Sans", ui-sans-serif, system-ui, sans-serif;
   --font-display: "General Sans", ui-sans-serif, system-ui, sans-serif;
@@ -105,11 +116,17 @@ body {
   font-style: italic;
 }
 .hero-headline .accent-brass {
-  /* the secondary headline accent — coral, paired with teal */
-  color: var(--color-brass);
+  /* the secondary headline accent — ink on a yellow marker swipe */
+  color: var(--color-ink);
   font-style: italic;
   font-family: var(--font-serif);
   font-weight: 400;
+  background: linear-gradient(104deg, transparent 1.5%, var(--color-brass) 3%, var(--color-brass) 97%, transparent 98.5%);
+  border-radius: 6px;
+  padding: 0 0.12em;
+  margin: 0 -0.04em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
 .hero-headline.on-dark { color: var(--color-fg); }
@@ -145,8 +162,9 @@ body {
   left: 0;
   top: 50%;
   width: 26px;
-  height: 2px;
-  background: var(--color-accent);
+  height: 3px;
+  border-radius: 9999px;
+  background: var(--color-brass);
 }
 
 .dateline {
@@ -167,6 +185,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
+  border-radius: inherit;
   pointer-events: none;
   opacity: 0.12;
   mix-blend-mode: multiply;
@@ -200,13 +219,13 @@ body {
 .scrollbar-thin::-webkit-scrollbar { height: 6px; width: 6px; }
 .scrollbar-thin::-webkit-scrollbar-thumb { background: var(--color-rule-soft); }
 
-.border-heavy { border-width: 2px; border-color: var(--color-ink); }
-.border-heavy-3 { border-width: 3px; border-color: var(--color-ink); }
+.border-heavy { border-width: 1px; border-color: color-mix(in srgb, var(--color-ink) 14%, transparent); }
+.border-heavy-3 { border-width: 1px; border-color: color-mix(in srgb, var(--color-ink) 20%, transparent); }
 
-/* GM-style parallelogram clip for CTAs (lifts from generousmotors.org) */
+/* Pill CTAs — rounded-modernist replacement for the old parallelogram clip */
 .btn-poly {
-  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  border-radius: 9999px;
 }
 .btn-poly-lg {
-  clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+  border-radius: 9999px;
 }

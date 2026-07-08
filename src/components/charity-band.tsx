@@ -6,7 +6,7 @@ import { Label } from "@/components/sticker";
 
 export function CharityBand() {
   return (
-    <section className="relative overflow-hidden border-y border-ink bg-charity text-paper-3 grain">
+    <section className="relative overflow-hidden border-y border-ink/10 bg-charity text-paper-3 grain">
       <span aria-hidden className="absolute -top-12 -left-12 text-paper-3/[0.08] display-mega select-none">10%</span>
 
       <div className="relative mx-auto max-w-[1400px] px-5 py-24 grid gap-12 lg:grid-cols-12 items-start">
@@ -30,25 +30,25 @@ export function CharityBand() {
           <div className="mt-9 flex flex-wrap gap-3">
             <Link
               href="/about#charity"
-              className="inline-flex items-center gap-2 bg-brass text-ink px-5 py-3 border border-brass font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper-3 hover:border-paper-3 transition"
+              className="inline-flex items-center gap-2 bg-brass text-ink px-5 py-3 border border-brass font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper-3 hover:border-paper-3 transition rounded-full"
             >
               How the funds flow <ArrowRight size={14} />
             </Link>
             <Link
               href="/blog/cycle-12-corvette-charity-pick"
-              className="inline-flex items-center gap-2 border border-paper-3 bg-transparent px-5 py-3 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper-3 hover:text-charity transition"
+              className="inline-flex items-center gap-2 border border-paper-3 bg-transparent px-5 py-3 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper-3 hover:text-charity transition rounded-full"
             >
               <FileText size={14} /> Why we picked them
             </Link>
           </div>
 
           <div className="mt-7 flex flex-wrap gap-2 text-[12px]">
-            <Label tone="brass" variant="outline">Registered 501(c)(3)</Label>
+            <Label tone="brass" variant="solid">Registered 501(c)(3)</Label>
             <Label tone="paper" variant="outline">10% of gross to charity</Label>
           </div>
         </div>
 
-        <div className="lg:col-span-5 border border-paper-3 bg-charity-hover">
+        <div className="lg:col-span-5 border border-paper-3 bg-charity-hover rounded-2xl overflow-hidden">
           <div className="border-b border-paper-3 p-5 flex items-baseline justify-between">
             <p className="section-eyebrow !text-paper-3/70">Lifetime · all cycles</p>
             <p className="dateline !text-paper-3/60">cumulative</p>

@@ -6,7 +6,7 @@ import { Label } from "@/components/sticker";
 
 export function SiteFooter() {
   return (
-    <footer className="relative mt-24 border-t-2 border-ink bg-bg-dark text-fg grain grain-dark overflow-hidden">
+    <footer className="relative mt-24 border-t border-ink/10 bg-bg-dark text-fg grain grain-dark overflow-hidden">
       <div className="relative mx-auto max-w-[1400px] px-5 py-16">
         {/* MASTHEAD */}
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between border-b border-fg/15 pb-10">
@@ -32,13 +32,13 @@ export function SiteFooter() {
             <button
               type="button"
               onClick={() => { if (typeof window !== "undefined") window.dispatchEvent(new Event("gm:open-popup")); }}
-              className="mt-5 inline-flex items-center gap-2 bg-accent-bright text-ink px-4 py-2.5 border-2 border-paper font-condensed uppercase tracking-[0.22em] text-[11px] font-bold hover:bg-paper hover:text-ink btn-poly"
+              className="mt-5 inline-flex items-center gap-2 bg-accent-bright text-ink px-4 py-2.5 border border-paper font-condensed uppercase tracking-[0.22em] text-[11px] font-bold hover:bg-paper hover:text-ink btn-poly"
             >
               <Mail size={14} /> Get drawing alerts
             </button>
             <div className="mt-5 flex gap-1.5">
               {[Youtube, Facebook, Instagram].map((I, i) => (
-                <a key={i} aria-label="Social" className="inline-flex h-10 w-10 items-center justify-center border border-fg/30 text-fg hover:bg-accent-bright hover:border-accent-bright hover:text-ink transition" href="#">
+                <a key={i} aria-label="Social" className="inline-flex h-10 w-10 items-center justify-center border border-fg/30 text-fg hover:bg-accent-bright hover:border-accent-bright hover:text-ink transition rounded-full" href="#">
                   <I size={16} />
                 </a>
               ))}

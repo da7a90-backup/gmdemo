@@ -12,22 +12,22 @@ export function Hero() {
   const v = activeDraw.vehicle;
 
   return (
-    <section className="relative overflow-hidden bg-paper text-ink border-b-2 border-ink grain">
+    <section className="relative overflow-hidden bg-paper text-ink border-b border-ink/10 grain">
       <div
         aria-hidden
         className="absolute inset-0 -z-10"
         style={{
           background:
-            "radial-gradient(900px 450px at 90% -10%, rgba(208,44,30,0.14), transparent 60%), radial-gradient(700px 350px at 0% 100%, rgba(26,77,48,0.14), transparent 60%)",
+            "radial-gradient(900px 450px at 90% -10%, rgba(242,185,13,0.14), transparent 60%), radial-gradient(700px 350px at 0% 100%, rgba(26,77,48,0.14), transparent 60%)",
         }}
       />
 
       <div className="mx-auto max-w-[1400px] flex flex-col gap-8 px-5 pt-8 pb-10 lg:gap-10 lg:pt-10 lg:pb-12">
         {/* TOP — prize plate spanning most of the hero, image centered */}
-        <div className="w-full lg:w-[92%] mx-auto flex flex-col border-2 border-ink bg-paper-3 shadow-[6px_6px_0_0_var(--color-ink)]">
+        <div className="w-full lg:w-[92%] mx-auto flex flex-col border border-ink/10 bg-paper-3 shadow-soft rounded-2xl overflow-hidden">
           <PrizePlate />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 divide-y-2 sm:divide-y-0 sm:divide-x-2 divide-ink border-b-2 border-ink bg-paper-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-ink/10 border-b border-ink/10 bg-paper-3">
             <div className="p-4">
               <p className="section-eyebrow on-paper">Next draw</p>
               <p className="mt-1 font-condensed uppercase tracking-[0.06em] text-[14px] text-ink leading-tight">
@@ -48,8 +48,8 @@ export function Hero() {
               </span>
               <span className="font-condensed numeral text-accent font-bold">{pct}%</span>
             </div>
-            <div className="h-2.5 bg-paper border-2 border-ink overflow-hidden">
-              <div className="h-full bg-accent" style={{ width: `${pct}%` }} aria-hidden />
+            <div className="h-2.5 bg-paper border border-ink/10 overflow-hidden rounded-full">
+              <div className="h-full bg-accent rounded-full" style={{ width: `${pct}%` }} aria-hidden />
             </div>
             <p className="mt-2 dateline on-paper">Sales close when the cap is reached.</p>
           </div>
@@ -88,14 +88,14 @@ export function Hero() {
           <div className="mt-7 flex flex-wrap items-center gap-3">
             <Link
               href="/tickets"
-              className="inline-flex h-14 items-center gap-3 bg-accent px-6 text-paper-3 border-2 border-ink font-condensed uppercase tracking-[0.24em] text-[14px] font-bold hover:bg-ink transition-colors shadow-[5px_5px_0_0_var(--color-ink)]"
+              className="inline-flex h-14 items-center gap-3 bg-accent px-6 text-paper-3 border border-ink/10 font-condensed uppercase tracking-[0.24em] text-[14px] font-bold hover:bg-ink transition-colors shadow-soft rounded-full"
             >
               Buy tickets · {usd(10)} each
               <ArrowRight size={18} strokeWidth={2.5} />
             </Link>
             <Link
               href="/about"
-              className="inline-flex h-14 items-center gap-2 border-2 border-ink px-5 text-ink bg-paper-3 font-condensed uppercase tracking-[0.24em] text-[12px] hover:bg-ink hover:text-paper transition-colors"
+              className="inline-flex h-14 items-center gap-2 border border-ink/10 px-5 text-ink bg-paper-3 font-condensed uppercase tracking-[0.24em] text-[12px] hover:bg-ink hover:text-paper transition-colors rounded-full"
             >
               How the draw works
             </Link>
@@ -117,9 +117,9 @@ export function Hero() {
 function TrustChip({ icon, label, tone }: { icon: React.ReactNode; label: string; tone: "ink" | "charity" }) {
   const cls = tone === "charity"
     ? "bg-charity-soft border-charity text-charity"
-    : "bg-paper-3 border-ink text-ink";
+    : "bg-paper-3 border-ink/10 text-ink";
   return (
-    <li className={`inline-flex items-center gap-1.5 border-2 ${cls} px-2.5 py-1 font-condensed uppercase tracking-[0.22em] text-[11px] font-semibold`}>
+    <li className={`inline-flex items-center gap-1.5 border ${cls} px-2.5 py-1 font-condensed uppercase tracking-[0.22em] text-[11px] font-semibold rounded-full`}>
       {icon}
       {label}
     </li>

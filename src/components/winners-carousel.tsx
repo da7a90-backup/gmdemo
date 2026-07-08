@@ -12,7 +12,7 @@ export function WinnersCarousel() {
   const row = [...winners, ...winners]; // duplicate for seamless -50% loop
 
   return (
-    <section className="bg-paper-3 text-ink border-y-2 border-ink py-12 overflow-hidden">
+    <section className="bg-paper-3 text-ink border-y border-ink/10 py-12 overflow-hidden">
       <div className="mx-auto max-w-[1400px] px-5 flex items-end justify-between gap-4 mb-7">
         <div>
           <p className="section-eyebrow section-eyebrow-rule">Recent winners</p>
@@ -22,7 +22,7 @@ export function WinnersCarousel() {
         </div>
         <Link
           href="/winners"
-          className="hidden sm:inline-flex items-center gap-2 border-2 border-ink bg-paper-4 px-4 py-2 font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper"
+          className="hidden sm:inline-flex items-center gap-2 border border-ink/10 bg-paper-4 px-4 py-2 font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper rounded-full"
         >
           Full archive <ArrowRight size={12} />
         </Link>
@@ -37,21 +37,21 @@ export function WinnersCarousel() {
           {row.map((w, i) => (
             <article
               key={`${w.id}-${i}`}
-              className="w-[280px] shrink-0 border-2 border-ink bg-paper-4 mr-4"
+              className="w-[280px] shrink-0 border border-ink/10 bg-paper-4 mr-4 rounded-lg overflow-hidden"
             >
               <div
-                className="relative aspect-[5/3] border-b-2 border-ink"
+                className="relative aspect-[5/3] border-b border-ink/10"
                 style={{ background: "linear-gradient(135deg, #16110f 0%, #2e261f 60%, #3d2e1d 100%)" }}
               >
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="h-16 w-16 border-2 border-paper-3/40 flex items-center justify-center font-condensed font-bold text-2xl text-paper-3">
+                  <div className="h-16 w-16 border border-paper-3/40 flex items-center justify-center font-condensed font-bold text-2xl text-paper-3 rounded-full">
                     {w.firstName[0]}{w.lastInitial}
                   </div>
                 </div>
-                <span className="absolute top-2 left-2 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[9px] px-2 py-0.5 border border-ink">
+                <span className="absolute top-2 left-2 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[9px] px-2 py-0.5 border border-ink/10 rounded-md">
                   Cycle №{String(w.drawCycle).padStart(2, "0")}
                 </span>
-                <button aria-label="Watch reveal" className="absolute right-2 bottom-2 inline-flex items-center gap-1 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[9px] px-2 py-1 border border-ink">
+                <button aria-label="Watch reveal" className="absolute right-2 bottom-2 inline-flex items-center gap-1 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[9px] px-2 py-1 border border-ink/10 rounded-full">
                   <PlayCircle size={10} /> Reveal
                 </button>
               </div>

@@ -7,7 +7,7 @@ import { Label } from "@/components/sticker";
 export function LiveDrawBlock() {
   return (
     <section className="mx-auto max-w-[1400px] px-5 py-24">
-      <div className="relative border-2 border-ink bg-bg-dark text-fg overflow-hidden grain grain-dark shadow-[8px_8px_0_0_var(--color-ink)]">
+      <div className="relative border border-ink/10 bg-bg-dark text-fg rounded-2xl overflow-hidden grain grain-dark shadow-soft">
         <span aria-hidden className="absolute -top-6 -left-6 display-mega text-fg/[0.08] select-none">LIVE</span>
 
         <div
@@ -15,10 +15,10 @@ export function LiveDrawBlock() {
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(800px 300px at 80% 30%, rgba(208,44,30,0.22), transparent 60%), radial-gradient(600px 200px at 10% 90%, rgba(26,77,48,0.22), transparent 60%)",
+              "radial-gradient(800px 300px at 80% 30%, rgba(242,185,13,0.22), transparent 60%), radial-gradient(600px 200px at 10% 90%, rgba(26,77,48,0.22), transparent 60%)",
           }}
         />
-        <div className="relative grid gap-10 p-8 lg:grid-cols-12 lg:p-14 border-b-2 border-paper/30">
+        <div className="relative grid gap-10 p-8 lg:grid-cols-12 lg:p-14 border-b border-paper/30">
           <div className="lg:col-span-7">
             <p className="section-eyebrow on-dark section-eyebrow-rule">The draw, on camera</p>
             <h2 className="mt-4 hero-headline on-dark" style={{ fontSize: "clamp(2.25rem,5vw,4.25rem)" }}>
@@ -32,11 +32,11 @@ export function LiveDrawBlock() {
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/live"
-                className="inline-flex h-12 items-center gap-2 bg-paper text-ink px-5 border-2 border-paper font-condensed uppercase tracking-[0.22em] text-[12px] font-bold hover:bg-brass"
+                className="inline-flex h-12 items-center gap-2 bg-paper text-ink px-5 border border-paper font-condensed uppercase tracking-[0.22em] text-[12px] font-bold hover:bg-brass rounded-full"
               >
                 Watch the next draw live <ArrowRight size={14} />
               </Link>
-              <span className="inline-flex h-12 items-center border-2 border-paper/40 px-5 text-fg-2 font-condensed uppercase tracking-[0.22em] text-[11px]">
+              <span className="inline-flex h-12 items-center border border-paper/40 px-5 text-fg-2 font-condensed uppercase tracking-[0.22em] text-[11px] rounded-full">
                 {niceDateTime(activeDraw.drawDateISO)}
               </span>
             </div>
@@ -60,8 +60,8 @@ export function LiveDrawBlock() {
 
 function Step({ icon, label, body }: { icon: React.ReactNode; label: string; body: string }) {
   return (
-    <li className="flex gap-4 border-2 border-paper/40 bg-paper/[0.05] p-4">
-      <span className="inline-flex h-11 w-11 items-center justify-center bg-brass text-ink border-2 border-paper shrink-0">{icon}</span>
+    <li className="flex gap-4 border border-paper/40 bg-paper/[0.05] p-4 rounded-lg">
+      <span className="inline-flex h-11 w-11 items-center justify-center bg-brass text-ink border border-paper shrink-0 rounded-md">{icon}</span>
       <div>
         <p className="font-display font-bold text-lg leading-tight text-fg">{label}</p>
         <p className="text-[14px] text-fg-2 mt-0.5">{body}</p>

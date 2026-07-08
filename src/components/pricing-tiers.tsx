@@ -28,7 +28,7 @@ export function PricingTiers() {
           <div
             role="tablist"
             aria-label="Purchase frequency"
-            className="inline-flex border border-ink bg-paper-3 text-sm font-condensed uppercase tracking-[0.22em]"
+            className="inline-flex border border-ink/10 bg-paper-3 text-sm font-condensed uppercase tracking-[0.22em] rounded-full overflow-hidden"
           >
             <button
               role="tab"
@@ -44,12 +44,12 @@ export function PricingTiers() {
               role="tab"
               aria-selected={mode === "monthly"}
               onClick={() => setMode("monthly")}
-              className={`px-5 py-2.5 transition inline-flex items-center gap-2 border-l border-ink ${
+              className={`px-5 py-2.5 transition inline-flex items-center gap-2 border-l border-ink/10 ${
                 mode === "monthly" ? "bg-ink text-paper-3" : "text-ink"
               }`}
             >
               Monthly
-              <span className="text-[10px] px-1.5 py-0.5 bg-brass text-ink">save 67%</span>
+              <span className="text-[10px] px-1.5 py-0.5 bg-brass text-ink rounded-full">save 67%</span>
             </button>
           </div>
         </div>
@@ -57,7 +57,7 @@ export function PricingTiers() {
 
       {mode === "once" ? (
         <>
-          <div className="mt-12 grid border border-ink md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-ink">
+          <div className="mt-12 grid border border-ink/10 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-ink/10 rounded-2xl overflow-hidden">
             {visibleOnce.map((t, i) => (
               <article
                 key={t.id}
@@ -78,12 +78,12 @@ export function PricingTiers() {
                   <span className={`${t.popular ? "text-paper/70" : "text-ink-2"} text-sm`}>one-time</span>
                 </div>
                 <p className={`mt-3 font-condensed uppercase tracking-[0.22em] text-[12px] ${t.popular ? "text-paper" : "text-ink"}`}>
-                  <span className={`numeral text-base ${t.popular ? "text-brass" : "text-accent"}`}>{t.entries}</span> {t.entries === 1 ? "entry" : "entries"} · Cycle 12
+                  <span className={`numeral text-base ${t.popular ? "text-brass-deep" : "text-accent"}`}>{t.entries}</span> {t.entries === 1 ? "entry" : "entries"} · Cycle 12
                 </p>
                 <Link
                   href={`/checkout?tier=${t.id}&type=once`}
-                  className={`mt-8 inline-flex h-12 items-center justify-center border font-condensed uppercase tracking-[0.22em] text-[12px] ${
-                    t.popular ? "bg-accent text-paper-3 border-accent hover:bg-paper-3 hover:text-ink hover:border-paper-3" : "bg-ink text-paper-3 border-ink hover:bg-accent hover:border-accent"
+                  className={`mt-8 inline-flex h-12 items-center justify-center border font-condensed uppercase tracking-[0.22em] text-[12px] rounded-full ${
+                    t.popular ? "bg-accent text-paper-3 border-accent hover:bg-paper-3 hover:text-ink hover:border-paper-3" : "bg-ink text-paper-3 border-ink/10 hover:bg-accent hover:border-accent"
                   } transition-colors`}
                 >
                   Buy now
@@ -96,7 +96,7 @@ export function PricingTiers() {
             <button
               type="button"
               onClick={() => setShowAll((v) => !v)}
-              className="inline-flex items-center gap-2 border border-ink bg-paper-3 px-5 py-2.5 font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper-3 transition-colors"
+              className="inline-flex items-center gap-2 border border-ink/10 bg-paper-3 px-5 py-2.5 font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper-3 transition-colors rounded-full"
             >
               {showAll ? <Minus size={14} /> : <Plus size={14} />}
               {showAll ? "Hide" : "Show"} the full 6-tier ladder
@@ -104,7 +104,7 @@ export function PricingTiers() {
           </div>
         </>
       ) : (
-        <div className="mt-12 grid border border-ink md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-ink">
+        <div className="mt-12 grid border border-ink/10 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-ink/10 rounded-2xl overflow-hidden">
           {membershipTiers.map((m, i) => (
             <article
               key={m.id}
@@ -127,15 +127,15 @@ export function PricingTiers() {
               <ul className="mt-6 space-y-2.5">
                 {m.perks.map((p) => (
                   <li key={p} className="flex gap-2 text-[15px]">
-                    <Check size={18} className={`mt-0.5 shrink-0 ${m.popular ? "text-brass" : "text-charity"}`} />
+                    <Check size={18} className={`mt-0.5 shrink-0 ${m.popular ? "text-brass-deep" : "text-charity"}`} />
                     <span>{p}</span>
                   </li>
                 ))}
               </ul>
               <Link
                 href={`/checkout?tier=${m.id}&type=monthly`}
-                className={`mt-8 inline-flex h-12 items-center justify-center border font-condensed uppercase tracking-[0.22em] text-[12px] ${
-                  m.popular ? "bg-brass text-ink border-brass hover:bg-paper-3 hover:border-paper-3" : "bg-ink text-paper-3 border-ink hover:bg-charity hover:border-charity"
+                className={`mt-8 inline-flex h-12 items-center justify-center border font-condensed uppercase tracking-[0.22em] text-[12px] rounded-full ${
+                  m.popular ? "bg-brass text-ink border-brass hover:bg-paper-3 hover:border-paper-3" : "bg-ink text-paper-3 border-ink/10 hover:bg-charity hover:border-charity"
                 } transition-colors`}
               >
                 Join {m.name}

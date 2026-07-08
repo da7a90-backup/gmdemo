@@ -20,7 +20,7 @@ const ROWS = 5;
 const PAGE_MARGIN = 28;
 const GUTTER = 10;
 
-const ACCENT = rgb(1, 90 / 255, 31 / 255);
+const ACCENT = rgb(180 / 255, 83 / 255, 9 / 255); // deep amber — print-legible take on the marker yellow
 const INK = rgb(22 / 255, 22 / 255, 26 / 255);
 const MUTED = rgb(60 / 255, 60 / 255, 66 / 255);
 const SUBTLE = rgb(107 / 255, 107 / 255, 112 / 255);

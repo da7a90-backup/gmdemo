@@ -17,7 +17,7 @@ export function PrizePlate() {
 
   return (
     <div
-      className="relative aspect-[5/3] md:aspect-[2/1] lg:aspect-[21/9] overflow-hidden border-b-2 border-ink select-none"
+      className="relative aspect-[5/3] md:aspect-[2/1] lg:aspect-[21/9] overflow-hidden border-b border-ink/10 select-none"
       style={{ WebkitTouchCallout: "none", WebkitUserSelect: "none" }}
       onMouseEnter={() => setActive(true)}
       onMouseLeave={() => setActive(false)}
@@ -55,10 +55,10 @@ export function PrizePlate() {
         aria-hidden
       />
 
-      <span className="absolute top-3 left-3 bg-brass text-paper-3 font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border-2 border-ink z-10">
+      <span className="absolute top-3 left-3 bg-brass text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border border-ink/10 z-10 rounded-md">
         {v.year} · {v.make}
       </span>
-      <span className="absolute top-3 right-3 bg-accent-bright text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border-2 border-ink z-10">
+      <span className="absolute top-3 right-3 bg-accent-bright text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border border-ink/10 z-10 rounded-md">
         {usd(v.valueUSD)}
       </span>
 
@@ -75,13 +75,13 @@ export function PrizePlate() {
       </div>
 
       <span
-        className="hint-hover absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 px-2.5 py-1 bg-paper text-ink border border-ink font-condensed uppercase tracking-[0.22em] text-[10px] pointer-events-none transition-opacity duration-200"
+        className="hint-hover absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 px-2.5 py-1 bg-paper text-ink border border-ink/10 font-condensed uppercase tracking-[0.22em] text-[10px] pointer-events-none transition-opacity duration-200 rounded-full"
         style={{ opacity: active ? 0 : 1 }}
       >
         ↻ hover for another angle
       </span>
       <span
-        className="hint-press absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 px-2.5 py-1 bg-paper text-ink border border-ink font-condensed uppercase tracking-[0.22em] text-[10px] pointer-events-none transition-opacity duration-200"
+        className="hint-press absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 px-2.5 py-1 bg-paper text-ink border border-ink/10 font-condensed uppercase tracking-[0.22em] text-[10px] pointer-events-none transition-opacity duration-200 rounded-full"
         style={{ opacity: active ? 0 : 1 }}
       >
         ↻ press for another angle

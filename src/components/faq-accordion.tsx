@@ -26,7 +26,7 @@ export function FAQAccordion() {
           Plain answers. <span className="accent-serif">Obvious questions.</span>
         </h2>
       </div>
-      <ul className="mt-10 border border-ink bg-paper-3 divide-y divide-ink">
+      <ul className="mt-10 border border-ink/10 bg-paper-3 divide-y divide-ink/10 rounded-xl overflow-hidden">
         {FAQ.map((item, i) => (
           <FAQItem key={i} q={item.q} a={item.a} index={i} />
         ))}
@@ -50,7 +50,7 @@ function FAQItem({ q, a, index }: { q: string; a: string; index: number }) {
           <span className="font-condensed numeral text-xl text-ink-3 leading-none shrink-0">№{String(index + 1).padStart(2, "0")}</span>
           <span className="font-display font-semibold text-lg text-ink truncate">{q}</span>
         </span>
-        <span className={`inline-flex h-9 w-9 items-center justify-center border shrink-0 ${open ? "bg-ink border-ink text-paper" : "bg-paper-3 border-ink text-ink"} transition`}>
+        <span className={`inline-flex h-9 w-9 items-center justify-center border shrink-0 rounded-full ${open ? "bg-ink border-ink/10 text-paper" : "bg-paper-3 border-ink/10 text-ink"} transition`}>
           {open ? <Minus size={16} /> : <Plus size={16} />}
         </span>
       </button>

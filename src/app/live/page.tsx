@@ -9,13 +9,13 @@ export const metadata = { title: "Live draw — Generous Motors" };
 
 export default function LivePage() {
   return (
-    <section className="relative border-y border-ink bg-ink text-paper grain overflow-hidden">
+    <section className="relative border-y border-ink/10 bg-ink text-paper grain overflow-hidden">
       <div
         aria-hidden
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(900px 350px at 70% 30%, rgba(139,32,23,0.22), transparent 60%), radial-gradient(500px 200px at 10% 100%, rgba(31,64,49,0.22), transparent 60%)",
+            "radial-gradient(900px 350px at 70% 30%, rgba(242,185,13,0.22), transparent 60%), radial-gradient(500px 200px at 10% 100%, rgba(31,64,49,0.22), transparent 60%)",
         }}
       />
       <span aria-hidden className="absolute -top-6 -right-6 display-mega text-paper/[0.05] select-none">DRAW</span>
@@ -24,8 +24,8 @@ export default function LivePage() {
         <div className="lg:col-span-7">
           <div className="flex items-center gap-3 flex-wrap mb-6">
             <Label tone="accent" variant="outline">Cycle №{String(activeDraw.cycle).padStart(2, "0")}</Label>
-            <span className="inline-flex items-center gap-2 bg-paper/10 px-3 py-1 font-condensed uppercase tracking-[0.22em] text-[11px] text-paper/85 border border-paper/15">
-              <span className="h-1.5 w-1.5 bg-accent animate-pulse" /> Pre-stream
+            <span className="inline-flex items-center gap-2 rounded-full bg-paper/10 px-3 py-1 font-condensed uppercase tracking-[0.22em] text-[11px] text-paper/85 border border-paper/15">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" /> Pre-stream
             </span>
           </div>
           <h1 className="hero-headline">
@@ -38,17 +38,17 @@ export default function LivePage() {
             We&apos;ll go live at <strong className="text-paper font-condensed uppercase tracking-[0.04em]">{niceDateTime(activeDraw.drawDateISO)}</strong> on Facebook (primary) with a YouTube mirror. Tickets close 30 minutes before the stream begins. The drum is loaded on camera.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href="#" className="inline-flex h-12 items-center gap-2 bg-paper text-ink border border-paper px-5 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-brass">
+            <a href="#" className="inline-flex h-12 items-center gap-2 rounded-full bg-paper text-ink border border-paper px-5 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-brass">
               <Facebook size={14} /> Facebook Live
             </a>
-            <a href="#" className="inline-flex h-12 items-center gap-2 bg-paper/10 border border-paper/30 px-5 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper hover:text-ink">
+            <a href="#" className="inline-flex h-12 items-center gap-2 rounded-full bg-paper/10 border border-paper/30 px-5 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper hover:text-ink">
               <Youtube size={14} /> YouTube mirror
             </a>
           </div>
         </div>
 
         <aside className="lg:col-span-5 space-y-5">
-          <div className="relative border border-paper bg-paper/5 p-6">
+          <div className="relative rounded-xl border border-paper bg-paper/5 p-6">
             <p className="section-eyebrow !text-paper/60">Live counter</p>
             <div className="mt-5 grid grid-cols-2 gap-5 pb-6 border-b border-paper/15">
               <div>
@@ -67,7 +67,7 @@ export default function LivePage() {
             </div>
           </div>
 
-          <div className="border border-paper/30 bg-paper/5 p-6 flex items-start gap-3">
+          <div className="rounded-xl border border-paper/30 bg-paper/5 p-6 flex items-start gap-3">
             <Tv2 className="mt-0.5 text-brass" size={20} />
             <div>
               <p className="font-display font-bold text-lg">Set a reminder</p>

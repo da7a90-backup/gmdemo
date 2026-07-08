@@ -9,13 +9,13 @@ export const metadata = { title: "About — Generous Motors" };
 export default function AboutPage() {
   return (
     <div className="bg-paper-3 text-ink">
-      <section className="relative border-b border-ink overflow-hidden grain">
+      <section className="relative border-b border-ink/10 overflow-hidden grain">
         <div
           aria-hidden
           className="absolute inset-0 -z-10"
           style={{
             background:
-              "radial-gradient(900px 400px at 90% -10%, rgba(139,32,23,0.14), transparent 60%), radial-gradient(700px 350px at 0% 100%, rgba(31,64,49,0.12), transparent 60%)",
+              "radial-gradient(900px 400px at 90% -10%, rgba(242,185,13,0.14), transparent 60%), radial-gradient(700px 350px at 0% 100%, rgba(31,64,49,0.12), transparent 60%)",
           }}
         />
         <div className="mx-auto max-w-3xl px-5 py-12 relative">
@@ -64,7 +64,7 @@ export default function AboutPage() {
           </p>
         </div>
 
-        <div className="mt-12 grid border border-ink bg-paper-3 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-ink">
+        <div className="mt-12 grid rounded-2xl overflow-hidden border border-ink/10 bg-paper-3 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-ink/10">
           <Card icon={<Drum />} title="Printed and dropped" index={1}>
             Every entry is printed onto a paper ticket and dropped into the drum before the draw. Each ticket has a unique GM-cycle-buyer ID.
           </Card>
@@ -78,7 +78,7 @@ export default function AboutPage() {
       </section>
 
       {/* CHARITY FLOW */}
-      <section className="bg-charity text-paper-3 border-y border-ink relative overflow-hidden grain" id="charity">
+      <section className="bg-charity text-paper-3 border-y border-ink/10 relative overflow-hidden grain" id="charity">
         <span aria-hidden className="absolute -top-6 -left-6 display-mega text-paper-3/[0.07] select-none">10%</span>
         <div className="relative mx-auto max-w-[1400px] px-5 py-24 grid gap-12 lg:grid-cols-12 border-b border-paper-3/15">
           <div className="lg:col-span-5">
@@ -91,13 +91,13 @@ export default function AboutPage() {
             </p>
             <Link
               href="/blog/cycle-12-corvette-charity-pick"
-              className="mt-9 inline-flex items-center gap-2 bg-brass text-ink border border-brass px-5 py-3 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper-3 hover:border-paper-3 transition"
+              className="mt-9 inline-flex items-center gap-2 rounded-full bg-brass text-ink border border-brass px-5 py-3 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper-3 hover:border-paper-3 transition"
             >
               How cycle 12&apos;s charity was picked <ArrowRight size={14} />
             </Link>
           </div>
 
-          <ul className="lg:col-span-7 grid gap-0 border border-paper-3 divide-y divide-paper-3/20 self-start">
+          <ul className="lg:col-span-7 grid gap-0 rounded-2xl overflow-hidden border border-paper-3 divide-y divide-paper-3/20 self-start">
             <Flow step="01" head="Cycle ends" body="Ticket sales close. Gross is locked. Numbers are published." />
             <Flow step="02" head="10% goes to the partner" body="The partner charity receives the donation directly." />
             <Flow step="03" head="Receipt produced" body="Each cycle produces a receipt for the charity&apos;s records." />
@@ -108,15 +108,15 @@ export default function AboutPage() {
 
       {/* GUARANTEES */}
       <section className="mx-auto max-w-[1400px] px-5 py-24">
-        <div className="grid border border-ink md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-ink bg-paper-3">
+        <div className="grid rounded-2xl overflow-hidden border border-ink/10 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-ink/10 bg-paper-3">
           <Stat label="Lifetime payout (USD)" big={`$${(lifetimeStats.lifetimePayoutUSD / 1000).toFixed(0)}k`} />
           <Stat label="Donated to charity (USD)" big={`$${(lifetimeStats.totalDonatedUSD / 1000).toFixed(0)}k`} tone="charity" />
           <Stat label="Cars given away" big={String(lifetimeStats.carsGivenAway)} />
         </div>
 
-        <div className="mt-10 border border-ink bg-paper-3 p-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="mt-10 rounded-2xl border border-ink/10 bg-paper-3 p-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-5">
-            <span className="inline-flex h-12 w-12 items-center justify-center bg-ink text-paper border border-ink">
+            <span className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-ink text-paper border border-ink/10">
               <ShieldCheck size={20} />
             </span>
             <div>
@@ -128,7 +128,7 @@ export default function AboutPage() {
           </div>
           <Link
             href="/blog"
-            className="inline-flex items-center gap-2 border border-ink bg-paper-3 px-5 py-3 font-condensed uppercase tracking-[0.22em] text-[12px] text-ink hover:bg-ink hover:text-paper-3 transition"
+            className="inline-flex items-center gap-2 rounded-full border border-ink/10 bg-paper-3 px-5 py-3 font-condensed uppercase tracking-[0.22em] text-[12px] text-ink hover:bg-ink hover:text-paper-3 transition"
           >
             <FileText size={14} /> Read the receipts
           </Link>

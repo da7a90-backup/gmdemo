@@ -35,7 +35,7 @@ export function HowItWorks() {
           </h2>
         </div>
 
-        <ol className="mt-12 grid border border-ink bg-paper-3 sm:grid-cols-2 lg:grid-cols-4 divide-y divide-ink lg:divide-y-0 lg:divide-x">
+        <ol className="mt-12 grid border border-ink/10 bg-paper-3 sm:grid-cols-2 lg:grid-cols-4 divide-y divide-ink/10 lg:divide-y-0 lg:divide-x rounded-2xl overflow-hidden">
           {STEPS.map((s, i) => (
             <li key={s.label} className="relative p-8">
               <div className="flex items-baseline justify-between gap-4 mb-6">
@@ -48,7 +48,7 @@ export function HowItWorks() {
           ))}
         </ol>
 
-        <div className="mt-12 mx-auto max-w-4xl shadow-[8px_8px_0_0_var(--color-ink)]">
+        <div className="mt-12 mx-auto max-w-4xl shadow-soft rounded-2xl">
           <YouTubeFacade
             videoId="dQw4w9WgXcQ"
             poster="/vehicles/drum-poster.jpg"

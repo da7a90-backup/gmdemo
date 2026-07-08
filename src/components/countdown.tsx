@@ -31,7 +31,7 @@ export function Countdown({ targetISO }: { targetISO: string }) {
     <div
       aria-live="off"
       suppressHydrationWarning
-      className="inline-flex items-end gap-2 border-2 border-ink bg-paper px-3 py-2"
+      className="inline-flex items-end gap-2 border border-ink/10 bg-paper px-3 py-2 rounded-md"
     >
       <Cell n={t.days} label="d" />
       <span className="font-condensed text-xl text-ink-3 mb-3">:</span>

@@ -10,7 +10,7 @@ export const metadata = { title: "Membership — Generous Motors" };
 export default function MembershipPage() {
   return (
     <div className="bg-paper-3 text-ink">
-      <section className="relative border-b border-ink overflow-hidden grain">
+      <section className="relative border-b border-ink/10 overflow-hidden grain">
         <div className="mx-auto max-w-3xl px-5 py-20 text-center relative border-b border-rule-soft pb-14">
           <p className="section-eyebrow">Membership · the Club</p>
           <h1 className="mt-4 hero-headline">
@@ -38,7 +38,7 @@ export default function MembershipPage() {
       />
 
       <section className="mx-auto max-w-[1400px] px-5 py-20">
-        <div className="grid border border-ink md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-ink">
+        <div className="grid rounded-2xl overflow-hidden border border-ink/10 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-ink/10">
           {membershipTiers.map((m, i) => (
             <article
               key={m.id}
@@ -61,15 +61,15 @@ export default function MembershipPage() {
               <ul className="mt-7 space-y-3">
                 {m.perks.map((p) => (
                   <li key={p} className="flex gap-2 text-[15px]">
-                    <Check size={18} className={`mt-0.5 shrink-0 ${m.popular ? "text-brass" : "text-charity"}`} />
+                    <Check size={18} className={`mt-0.5 shrink-0 ${m.popular ? "text-brass-deep" : "text-charity"}`} />
                     {p}
                   </li>
                 ))}
               </ul>
               <Link
                 href={`/checkout?tier=${m.id}&type=monthly`}
-                className={`mt-8 inline-flex h-12 items-center justify-center border font-condensed uppercase tracking-[0.22em] text-[12px] ${
-                  m.popular ? "bg-brass text-ink border-brass hover:bg-paper-3 hover:border-paper-3" : "bg-ink text-paper-3 border-ink hover:bg-charity hover:border-charity"
+                className={`mt-8 inline-flex h-12 items-center justify-center rounded-full border font-condensed uppercase tracking-[0.22em] text-[12px] ${
+                  m.popular ? "bg-brass text-ink border-brass hover:bg-paper-3 hover:border-paper-3" : "bg-ink text-paper-3 border-ink/10 hover:bg-charity hover:border-charity"
                 } transition-colors`}
               >
                 Join {m.name} <ArrowRight size={14} className="ml-2" />
@@ -82,7 +82,7 @@ export default function MembershipPage() {
         </div>
       </section>
 
-      <section className="bg-paper-2 border-y border-ink">
+      <section className="bg-paper-2 border-y border-ink/10">
         <div className="mx-auto max-w-3xl px-5 py-20 text-center border-b border-rule-soft">
           <p className="section-eyebrow section-eyebrow-rule">Loyalty stacks</p>
           <h2 className="mt-4 hero-headline" style={{ fontSize: "clamp(2rem,4vw,3.25rem)" }}>
@@ -93,14 +93,14 @@ export default function MembershipPage() {
           </p>
         </div>
 
-        <ol className="max-w-3xl mx-auto px-5 grid grid-cols-2 sm:grid-cols-4 gap-0 border-x border-ink mt-0 divide-x divide-ink">
+        <ol className="max-w-3xl mx-auto px-5 grid grid-cols-2 sm:grid-cols-4 gap-0 rounded-xl overflow-hidden border-x border-ink/10 mt-0 divide-x divide-ink/10">
           {[
             { mo: 1, mult: 1.05 },
             { mo: 12, mult: 1.16 },
             { mo: 24, mult: 1.28 },
             { mo: 50, mult: 1.5 },
           ].map((step) => (
-            <li key={step.mo} className="bg-paper-3 p-5 border-b border-ink">
+            <li key={step.mo} className="bg-paper-3 p-5 border-b border-ink/10">
               <p className="font-condensed uppercase tracking-[0.22em] text-[11px] text-ink-3">Month {step.mo}</p>
               <p className="mt-2 font-condensed numeral font-semibold text-5xl text-charity leading-[0.9]">{step.mult.toFixed(2)}×</p>
               <p className="mt-2 dateline">{Math.round(60 * step.mult)} entries / cycle</p>

@@ -95,17 +95,18 @@ export function EmailPopup() {
         className="absolute inset-0 bg-ink/70 backdrop-blur-[2px]"
       />
 
-      <div className="relative w-full max-w-md border-heavy-3 bg-paper-3 shadow-[10px_10px_0_0_var(--color-ink)]">
+      <div className="relative w-full max-w-md">
         <button
           type="button"
           onClick={onClose}
           aria-label="Close popup"
-          className="absolute -top-3 -right-3 h-9 w-9 inline-flex items-center justify-center border-2 border-ink bg-paper-4 text-ink hover:bg-accent hover:text-paper-3"
+          className="absolute -top-3 -right-3 z-10 h-9 w-9 inline-flex items-center justify-center border border-ink/10 bg-paper-4 text-ink hover:bg-accent hover:text-paper-3 rounded-full"
         >
           <X size={16} />
         </button>
 
-        <div className="bg-accent-bright text-ink border-b-2 border-ink px-5 py-2.5 flex items-center justify-between">
+        <div className="border-heavy-3 bg-paper-3 shadow-lift rounded-2xl overflow-hidden">
+        <div className="bg-accent-bright text-ink border-b border-ink/10 px-5 py-2.5 flex items-center justify-between">
           <span className="font-condensed uppercase tracking-[0.24em] text-[12px] font-bold">★ Inner circle</span>
           <span className="font-condensed uppercase tracking-[0.22em] text-[11px]">Free</span>
         </div>
@@ -124,7 +125,7 @@ export function EmailPopup() {
             <form onSubmit={onSubmit} className="mt-6">
               <label className="block">
                 <span className="dateline on-paper">Email</span>
-                <span className="mt-1.5 flex items-center border-2 border-ink bg-paper-4 px-3">
+                <span className="mt-1.5 flex items-center border border-ink/10 bg-paper-4 px-3 rounded-lg">
                   <Mail size={16} className="text-ink-3" />
                   <input
                     type="email"
@@ -139,13 +140,13 @@ export function EmailPopup() {
               </label>
               <button
                 type="submit"
-                className="mt-4 w-full inline-flex items-center justify-center gap-2 h-12 bg-accent-bright text-ink border-2 border-ink font-condensed uppercase tracking-[0.24em] text-[13px] font-bold hover:bg-accent hover:text-paper-3 btn-poly"
+                className="mt-4 w-full inline-flex items-center justify-center gap-2 h-12 bg-accent-bright text-ink border border-ink/10 font-condensed uppercase tracking-[0.24em] text-[13px] font-bold hover:bg-accent hover:text-paper-3 btn-poly"
               >
                 Send me the alerts <ArrowRight size={16} strokeWidth={2.5} />
               </button>
             </form>
 
-            <div className="mt-5 pt-5 border-t-2 border-rule-soft flex items-start gap-2.5 text-[12px] text-ink-3 font-serif italic">
+            <div className="mt-5 pt-5 border-t border-rule-soft flex items-start gap-2.5 text-[12px] text-ink-3 font-serif italic">
               <HeartHandshake size={14} className="mt-0.5 text-charity shrink-0" />
               <span>10% of every cycle&apos;s gross profits goes directly to that cycle&apos;s nonprofit partner. Subscribing helps us reach more drivers — and more charities.</span>
             </div>
@@ -160,7 +161,7 @@ export function EmailPopup() {
           </div>
         ) : (
           <div className="px-6 pt-9 pb-9 text-center">
-            <div className="mx-auto inline-flex h-14 w-14 items-center justify-center bg-charity text-paper-3 border-2 border-ink">
+            <div className="mx-auto inline-flex h-14 w-14 items-center justify-center bg-charity text-paper-3 border border-ink/10 rounded-full">
               <Mail size={22} />
             </div>
             <h2 className="mt-5 font-display font-bold text-2xl text-ink">You&apos;re on the list.</h2>
@@ -169,6 +170,7 @@ export function EmailPopup() {
             </p>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

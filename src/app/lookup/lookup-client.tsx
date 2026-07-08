@@ -33,7 +33,7 @@ export function LookupClient() {
 
   return (
     <div className="bg-paper-3 text-ink">
-      <section className="relative border-b border-ink overflow-hidden grain">
+      <section className="relative border-b border-ink/10 overflow-hidden grain">
         <div className="mx-auto max-w-3xl px-5 py-20 text-center relative border-b border-rule-soft pb-14">
           <p className="section-eyebrow section-eyebrow-rule">My entries · ticket lookup</p>
           <h1 className="mt-4 hero-headline">
@@ -44,7 +44,7 @@ export function LookupClient() {
           </p>
 
           <form onSubmit={onSubmit} className="mt-10 mx-auto max-w-xl">
-            <div className="inline-flex bg-paper border border-ink mb-5 text-sm font-condensed uppercase tracking-[0.22em]">
+            <div className="inline-flex bg-paper border border-ink/10 mb-5 text-sm font-condensed uppercase tracking-[0.22em] rounded-full overflow-hidden">
               <button
                 type="button"
                 aria-pressed={mode === "email"}
@@ -59,14 +59,14 @@ export function LookupClient() {
                 type="button"
                 aria-pressed={mode === "phone"}
                 onClick={() => setMode("phone")}
-                className={`px-5 py-2 inline-flex items-center gap-2 border-l border-ink ${
+                className={`px-5 py-2 inline-flex items-center gap-2 border-l border-ink/10 ${
                   mode === "phone" ? "bg-ink text-paper-3" : "text-ink"
                 }`}
               >
                 <Phone size={12} /> Phone
               </button>
             </div>
-            <label className="flex h-14 w-full items-center border border-ink bg-paper-3 pl-5 pr-2">
+            <label className="flex h-14 w-full items-center border border-ink/10 bg-paper-3 pl-5 pr-2 rounded-lg">
               <Search size={18} className="text-ink-3" />
               <input
                 value={value}
@@ -79,7 +79,7 @@ export function LookupClient() {
               />
               <button
                 type="submit"
-                className="h-11 bg-accent text-paper-3 border border-accent font-condensed uppercase tracking-[0.22em] text-[11px] px-5 hover:bg-ink hover:border-ink"
+                className="h-11 bg-accent text-paper-3 border border-accent font-condensed uppercase tracking-[0.22em] text-[11px] px-5 hover:bg-ink hover:border-ink/10 rounded-full"
               >
                 Find
               </button>
@@ -97,7 +97,7 @@ export function LookupClient() {
 
       <section className="mx-auto max-w-5xl px-5 py-12">
         {!searched && (
-          <div className="border border-ink bg-paper-3 p-10 text-center">
+          <div className="border border-ink/10 bg-paper-3 p-10 text-center rounded-xl">
             <Ticket className="mx-auto text-ink-2" size={28} />
             <p className="mt-3 text-ink-2 font-serif">
               Search above to see your entries. The demo account has 2 active draws + 3 past cycles.
@@ -106,14 +106,14 @@ export function LookupClient() {
         )}
 
         {searched && !record && (
-          <div className="border border-ink bg-paper-3 p-12 text-center">
+          <div className="border border-ink/10 bg-paper-3 p-12 text-center rounded-xl">
             <p className="font-display font-bold text-2xl text-ink">No tickets found.</p>
             <p className="mt-3 text-ink-2 font-serif">
               Double-check the spelling. If you used a different email or phone, try that one.
             </p>
             <button
               onClick={onDemo}
-              className="mt-6 inline-flex items-center gap-2 border border-ink bg-paper-2 px-5 py-2.5 font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper-3"
+              className="mt-6 inline-flex items-center gap-2 border border-ink/10 bg-paper-2 px-5 py-2.5 font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper-3 rounded-full"
             >
               Try the demo account
             </button>
@@ -125,7 +125,7 @@ export function LookupClient() {
             <motion.div
               initial={{ y: 12, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              className="border border-ink bg-brass p-6 flex items-center justify-between gap-4 flex-wrap"
+              className="border border-ink/10 bg-brass p-6 flex items-center justify-between gap-4 flex-wrap rounded-xl"
             >
               <div>
                 <p className="section-eyebrow">Welcome back</p>
@@ -148,7 +148,7 @@ export function LookupClient() {
               {record.active.length === 0 ? (
                 <p className="mt-6 text-ink-2 font-serif">No active entries.</p>
               ) : (
-                <ul className="mt-6 grid border border-ink md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-ink">
+                <ul className="mt-6 grid border border-ink/10 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-ink/10 rounded-xl overflow-hidden">
                   {record.active.map((e) => (
                     <li key={e.id} className="bg-paper-3">
                       <ActiveCard entry={e} />
@@ -162,7 +162,7 @@ export function LookupClient() {
               <div className="border-b border-rule-soft pb-6">
                 <h2 className="font-display font-bold text-3xl text-ink">Past entries</h2>
               </div>
-              <div className="mt-6 overflow-x-auto border border-ink bg-paper-3">
+              <div className="mt-6 overflow-x-auto border border-ink/10 bg-paper-3 rounded-xl">
                 <table className="w-full text-left text-[15px]">
                   <thead className="bg-ink text-paper-3 font-condensed uppercase tracking-[0.22em] text-[11px]">
                     <tr>
@@ -190,14 +190,14 @@ export function LookupClient() {
               </div>
             </div>
 
-            <div className="border border-ink bg-paper-2 p-6 flex items-center justify-between gap-4 flex-wrap">
+            <div className="border border-ink/10 bg-paper-2 p-6 flex items-center justify-between gap-4 flex-wrap rounded-xl">
               <div>
                 <p className="font-display font-bold text-xl text-ink">Want to enter the next cycle?</p>
                 <p className="dateline">Cycle 13 just opened — 1969 Mustang Fastback</p>
               </div>
               <Link
                 href="/tickets"
-                className="inline-flex h-11 items-center gap-2 bg-accent text-paper-3 border border-accent px-5 font-condensed uppercase tracking-[0.22em] text-[11px] hover:bg-ink hover:border-ink"
+                className="inline-flex h-11 items-center gap-2 bg-accent text-paper-3 border border-accent px-5 font-condensed uppercase tracking-[0.22em] text-[11px] hover:bg-ink hover:border-ink/10 rounded-full"
               >
                 Buy tickets <ArrowRight size={14} />
               </Link>
@@ -213,7 +213,7 @@ function ActiveCard({ entry }: { entry: Entry }) {
   return (
     <article className="relative">
       <div
-        className="aspect-[2/1] border-b border-ink"
+        className="aspect-[2/1] border-b border-ink/10"
         style={{ background: "linear-gradient(135deg, #0e0e0e, #221814 70%, #422617)" }}
       />
       <div className="p-5">
@@ -240,18 +240,18 @@ function ActiveCard({ entry }: { entry: Entry }) {
 function OutcomeBadge({ status }: { status: Entry["status"] }) {
   if (status === "won")
     return (
-      <span className="inline-flex items-center gap-1 bg-charity-soft text-charity border border-charity px-2.5 py-1 font-condensed uppercase tracking-[0.22em] text-[10px]">
+      <span className="inline-flex items-center gap-1 bg-charity-soft text-charity border border-charity px-2.5 py-1 font-condensed uppercase tracking-[0.22em] text-[10px] rounded-full">
         <CircleCheckBig size={12} /> Won
       </span>
     );
   if (status === "did-not-win")
     return (
-      <span className="inline-flex items-center gap-1 bg-paper-2 text-ink-2 border border-rule-soft px-2.5 py-1 font-condensed uppercase tracking-[0.22em] text-[10px]">
+      <span className="inline-flex items-center gap-1 bg-paper-2 text-ink-2 border border-rule-soft px-2.5 py-1 font-condensed uppercase tracking-[0.22em] text-[10px] rounded-full">
         <CircleX size={12} /> Missed
       </span>
     );
   return (
-    <span className="inline-flex items-center gap-1 bg-accent-soft text-accent border border-accent px-2.5 py-1 font-condensed uppercase tracking-[0.22em] text-[10px]">
+    <span className="inline-flex items-center gap-1 bg-accent-soft text-accent border border-accent px-2.5 py-1 font-condensed uppercase tracking-[0.22em] text-[10px] rounded-full">
       Active
     </span>
   );

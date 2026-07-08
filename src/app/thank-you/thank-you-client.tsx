@@ -117,7 +117,7 @@ export function ThankYouClient() {
         className="absolute inset-0 -z-10"
         style={{
           background:
-            "radial-gradient(900px 400px at 50% -10%, rgba(139,32,23,0.15), transparent 60%), radial-gradient(600px 250px at 30% 110%, rgba(31,64,49,0.13), transparent 60%)",
+            "radial-gradient(900px 400px at 50% -10%, rgba(242,185,13,0.15), transparent 60%), radial-gradient(600px 250px at 30% 110%, rgba(31,64,49,0.13), transparent 60%)",
         }}
       />
 
@@ -126,7 +126,7 @@ export function ThankYouClient() {
           initial={{ scale: 0.4, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: "spring", stiffness: 220, damping: 16 }}
-          className="mx-auto inline-flex h-20 w-20 items-center justify-center bg-charity text-paper-3 border border-ink"
+          className="mx-auto inline-flex h-20 w-20 items-center justify-center bg-charity text-paper-3 border border-ink/10 rounded-full"
         >
           <CheckCircle2 size={40} strokeWidth={2} />
         </motion.div>
@@ -155,7 +155,7 @@ export function ThankYouClient() {
           initial={{ y: 24, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.45, type: "spring", stiffness: 170, damping: 18 }}
-          className="mt-9 mx-auto max-w-xl border-heavy bg-paper-3 shadow-[8px_8px_0_0_var(--color-ink)]"
+          className="mt-9 mx-auto max-w-xl border-heavy bg-paper-3 shadow-soft rounded-xl overflow-hidden"
         >
           <div
             className="relative aspect-[16/9] overflow-hidden"
@@ -165,10 +165,10 @@ export function ThankYouClient() {
               backgroundPosition: "center",
             }}
           >
-            <span className="absolute top-3 left-3 bg-brass text-paper-3 font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border-2 border-ink">
+            <span className="absolute top-3 left-3 bg-brass text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border border-ink/10 rounded-md">
               You&apos;re in for
             </span>
-            <span className="absolute top-3 right-3 bg-accent-bright text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border-2 border-ink">
+            <span className="absolute top-3 right-3 bg-accent-bright text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border border-ink/10 rounded-md">
               {usd(activeDraw.vehicle.valueUSD)}
             </span>
             <div className="absolute bottom-3 left-4 right-4 flex justify-between items-end text-left">
@@ -207,14 +207,14 @@ export function ThankYouClient() {
           <button
             onClick={onDownload}
             disabled={busy}
-            className="inline-flex h-14 items-center gap-2 bg-accent border border-accent px-7 text-paper-3 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-ink hover:border-ink disabled:opacity-60"
+            className="inline-flex h-14 items-center gap-2 bg-accent border border-accent px-7 text-paper-3 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-ink hover:border-ink/10 disabled:opacity-60 rounded-full"
           >
             <Download size={16} />
             {busy ? "Generating A3 PDF…" : "Download Your Tickets · A3 PDF"}
           </button>
           <button
             type="button"
-            className="inline-flex h-14 items-center gap-2 border border-ink bg-paper-3 px-6 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-ink hover:text-paper-3"
+            className="inline-flex h-14 items-center gap-2 border border-ink/10 bg-paper-3 px-6 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-ink hover:text-paper-3 rounded-full"
           >
             <Share2 size={16} /> Share
           </button>
@@ -235,7 +235,7 @@ export function ThankYouClient() {
                   initial={{ y: 30, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.5 + i * 0.07, type: "spring", stiffness: 180 }}
-                  className="w-[240px] shrink-0 border border-ink bg-paper-3 p-4 text-left"
+                  className="w-[240px] shrink-0 border border-ink/10 bg-paper-3 p-4 text-left rounded-xl overflow-hidden"
                 >
                   <div className="flex items-center justify-between">
                     <span className="dateline">Cycle №{String(order.drawCycle).padStart(2, "0")}</span>
@@ -253,7 +253,7 @@ export function ThankYouClient() {
                   initial={{ y: 30, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 1.1 }}
-                  className="w-[240px] shrink-0 border border-dashed border-ink flex flex-col items-center justify-center text-ink-2 font-condensed uppercase tracking-[0.22em] text-[11px]"
+                  className="w-[240px] shrink-0 border border-dashed border-ink/10 flex flex-col items-center justify-center text-ink-2 font-condensed uppercase tracking-[0.22em] text-[11px] rounded-xl"
                 >
                   +{order.entries - 8} more in the PDF
                 </motion.li>
@@ -266,14 +266,14 @@ export function ThankYouClient() {
           initial={{ y: 24, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="mt-12 grid gap-0 sm:grid-cols-3 text-left border border-ink divide-y sm:divide-y-0 sm:divide-x divide-ink"
+          className="mt-12 grid gap-0 sm:grid-cols-3 text-left border border-ink/10 divide-y sm:divide-y-0 sm:divide-x divide-ink/10 rounded-xl overflow-hidden"
         >
           <RBox icon={<Mail size={16} />} label="Receipt sent to" value={order.buyer.email} />
           <RBox icon={<HeartHandshake size={16} />} label="To charity this purchase" value={usdc(order.charityCut)} accent="charity" />
           <RBox icon={<Ticket size={16} />} label="Draw date" value={niceDateTime(activeDraw.drawDateISO)} />
         </motion.div>
 
-        <div className="mt-14 grid gap-0 sm:grid-cols-2 text-left border border-ink divide-y sm:divide-y-0 sm:divide-x divide-ink">
+        <div className="mt-14 grid gap-0 sm:grid-cols-2 text-left border border-ink/10 divide-y sm:divide-y-0 sm:divide-x divide-ink/10 rounded-xl overflow-hidden">
           <Link
             href="/lookup"
             className="group flex items-center justify-between bg-paper-3 p-5 hover:bg-brass"

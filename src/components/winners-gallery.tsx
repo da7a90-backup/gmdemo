@@ -28,7 +28,7 @@ export function WinnersGallery({
             </p>
             <Link
               href="/winners"
-              className="inline-flex items-center gap-2 border border-ink bg-paper-3 px-5 py-2.5 font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper-3 transition"
+              className="inline-flex items-center gap-2 border border-ink/10 bg-paper-3 px-5 py-2.5 font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper-3 transition rounded-full"
             >
               Full archive <ArrowRight size={14} />
             </Link>
@@ -36,9 +36,9 @@ export function WinnersGallery({
         </div>
       )}
 
-      <ul className="mt-12 grid border border-ink bg-paper-3 sm:grid-cols-2 lg:grid-cols-3 divide-y divide-ink lg:divide-y-0 lg:divide-x">
+      <ul className="mt-12 grid border border-ink/10 bg-paper-3 sm:grid-cols-2 lg:grid-cols-3 divide-y divide-ink/10 lg:divide-y-0 lg:divide-x rounded-2xl overflow-hidden">
         {list.slice(0, 6).map((w, i) => (
-          <li key={w.id} className={i >= 3 ? "lg:border-t lg:border-ink" : ""}>
+          <li key={w.id} className={i >= 3 ? "lg:border-t lg:border-ink/10" : ""}>
             <WinnerCard winner={w} />
           </li>
         ))}
@@ -52,7 +52,7 @@ export function WinnerCard({ winner: w }: { winner: typeof winners[number] }) {
   return (
     <article className="group block bg-paper-3">
       <div
-        className="relative aspect-[5/3] overflow-hidden border-b border-ink"
+        className="relative aspect-[5/3] overflow-hidden border-b border-ink/10"
         style={{
           background:
             "linear-gradient(135deg, #0f0f10 0%, #211814 60%, #392617 100%)",
@@ -63,11 +63,11 @@ export function WinnerCard({ winner: w }: { winner: typeof winners[number] }) {
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(400px 160px at 50% 90%, rgba(139,32,23,0.4), transparent 60%)",
+              "radial-gradient(400px 160px at 50% 90%, rgba(242,185,13,0.4), transparent 60%)",
           }}
         />
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="h-24 w-24 border border-paper-3/40 bg-paper-3/10 flex items-center justify-center font-condensed font-semibold text-3xl text-paper-3">
+          <div className="h-24 w-24 border border-paper-3/40 bg-paper-3/10 flex items-center justify-center font-condensed font-semibold text-3xl text-paper-3 rounded-full">
             {w.firstName[0]}{w.lastInitial}
           </div>
         </div>
@@ -78,7 +78,7 @@ export function WinnerCard({ winner: w }: { winner: typeof winners[number] }) {
 
         <button
           aria-label="Watch reveal clip"
-          className="absolute right-3 bottom-3 inline-flex items-center gap-1.5 bg-paper-3 text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-3 py-1.5 border border-ink hover:bg-brass"
+          className="absolute right-3 bottom-3 inline-flex items-center gap-1.5 bg-paper-3 text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-3 py-1.5 border border-ink/10 hover:bg-brass rounded-full"
         >
           <PlayCircle size={12} /> Reveal
         </button>

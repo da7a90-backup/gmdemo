@@ -11,13 +11,13 @@ export const metadata = { title: "Winners — Generous Motors" };
 export default function WinnersPage() {
   return (
     <div className="bg-paper-3 text-ink">
-      <section className="relative border-b border-ink overflow-hidden grain">
+      <section className="relative border-b border-ink/10 overflow-hidden grain">
         <div
           aria-hidden
           className="absolute inset-0 -z-10"
           style={{
             background:
-              "radial-gradient(700px 350px at 80% 10%, rgba(139,32,23,0.14), transparent 60%), radial-gradient(500px 300px at 0% 100%, rgba(31,64,49,0.12), transparent 60%)",
+              "radial-gradient(700px 350px at 80% 10%, rgba(242,185,13,0.14), transparent 60%), radial-gradient(500px 300px at 0% 100%, rgba(31,64,49,0.12), transparent 60%)",
           }}
         />
         <div className="mx-auto max-w-[1400px] px-5 py-10 grid lg:grid-cols-12 gap-6 items-end border-b border-rule-soft">
@@ -36,7 +36,7 @@ export default function WinnersPage() {
           </div>
         </div>
 
-        <div className="mx-auto max-w-[1400px] px-5 pb-8 grid grid-cols-2 gap-0 md:grid-cols-4 border-x border-ink mt-6 divide-x divide-ink">
+        <div className="mx-auto max-w-[1400px] px-5 pb-8 grid grid-cols-2 gap-0 md:grid-cols-4 rounded-xl overflow-hidden border-x border-ink/10 mt-6 divide-x divide-ink/10">
           <KPI label="Cars given away" value={lifetimeStats.carsGivenAway} />
           <KPI label="Charities funded" value={lifetimeStats.charitiesFunded} />
           <KPI label="Lifetime payout (USD)" value={lifetimeStats.lifetimePayoutUSD} prefix="$" />
@@ -56,22 +56,22 @@ export default function WinnersPage() {
       />
 
       <section className="mx-auto max-w-[1400px] px-5 py-16">
-        <ul className="grid border border-ink bg-paper-3 sm:grid-cols-2 lg:grid-cols-3 divide-y divide-ink lg:divide-y-0 lg:divide-x">
+        <ul className="grid rounded-xl overflow-hidden border border-ink/10 bg-paper-3 sm:grid-cols-2 lg:grid-cols-3 divide-y divide-ink/10 lg:divide-y-0 lg:divide-x">
           {winners.map((w, i) => (
-            <li key={w.id} className={i >= 3 && i < 6 ? "lg:border-t lg:border-ink" : i >= 6 ? "lg:border-t lg:border-ink" : ""}>
+            <li key={w.id} className={i >= 3 && i < 6 ? "lg:border-t lg:border-ink/10" : i >= 6 ? "lg:border-t lg:border-ink/10" : ""}>
               <WinnerCard winner={w} />
             </li>
           ))}
         </ul>
 
-        <div className="mt-16 border border-ink bg-brass p-10 text-center">
+        <div className="mt-16 rounded-2xl border border-ink/10 bg-brass p-10 text-center">
           <p className="section-eyebrow">Cycle 12 is open</p>
           <h2 className="mt-4 hero-headline" style={{ fontSize: "clamp(2rem,4vw,3.25rem)" }}>
             Your name could be on this wall <span className="accent-serif">next.</span>
           </h2>
           <Link
             href="/tickets"
-            className="mt-7 inline-flex h-12 items-center gap-2 bg-ink text-paper-3 px-6 border border-ink font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-accent hover:border-accent transition-colors"
+            className="mt-7 inline-flex h-12 items-center gap-2 rounded-full bg-ink text-paper-3 px-6 border border-ink/10 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-accent hover:border-accent transition-colors"
           >
             Buy tickets <ArrowRight size={14} />
           </Link>

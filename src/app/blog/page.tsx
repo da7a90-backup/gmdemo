@@ -12,7 +12,7 @@ export default function BlogPage() {
 
   return (
     <div className="bg-paper-3 text-ink">
-      <section className="relative border-b border-ink overflow-hidden grain">
+      <section className="relative border-b border-ink/10 overflow-hidden grain">
         <div className="mx-auto max-w-[1400px] px-5 py-20 grid lg:grid-cols-12 gap-10 items-end">
           <div className="lg:col-span-8 relative">
             <p className="section-eyebrow section-eyebrow-rule">Field notes · since 2024</p>
@@ -37,10 +37,10 @@ export default function BlogPage() {
         {/* FEATURED */}
         <Link
           href={`/blog/${featured.slug}`}
-          className="group grid gap-10 lg:grid-cols-12 border border-ink bg-paper-3 p-8 hover:bg-paper-2"
+          className="group grid gap-10 lg:grid-cols-12 rounded-2xl border border-ink/10 bg-paper-3 p-8 hover:bg-paper-2"
         >
           <div
-            className="lg:col-span-7 aspect-[5/3] overflow-hidden border border-ink relative"
+            className="lg:col-span-7 aspect-[5/3] rounded-xl overflow-hidden border border-ink/10 relative"
             style={{
               background:
                 "linear-gradient(135deg, #0e0e0e 0%, #1f1812 60%, #8b2017 130%)",
@@ -62,7 +62,7 @@ export default function BlogPage() {
           </div>
         </Link>
 
-        <ul className="mt-12 grid border border-ink bg-paper-3 sm:grid-cols-2 lg:grid-cols-3 divide-y divide-ink lg:divide-y-0 lg:divide-x">
+        <ul className="mt-12 grid rounded-2xl overflow-hidden border border-ink/10 bg-paper-3 sm:grid-cols-2 lg:grid-cols-3 divide-y divide-ink/10 lg:divide-y-0 lg:divide-x">
           {rest.map((p) => (
             <li key={p.slug}>
               <Link
@@ -70,7 +70,7 @@ export default function BlogPage() {
                 className="group block bg-paper-3 hover:bg-paper-2 h-full"
               >
                 <div
-                  className="aspect-[16/9] relative border-b border-ink"
+                  className="aspect-[16/9] relative border-b border-ink/10"
                   style={{
                     background:
                       "linear-gradient(135deg, #1f1f25 0%, #3a2218 60%, #5b3a1c 100%)",

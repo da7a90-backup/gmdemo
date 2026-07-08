@@ -48,7 +48,7 @@ export function TicketsBuy() {
         </div>
       )}
       {/* PRIZE STRIP */}
-      <div className="bg-bg-dark text-fg border-b-2 border-ink">
+      <div className="bg-bg-dark text-fg border-b border-ink/10">
         <div className="mx-auto max-w-[1400px] px-5 py-3 flex flex-wrap items-center justify-between gap-3 font-condensed uppercase tracking-[0.22em] text-[12px]">
           <span><span className="text-accent-bright">Prize:</span> {v.year} {v.make} {v.model}</span>
           <span><span className="text-fg-2">Value</span> <span className="numeral text-base text-fg">${(v.valueUSD / 1000).toFixed(0)}k</span></span>
@@ -77,7 +77,7 @@ export function TicketsBuy() {
           </h1>
 
           {/* Short, landscape vehicle plate — image only, no duplicated stats */}
-          <div className="mt-3 border-heavy bg-paper-3 relative">
+          <div className="mt-3 border-heavy bg-paper-3 relative rounded-xl overflow-hidden">
             {/* Mobile: image on top, thumbs in a horizontal row below.
                 Desktop (md+): image on left, thumbs in a vertical strip on right. */}
             <div className="flex flex-col md:flex-row">
@@ -89,19 +89,19 @@ export function TicketsBuy() {
                   backgroundPosition: "center",
                 }}
               >
-                <span className="absolute top-2.5 left-2.5 bg-brass text-paper-3 font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border-2 border-ink">
+                <span className="absolute top-2.5 left-2.5 bg-brass text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border border-ink/10 rounded-md">
                   {v.year} · {v.make}
                 </span>
-                <span className="absolute top-2.5 right-2.5 bg-brass text-paper-3 font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border-2 border-ink">
+                <span className="absolute top-2.5 right-2.5 bg-brass text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border border-ink/10 rounded-md">
                   Worth · {usd(v.valueUSD)}
                 </span>
-                <span className="absolute bottom-2.5 right-2.5 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2 py-1 border border-ink">
+                <span className="absolute bottom-2.5 right-2.5 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2 py-1 border border-ink/10 rounded-md">
                   {activeImage + 1} / {v.images.length}
                 </span>
               </div>
 
               {v.images.length > 1 && (
-                <div className="border-t-2 md:border-t-0 md:border-l-2 border-ink bg-paper-3 grid grid-cols-4 md:grid-cols-1 md:w-[90px]">
+                <div className="border-t md:border-t-0 md:border-l border-ink/10 bg-paper-3 grid grid-cols-4 md:grid-cols-1 md:w-[90px]">
                   {v.images.slice(0, 4).map((src, i) => {
                     const selected = i === activeImage;
                     return (
@@ -111,7 +111,7 @@ export function TicketsBuy() {
                         aria-pressed={selected}
                         aria-label={`View image ${i + 1}`}
                         onClick={() => setActiveImage(i)}
-                        className={`relative aspect-[4/3] md:aspect-auto md:flex-1 border-r-2 md:border-r-0 md:border-b-2 last:border-r-0 md:last:border-b-0 border-ink overflow-hidden transition ${
+                        className={`relative aspect-[4/3] md:aspect-auto md:flex-1 border-r md:border-r-0 md:border-b last:border-r-0 md:last:border-b-0 border-ink/10 overflow-hidden transition ${
                           selected ? "ring-2 ring-inset ring-accent" : "hover:opacity-90"
                         }`}
                         style={{
@@ -128,7 +128,7 @@ export function TicketsBuy() {
               )}
             </div>
 
-            <dl className="grid grid-cols-3 divide-x-2 divide-ink border-t-2 border-ink">
+            <dl className="grid grid-cols-3 divide-x divide-ink/10 border-t border-ink/10">
               <Cell k="Sold" v={intl(activeDraw.ticketsSold)} />
               <Cell k="Left" v={intl(remaining)} tone="accent" />
               <Cell k="Cap" v={intl(activeDraw.ticketsCap)} />
@@ -138,13 +138,13 @@ export function TicketsBuy() {
 
         {/* RIGHT — Compact ticket machine, single row of 6 */}
         <div className="lg:col-span-6">
-          <div className="lg:sticky lg:top-24 border-heavy-3 bg-paper-4 relative shadow-[8px_8px_0_0_var(--color-ink)]">
-            <div className="bg-accent-bright text-ink border-b-2 border-ink px-5 py-2.5 flex items-center justify-between">
+          <div className="lg:sticky lg:top-24 border-heavy-3 bg-paper-4 relative shadow-soft rounded-2xl overflow-hidden">
+            <div className="bg-accent-bright text-ink border-b border-ink/10 px-5 py-2.5 flex items-center justify-between">
               <span className="font-condensed uppercase tracking-[0.24em] text-[12px] font-bold">★ Buy raffle tickets</span>
               <span className="font-condensed uppercase tracking-[0.22em] text-[11px]">$10 / ticket</span>
             </div>
 
-            <div className="px-5 pt-3 pb-2.5 flex items-end justify-between gap-3 border-b-2 border-ink">
+            <div className="px-5 pt-3 pb-2.5 flex items-end justify-between gap-3 border-b border-ink/10">
               <div>
                 <p className="section-eyebrow on-paper">Today&apos;s price</p>
                 <p className="mt-0.5 font-display font-bold leading-none text-ink" style={{ fontSize: "2.5rem", lineHeight: "0.85" }}>
@@ -156,7 +156,7 @@ export function TicketsBuy() {
               </p>
             </div>
 
-            <div className="px-5 py-4 border-b-2 border-ink bg-paper-3">
+            <div className="px-5 py-4 border-b border-ink/10 bg-paper-3">
               <p className="section-eyebrow on-paper">Choose your quantity</p>
               <div className="mt-3 grid grid-cols-3 sm:grid-cols-6 gap-1.5">
                 {PRESETS.map((n) => {
@@ -168,8 +168,8 @@ export function TicketsBuy() {
                       type="button"
                       aria-pressed={selected}
                       onClick={() => setQty(n)}
-                      className={`relative h-[78px] border-2 flex flex-col items-center justify-center transition ${
-                        selected ? "border-ink bg-ink text-paper" : "border-ink bg-paper-4 text-ink hover:bg-accent-soft"
+                      className={`relative h-[78px] border rounded-lg flex flex-col items-center justify-center transition ${
+                        selected ? "border-ink/10 bg-ink text-paper" : "border-ink/10 bg-paper-4 text-ink hover:bg-accent-soft"
                       }`}
                     >
                       <span className="font-condensed numeral text-2xl leading-none font-bold">{n}</span>
@@ -182,7 +182,7 @@ export function TicketsBuy() {
                         </span>
                       )}
                       {n === POPULAR && (
-                        <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-1.5 py-0 border border-ink bg-accent-bright text-ink font-condensed uppercase tracking-[0.18em] text-[8px] whitespace-nowrap font-bold">
+                        <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-1.5 py-0 border border-ink/10 bg-accent-bright text-ink font-condensed uppercase tracking-[0.18em] text-[8px] whitespace-nowrap font-bold rounded-full">
                           ★ Top
                         </span>
                       )}
@@ -191,8 +191,8 @@ export function TicketsBuy() {
                 })}
               </div>
 
-              <div className="mt-3 flex items-center border-2 border-ink bg-paper-4">
-                <button type="button" aria-label="Decrease" onClick={() => setQty((q) => Math.max(1, q - 1))} className="h-11 w-11 flex items-center justify-center border-r-2 border-ink hover:bg-ink hover:text-paper">
+              <div className="mt-3 flex items-center border border-ink/10 bg-paper-4 rounded-full overflow-hidden">
+                <button type="button" aria-label="Decrease" onClick={() => setQty((q) => Math.max(1, q - 1))} className="h-11 w-11 flex items-center justify-center border-r border-ink/10 hover:bg-ink hover:text-paper">
                   <Minus size={16} />
                 </button>
                 <div className="flex-1 flex items-center justify-center gap-2 py-1">
@@ -207,7 +207,7 @@ export function TicketsBuy() {
                   />
                   <p className="dateline on-paper">tickets</p>
                 </div>
-                <button type="button" aria-label="Increase" onClick={() => setQty((q) => Math.min(500, q + 1))} className="h-11 w-11 flex items-center justify-center border-l-2 border-ink hover:bg-ink hover:text-paper">
+                <button type="button" aria-label="Increase" onClick={() => setQty((q) => Math.min(500, q + 1))} className="h-11 w-11 flex items-center justify-center border-l border-ink/10 hover:bg-ink hover:text-paper">
                   <Plus size={16} />
                 </button>
               </div>
@@ -219,12 +219,12 @@ export function TicketsBuy() {
                   {qty} × $10.00
                 </span>
                 {saved > 0 && (
-                  <span className="inline-flex items-center gap-1 bg-charity text-paper-3 px-2 py-0.5 font-condensed uppercase tracking-[0.22em] text-[10px] border border-ink">
+                  <span className="inline-flex items-center gap-1 bg-charity text-paper-3 px-2 py-0.5 font-condensed uppercase tracking-[0.22em] text-[10px] border border-ink/10 rounded-full">
                     Save ${saved}.00
                   </span>
                 )}
               </div>
-              <div className="flex items-end justify-between mb-3 pb-3 border-b-2 border-ink">
+              <div className="flex items-end justify-between mb-3 pb-3 border-b border-ink/10">
                 <span className="font-condensed uppercase tracking-[0.22em] text-[12px] text-ink-2 font-semibold">Total</span>
                 <span className="font-display font-bold numeral text-ink leading-none" style={{ fontSize: "2.75rem" }}>
                   {usdc(total)}
@@ -233,7 +233,7 @@ export function TicketsBuy() {
 
               <button
                 onClick={onBuy}
-                className="w-full inline-flex items-center justify-center gap-2 bg-brass text-paper-3 border-heavy-3 font-condensed uppercase tracking-[0.24em] text-[14px] font-bold hover:bg-ink hover:text-paper-3 transition-colors btn-poly-lg"
+                className="w-full inline-flex items-center justify-center gap-2 bg-brass text-ink border-heavy-3 font-condensed uppercase tracking-[0.24em] text-[14px] font-bold hover:bg-ink hover:text-paper-3 transition-colors btn-poly-lg"
                 style={{ height: "56px" }}
               >
                 Buy {qty} {qty === 1 ? "ticket" : "tickets"} — {usdc(total)}
@@ -252,7 +252,7 @@ export function TicketsBuy() {
       </section>
 
       {/* CHARITY PARTNER — giving back, this cycle */}
-      <section className="bg-charity text-paper-3 border-y-2 border-ink relative overflow-hidden grain grain-dark">
+      <section className="bg-charity text-paper-3 border-y border-ink/10 relative overflow-hidden grain grain-dark">
         <span aria-hidden className="absolute -top-10 -right-10 display-mega text-paper-3/[0.08] select-none">10%</span>
         <div className="relative mx-auto max-w-[1400px] px-5 py-16 grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-7">
@@ -270,21 +270,21 @@ export function TicketsBuy() {
             <div className="mt-7 flex flex-wrap gap-3">
               <Link
                 href="/about#charity"
-                className="inline-flex h-12 items-center gap-2 bg-accent-bright text-ink px-5 border-2 border-paper-3 font-condensed uppercase tracking-[0.22em] text-[12px] font-bold hover:bg-paper-3 btn-poly"
+                className="inline-flex h-12 items-center gap-2 bg-accent-bright text-ink px-5 border border-paper-3 font-condensed uppercase tracking-[0.22em] text-[12px] font-bold hover:bg-paper-3 btn-poly"
               >
                 How the funds flow <ArrowRight size={14} />
               </Link>
               <Link
                 href="/blog/cycle-12-corvette-charity-pick"
-                className="inline-flex h-12 items-center gap-2 border-2 border-paper-3 px-5 text-paper-3 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper-3 hover:text-charity"
+                className="inline-flex h-12 items-center gap-2 border border-paper-3 px-5 text-paper-3 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper-3 hover:text-charity rounded-full"
               >
                 Why we picked them
               </Link>
             </div>
           </div>
 
-          <div className="lg:col-span-5 border-2 border-paper-3 bg-charity-hover">
-            <div className="border-b-2 border-paper-3 px-5 py-3 flex items-baseline justify-between">
+          <div className="lg:col-span-5 border border-paper-3 bg-charity-hover rounded-2xl overflow-hidden">
+            <div className="border-b border-paper-3 px-5 py-3 flex items-baseline justify-between">
               <p className="section-eyebrow on-dark">Lifetime · all cycles</p>
               <p className="dateline on-dark">all 501(c)(3) cycles</p>
             </div>
@@ -295,7 +295,7 @@ export function TicketsBuy() {
               <p className="mt-2 font-condensed uppercase tracking-[0.22em] text-[12px] text-paper-3">
                 Donated to partner charities
               </p>
-              <div className="mt-6 grid grid-cols-2 gap-4 pt-5 border-t-2 border-paper-3/30">
+              <div className="mt-6 grid grid-cols-2 gap-4 pt-5 border-t border-paper-3/30">
                 <KCharity label="Cycles run" v={String(lifetimeStats.cyclesRun)} />
                 <KCharity label="Charities funded" v={String(lifetimeStats.charitiesFunded)} />
                 <KCharity label="Cars given away" v={String(lifetimeStats.carsGivenAway)} />
@@ -307,7 +307,7 @@ export function TicketsBuy() {
       </section>
 
       {/* WINNERS CAROUSEL */}
-      <section className="border-y-2 border-ink bg-paper-3">
+      <section className="border-y border-ink/10 bg-paper-3">
         <div className="mx-auto max-w-[1400px] px-5 py-14">
           <div className="flex items-end justify-between gap-4 mb-7">
             <div>
@@ -318,7 +318,7 @@ export function TicketsBuy() {
             </div>
             <Link
               href="/winners"
-              className="inline-flex items-center gap-2 border-2 border-ink bg-paper-4 px-4 py-2 font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper"
+              className="inline-flex items-center gap-2 border border-ink/10 bg-paper-4 px-4 py-2 font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper rounded-full"
             >
               Full archive <ArrowRight size={12} />
             </Link>
@@ -327,20 +327,20 @@ export function TicketsBuy() {
           <div className="-mx-5 px-5 overflow-x-auto scrollbar-thin">
             <ul className="flex gap-4 min-w-max pb-3">
               {winners.slice(0, 8).map((w) => (
-                <li key={w.id} className="w-[280px] shrink-0 border-2 border-ink bg-paper-4">
+                <li key={w.id} className="w-[280px] shrink-0 border border-ink/10 bg-paper-4 rounded-xl overflow-hidden">
                   <div
-                    className="relative aspect-[5/3] border-b-2 border-ink"
+                    className="relative aspect-[5/3] border-b border-ink/10"
                     style={{ background: "linear-gradient(135deg, #16110f 0%, #2e261f 60%, #3d2e1d 100%)" }}
                   >
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="h-16 w-16 border-2 border-paper-3/40 flex items-center justify-center font-condensed font-bold text-2xl text-paper-3">
+                      <div className="h-16 w-16 border border-paper-3/40 rounded-full flex items-center justify-center font-condensed font-bold text-2xl text-paper-3">
                         {w.firstName[0]}{w.lastInitial}
                       </div>
                     </div>
-                    <span className="absolute top-2 left-2 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[9px] px-2 py-0.5 border border-ink">
+                    <span className="absolute top-2 left-2 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[9px] px-2 py-0.5 border border-ink/10 rounded-md">
                       Cycle №{String(w.drawCycle).padStart(2, "0")}
                     </span>
-                    <button aria-label="Watch reveal" className="absolute right-2 bottom-2 inline-flex items-center gap-1 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[9px] px-2 py-1 border border-ink hover:bg-accent-bright">
+                    <button aria-label="Watch reveal" className="absolute right-2 bottom-2 inline-flex items-center gap-1 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[9px] px-2 py-1 border border-ink/10 hover:bg-accent-bright rounded-full">
                       <PlayCircle size={10} /> Reveal
                     </button>
                   </div>
@@ -358,7 +358,7 @@ export function TicketsBuy() {
       </section>
 
       {/* SOCIAL PROOF */}
-      <section className="border-b-2 border-ink bg-paper">
+      <section className="border-b border-ink/10 bg-paper">
         <div className="mx-auto max-w-[1400px] px-5 py-16">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <p className="section-eyebrow on-paper" style={{ paddingLeft: 0 }}>What winners say</p>
@@ -369,13 +369,13 @@ export function TicketsBuy() {
 
           <ul className="grid gap-5 md:grid-cols-3">
             {winners.slice(0, 3).map((w) => (
-              <li key={w.id} className="border-2 border-ink bg-paper-4 p-6 relative shadow-[5px_5px_0_0_var(--color-ink)]">
+              <li key={w.id} className="border border-ink/10 bg-paper-4 p-6 relative shadow-soft rounded-xl">
                 <Quote size={28} className="text-accent mb-3" />
                 <p className="font-display font-medium text-ink text-[18px] leading-snug">
                   &ldquo;{w.quote}&rdquo;
                 </p>
-                <div className="mt-5 pt-5 border-t-2 border-ink flex items-center gap-3">
-                  <div className="h-11 w-11 border-2 border-ink bg-ink text-paper font-condensed font-bold text-base flex items-center justify-center">
+                <div className="mt-5 pt-5 border-t border-ink/10 flex items-center gap-3">
+                  <div className="h-11 w-11 border border-ink/10 bg-ink text-paper font-condensed font-bold text-base flex items-center justify-center rounded-full">
                     {w.firstName[0]}{w.lastInitial}
                   </div>
                   <div>
@@ -390,7 +390,7 @@ export function TicketsBuy() {
       </section>
 
       {/* TRUST BAND */}
-      <section className="bg-bg-dark text-fg border-b-2 border-ink relative overflow-hidden">
+      <section className="bg-bg-dark text-fg border-b border-ink/10 relative overflow-hidden">
         <div className="mx-auto max-w-[1400px] px-5 py-12 grid gap-8 md:grid-cols-3 items-center">
           <Trust icon={<Tv2 size={28} />} title="Drawn live" body="Facebook Live, archived to YouTube." />
           <Trust icon={<Drum size={28} />} title="Real paper drum" body="Every entry is printed and drawn from a physical drum." />
@@ -412,7 +412,7 @@ function Cell({ k, v, tone }: { k: string; v: string; tone?: "accent" }) {
 
 function Pillar({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-1 px-2 py-2 border-2 border-ink bg-paper-3">
+    <div className="flex flex-col items-center justify-center gap-1 px-2 py-2 border border-ink/10 bg-paper-3 rounded-lg">
       <span className="text-ink-2">{icon}</span>
       <span className="font-condensed uppercase tracking-[0.18em] text-[9px] text-ink-2 font-semibold whitespace-nowrap">{label}</span>
     </div>
@@ -422,7 +422,7 @@ function Pillar({ icon, label }: { icon: React.ReactNode; label: string }) {
 function Trust({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
   return (
     <div className="flex items-start gap-4">
-      <span className="inline-flex h-14 w-14 items-center justify-center bg-accent-bright text-ink border-2 border-paper shrink-0">{icon}</span>
+      <span className="inline-flex h-14 w-14 items-center justify-center bg-accent-bright text-ink border border-paper shrink-0 rounded-full">{icon}</span>
       <div>
         <p className="font-display font-bold text-2xl text-fg">{title}</p>
         <p className="mt-1 text-fg-2 font-serif">{body}</p>

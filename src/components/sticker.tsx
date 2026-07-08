@@ -2,29 +2,29 @@ import { ReactNode } from "react";
 
 /**
  * Editorial primitives only. No rotations, no bursts, no tape, no stars.
- * Auction-catalog / heritage style: rectangular boxed labels with hard hairline borders.
+ * Rounded-modernist style: pill labels and softly rounded lot tags with hairline borders.
  */
 
 type Tone = "ink" | "accent" | "charity" | "brass" | "paper";
 
 const TONE_BOX: Record<Tone, string> = {
-  ink: "bg-ink text-paper border-ink",
+  ink: "bg-ink text-paper border-ink/10",
   accent: "bg-accent text-paper-3 border-accent",
   charity: "bg-charity text-paper-3 border-charity",
   brass: "bg-brass text-ink border-brass",
-  paper: "bg-paper-3 text-ink border-ink",
+  paper: "bg-paper-3 text-ink border-ink/10",
 };
 
 const TONE_OUTLINE: Record<Tone, string> = {
-  ink: "bg-transparent text-ink border-ink",
+  ink: "bg-transparent text-ink border-ink/10",
   accent: "bg-transparent text-accent border-accent",
   charity: "bg-transparent text-charity border-charity",
-  brass: "bg-transparent text-brass border-brass",
+  brass: "bg-transparent text-brass-deep border-brass",
   /* "paper" outline is meant for dark backgrounds — cream-on-dark, not invisible-on-cream */
   paper: "bg-transparent text-paper border-paper",
 };
 
-/** Label — rectangular boxed label, like an auction lot tag. */
+/** Label — pill-shaped boxed label, like an auction lot tag. */
 export function Label({
   children,
   tone = "ink",
@@ -43,7 +43,7 @@ export function Label({
   const tones = variant === "solid" ? TONE_BOX[tone] : TONE_OUTLINE[tone];
   return (
     <span
-      className={`inline-flex items-center font-condensed uppercase tracking-[0.22em] border ${padding} ${tones} ${className ?? ""}`}
+      className={`inline-flex items-center font-condensed uppercase tracking-[0.22em] border rounded-full ${padding} ${tones} ${className ?? ""}`}
     >
       {children}
     </span>
@@ -64,8 +64,8 @@ export function Tag({
 }) {
   const tones = TONE_BOX[tone];
   return (
-    <span className={`relative inline-flex items-center gap-2 border px-3 py-1.5 ${tones} ${className ?? ""}`}>
-      <span aria-hidden className="inline-block h-2 w-2 border border-current opacity-50" />
+    <span className={`relative inline-flex items-center gap-2 border rounded-md px-3 py-1.5 ${tones} ${className ?? ""}`}>
+      <span aria-hidden className="inline-block h-2 w-2 border border-current opacity-50 rounded-full" />
       <span className="font-condensed uppercase tracking-[0.22em] text-[10px] opacity-70">{label ?? "Lot"}</span>
       <span className="font-condensed text-[14px]">{number}</span>
     </span>
