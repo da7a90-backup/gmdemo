@@ -103,18 +103,8 @@ export function TicketsBuy() {
 
           </div>
 
-          {/* Car name + draw date — under the gallery */}
-          <div className="mt-4">
-            <h1 className="hero-headline" style={{ fontSize: "clamp(1.5rem, 3vw, 2.5rem)", lineHeight: "1.05" }}>
-              {v.year} {v.make} {v.model}
-            </h1>
-            <p className="mt-1.5 dateline on-paper">
-              Drawn live · {niceWeekday(activeDraw.drawDateISO)}
-            </p>
-          </div>
-
-          {/* SPEC SHEET — headline figures + grouped data, right under the gallery */}
-          <div className="mt-5">
+          {/* SPEC SHEET — headline figures, right under the gallery */}
+          <div className="mt-3">
             <div className="flex items-baseline justify-between gap-3">
               <p className="section-eyebrow on-paper section-eyebrow-rule">Spec sheet · what you&apos;re winning</p>
               <Label tone="brass" variant="outline" size="sm">As configured</Label>
@@ -122,18 +112,28 @@ export function TicketsBuy() {
 
             <dl className="mt-3 grid grid-cols-2 sm:grid-cols-4 sm:divide-x divide-paper/10 bg-ink text-paper rounded-xl overflow-hidden border border-ink/10 shadow-soft">
               {v.headlineSpecs.map((s) => (
-                <div key={s.label} className="px-3 py-3.5 text-center">
-                  <dd className="font-condensed numeral font-bold text-brass leading-none" style={{ fontSize: "clamp(1.4rem, 1.9vw, 1.9rem)" }}>
+                <div key={s.label} className="px-2.5 py-2.5 text-center">
+                  <dd className="font-condensed numeral font-bold text-brass leading-none" style={{ fontSize: "clamp(1.15rem, 1.5vw, 1.5rem)" }}>
                     {s.decimals ? (
                       <>{s.value.toFixed(s.decimals)}{s.suffix}</>
                     ) : (
                       <AnimatedCounter value={s.value} suffix={s.suffix} />
                     )}
                   </dd>
-                  <dt className="mt-1.5 font-condensed uppercase tracking-[0.22em] text-[9px] text-paper/60">{s.label}</dt>
+                  <dt className="mt-1 font-condensed uppercase tracking-[0.22em] text-[9px] text-paper/60">{s.label}</dt>
                 </div>
               ))}
             </dl>
+          </div>
+
+          {/* Car name + draw date — under the spec band */}
+          <div className="mt-4">
+            <h1 className="hero-headline" style={{ fontSize: "clamp(1.5rem, 3vw, 2.5rem)", lineHeight: "1.05" }}>
+              {v.year} {v.make} {v.model}
+            </h1>
+            <p className="mt-1.5 dateline on-paper">
+              Drawn live · {niceWeekday(activeDraw.drawDateISO)}
+            </p>
           </div>
         </div>
 
