@@ -94,8 +94,18 @@ export function TicketsBuy() {
 
           </div>
 
-          {/* SPEC SHEET — headline figures, right under the gallery */}
+          {/* Car name + draw date — right under the gallery */}
           <div className="mt-3">
+            <h1 className="hero-headline" style={{ fontSize: "clamp(1.1rem, 1.8vw, 1.5rem)", lineHeight: "1.05" }}>
+              {v.year} {v.make} {v.model}
+            </h1>
+            <p className="mt-1 dateline on-paper">
+              Drawn live · {niceWeekday(activeDraw.drawDateISO)}
+            </p>
+          </div>
+
+          {/* SPEC SHEET — headline figures */}
+          <div className="mt-4">
             <div className="flex items-baseline justify-between gap-3">
               <p className="section-eyebrow on-paper section-eyebrow-rule">Spec sheet · what you&apos;re winning</p>
               <Label tone="brass" variant="outline" size="sm">As configured</Label>
@@ -115,16 +125,6 @@ export function TicketsBuy() {
                 </div>
               ))}
             </dl>
-          </div>
-
-          {/* Car name + draw date — under the spec band */}
-          <div className="mt-4">
-            <h1 className="hero-headline" style={{ fontSize: "clamp(1.5rem, 3vw, 2.5rem)", lineHeight: "1.05" }}>
-              {v.year} {v.make} {v.model}
-            </h1>
-            <p className="mt-1.5 dateline on-paper">
-              Drawn live · {niceWeekday(activeDraw.drawDateISO)}
-            </p>
           </div>
         </div>
 
