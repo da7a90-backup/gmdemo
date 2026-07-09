@@ -185,7 +185,6 @@ export function TicketsBuy() {
                         {t.entries === 1 ? "ticket" : "tickets"}
                       </span>
                       <span className="mt-1 font-display font-bold text-lg text-ink leading-none">{usdc(t.priceUSD)}</span>
-                      <span className={`dateline on-paper mt-1 ${t.blurb ? "" : "invisible"}`}>{t.blurb ?? "—"}</span>
                       <button
                         type="button"
                         onClick={() => onBuy(t.id, "once")}
