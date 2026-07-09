@@ -9,6 +9,7 @@ import { activeDraw, ticketTiers, membershipTiers, winners, lifetimeStats } from
 import { usdc, intl, niceWeekday, niceDate, usd } from "@/lib/format";
 import { Label } from "@/components/sticker";
 import { AnimatedCounter } from "@/components/animated-counter";
+import { FAQAccordion } from "@/components/faq-accordion";
 
 export function TicketsBuy() {
   const router = useRouter();
@@ -436,6 +437,9 @@ export function TicketsBuy() {
           <Trust icon={<HeartHandshake size={28} />} title="10% to charity" body={`Cycle ${activeDraw.cycle}: ${activeDraw.charity.name}.`} />
         </div>
       </section>
+
+      {/* FAQ + Official Rules link (Fla. Stat. § 849.0935 disclosure) */}
+      <FAQAccordion />
     </div>
   );
 }

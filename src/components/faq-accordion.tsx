@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
-import { Plus, Minus } from "lucide-react";
+import Link from "next/link";
+import { Plus, Minus, FileText, ArrowRight } from "lucide-react";
 
 const FAQ = [
   { q: "How do I enter?", a: "Pick a ticket tier on the Tickets page. Each tier comes with a set number of entries." },
@@ -11,7 +12,7 @@ const FAQ = [
   { q: "Where does the charity money go?", a: "10% of gross proceeds — calculated before any operating cost — goes directly to the cycle's named partner charity. Each cycle publishes a reconciliation PDF and signed receipt." },
   { q: "Can I cancel my membership?", a: "Yes, in 1 click from your account. Already-issued entries for the current cycle stay valid; no refunds for entries already in the drum." },
   { q: "Who can enter?", a: "Legal residents of the 50 United States and DC, age 18+. Void where prohibited. See Official Rules for full eligibility." },
-  { q: "Where do I find the official rules?", a: "Linked in the footer of every page, and from every ticket-purchase confirmation email." },
+  { q: "Where do I find the official rules?", a: "At generousmotors.org/rules — also linked below, in the footer of every page, and from every ticket-purchase confirmation email." },
   { q: "How are my data and payment kept safe?", a: "All payment is processed by Shopify with PCI-DSS Level 1 compliance. We don't store card numbers." },
   { q: "Who do I contact for support?", a: "support@generousmotors.org — typical response under 12 hours." },
 ];
@@ -31,6 +32,26 @@ export function FAQAccordion() {
           <FAQItem key={i} q={item.q} a={item.a} index={i} />
         ))}
       </ul>
+
+      {/* Official Rules — Fla. Stat. § 849.0935 requires the rules to be conspicuously disclosed */}
+      <div className="mt-6 border border-ink/10 bg-paper-4 rounded-xl p-5 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-start gap-3 min-w-0">
+          <FileText size={18} className="text-brass-deep shrink-0 mt-0.5" />
+          <div>
+            <p className="font-display font-bold text-ink leading-tight">The fine print is the point.</p>
+            <p className="mt-1 text-[13px] text-ink-2 font-serif">
+              Every cycle runs under published Official Rules — conducted per Fla. Stat. § 849.0935.
+              No purchase or contribution necessary.
+            </p>
+          </div>
+        </div>
+        <Link
+          href="/rules"
+          className="inline-flex h-11 items-center gap-2 bg-ink text-paper-3 px-5 border border-ink/10 font-condensed uppercase tracking-[0.22em] text-[11px] font-bold hover:bg-brass hover:text-ink transition-colors rounded-full shrink-0"
+        >
+          Read the Official Rules <ArrowRight size={13} />
+        </Link>
+      </div>
       </div>
     </section>
   );

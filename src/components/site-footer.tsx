@@ -54,7 +54,7 @@ export function SiteFooter() {
             ["/about", "How the draw works"],
             ["/blog", "Field notes"],
             ["/about#charity", "Charity flow"],
-            ["/legal/rules", "Official rules"],
+            ["/rules", "Official rules"],
           ]} />
           <FooterCol title="Help" links={[
             ["/legal/privacy", "Privacy"],
