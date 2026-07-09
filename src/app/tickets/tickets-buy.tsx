@@ -10,6 +10,7 @@ import { usdc, intl, niceWeekday, niceDate, usd } from "@/lib/format";
 import { Label } from "@/components/sticker";
 import { AnimatedCounter } from "@/components/animated-counter";
 import { FAQAccordion } from "@/components/faq-accordion";
+import { LatestWinnerCard } from "@/components/latest-winner-card";
 
 export function TicketsBuy() {
   const router = useRouter();
@@ -362,6 +363,11 @@ export function TicketsBuy() {
             >
               Full archive <ArrowRight size={12} />
             </Link>
+          </div>
+
+          {/* Latest winner — featured above the strip */}
+          <div className="mb-7">
+            <LatestWinnerCard />
           </div>
 
           <div className="-mx-5 px-5 overflow-x-auto scrollbar-thin">
