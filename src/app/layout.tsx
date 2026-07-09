@@ -1,23 +1,7 @@
 import type { Metadata } from "next";
-import { Source_Serif_4, Oswald } from "next/font/google";
 import "./globals.css";
 import { SiteShell } from "@/components/site-shell";
 import { EmailPopup } from "@/components/email-popup";
-
-const sourceSerif = Source_Serif_4({
-  variable: "--font-source-serif",
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
-  style: ["normal", "italic"],
-  display: "swap",
-});
-
-const oswald = Oswald({
-  variable: "--font-oswald",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Generous Motors — Drive the car. Fund the cause.",
@@ -29,10 +13,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      className={`${sourceSerif.variable} ${oswald.variable} h-full`}
-    >
+    <html lang="en" className="h-full">
       <body className="min-h-full flex flex-col bg-paper text-ink">
         <SiteShell>{children}</SiteShell>
         <EmailPopup />
