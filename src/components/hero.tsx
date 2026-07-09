@@ -30,7 +30,7 @@ export function Hero() {
 
         <Link
           href="/tickets"
-          className="pointer-events-auto mt-5 inline-flex h-12 sm:h-14 items-center gap-3 bg-brass px-10 text-ink border border-ink/10 font-condensed uppercase tracking-[0.24em] text-[15px] font-bold hover:bg-paper hover:text-ink transition-colors shadow-lift rounded-full"
+          className="pointer-events-auto mt-5 inline-flex h-12 sm:h-14 items-center gap-3 bg-ink px-10 text-brass border border-brass/40 font-condensed uppercase tracking-[0.24em] text-[15px] font-bold hover:bg-brass hover:text-ink transition-colors shadow-lift rounded-full"
         >
           Enter now
           <ArrowRight size={18} strokeWidth={2.5} />
