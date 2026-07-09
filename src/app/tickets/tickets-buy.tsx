@@ -106,7 +106,7 @@ export function TicketsBuy() {
           {/* Car name + draw date — under the gallery */}
           <div className="mt-4">
             <h1 className="hero-headline" style={{ fontSize: "clamp(1.5rem, 3vw, 2.5rem)", lineHeight: "1.05" }}>
-              Win <span className="accent-serif">the</span> {v.year} {v.make} {v.model}.
+              {v.year} {v.make} {v.model}
             </h1>
             <p className="mt-1.5 dateline on-paper">
               Drawn live · {niceWeekday(activeDraw.drawDateISO)}
