@@ -329,38 +329,6 @@ export function TicketsBuy() {
         </div>
       </section>
 
-      {/* SOCIAL PROOF */}
-      <section className="border-b border-ink/10 bg-paper">
-        <div className="mx-auto max-w-[1400px] px-5 py-16">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <p className="section-eyebrow on-paper" style={{ paddingLeft: 0 }}>What winners say</p>
-            <h2 className="mt-4 hero-headline" style={{ fontSize: "clamp(1.75rem,3.5vw,2.75rem)" }}>
-              In <span className="accent-serif">their own</span> words.
-            </h2>
-          </div>
-
-          <ul className="grid gap-5 md:grid-cols-3">
-            {winners.slice(0, 3).map((w) => (
-              <li key={w.id} className="border border-ink/10 bg-paper-4 p-6 relative shadow-soft rounded-xl">
-                <Quote size={28} className="text-accent mb-3" />
-                <p className="font-display font-medium text-ink text-[18px] leading-snug">
-                  &ldquo;{w.quote}&rdquo;
-                </p>
-                <div className="mt-5 pt-5 border-t border-ink/10 flex items-center gap-3">
-                  <div className="h-11 w-11 border border-ink/10 bg-ink text-paper font-condensed font-bold text-base flex items-center justify-center rounded-full">
-                    {w.firstName[0]}{w.lastInitial}
-                  </div>
-                  <div>
-                    <p className="font-display font-bold text-ink leading-tight">{w.firstName} {w.lastInitial}.</p>
-                    <p className="dateline on-paper">Winner, Cycle №{String(w.drawCycle).padStart(2, "0")} · {w.vehicle}</p>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
       {/* CHARITY PARTNER — giving back, this cycle */}
       <section className="bg-ink text-paper-3 border-y border-ink/10 relative overflow-hidden grain grain-dark">
         <span aria-hidden className="absolute -top-10 -right-10 display-mega text-paper-3/[0.08] select-none">10%</span>
