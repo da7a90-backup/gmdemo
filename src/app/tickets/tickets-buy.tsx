@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -18,6 +18,10 @@ export function TicketsBuy() {
   const [activeImage, setActiveImage] = useState(0);
   const [redirecting, setRedirecting] = useState(false);
   const [mode, setMode] = useState<"once" | "monthly">("once");
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+
+  const prevImage = () => setActiveImage((i) => (i - 1 + v.images.length) % v.images.length);
+  const nextImage = () => setActiveImage((i) => (i + 1) % v.images.length);
 
   const onBuy = (tierId: string, type: "once" | "monthly") => {
     setRedirecting(true);
@@ -46,7 +50,20 @@ export function TicketsBuy() {
                 Desktop (md+): image on left, thumbs in a vertical strip on right. */}
             <div className="flex flex-col md:flex-row">
               <div
-                className="relative md:flex-1 aspect-[16/10] overflow-hidden transition-[background-image] duration-300"
+                className="relative md:flex-1 aspect-[16/10] overflow-hidden transition-[background-image] duration-300 touch-pan-y"
+                onTouchStart={(e) => {
+                  touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                }}
+                onTouchEnd={(e) => {
+                  const start = touchStart.current;
+                  touchStart.current = null;
+                  if (!start) return;
+                  const dx = e.changedTouches[0].clientX - start.x;
+                  const dy = e.changedTouches[0].clientY - start.y;
+                  if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+                    if (dx < 0) nextImage(); else prevImage();
+                  }
+                }}
                 style={{
                   backgroundImage: `linear-gradient(to bottom, rgba(22,17,15,0.1) 0%, rgba(22,17,15,0.05) 35%, rgba(22,17,15,0.55) 100%), url(${v.images[activeImage] ?? v.image})`,
                   backgroundSize: "cover",
@@ -64,7 +81,7 @@ export function TicketsBuy() {
                 <button
                   type="button"
                   aria-label="Previous image"
-                  onClick={() => setActiveImage((i) => (i - 1 + v.images.length) % v.images.length)}
+                  onClick={prevImage}
                   className="md:hidden absolute left-1.5 top-1/2 -translate-y-1/2 h-10 w-10 inline-flex items-center justify-center rounded-full bg-ink/25 text-paper backdrop-blur-[1px] active:bg-ink/40"
                 >
                   <ChevronLeft size={24} strokeWidth={2.5} />
@@ -72,7 +89,7 @@ export function TicketsBuy() {
                 <button
                   type="button"
                   aria-label="Next image"
-                  onClick={() => setActiveImage((i) => (i + 1) % v.images.length)}
+                  onClick={nextImage}
                   className="md:hidden absolute right-1.5 top-1/2 -translate-y-1/2 h-10 w-10 inline-flex items-center justify-center rounded-full bg-ink/25 text-paper backdrop-blur-[1px] active:bg-ink/40"
                 >
                   <ChevronRight size={24} strokeWidth={2.5} />
