@@ -131,10 +131,10 @@ export function TicketsBuy() {
               <span className="font-condensed uppercase tracking-[0.22em] text-[11px]">$10 / ticket</span>
             </div>
 
-            <div className="px-5 pt-3 pb-2.5 flex items-end justify-between gap-3 border-b border-ink/10">
+            <div className="px-4 pt-2.5 pb-2 flex items-end justify-between gap-3 border-b border-ink/10">
               <div>
                 <p className="section-eyebrow on-paper">Today&apos;s price</p>
-                <p className="mt-0.5 font-display font-bold leading-none text-ink" style={{ fontSize: "2rem", lineHeight: "0.85" }}>
+                <p className="mt-0.5 font-display font-bold leading-none text-ink" style={{ fontSize: "1.75rem", lineHeight: "0.85" }}>
                   $10<span className="text-ink-3 text-base align-top ml-1">/ticket</span>
                 </p>
               </div>
@@ -144,13 +144,13 @@ export function TicketsBuy() {
             </div>
 
             {/* One-time / Membership selector */}
-            <div className="px-5 pt-4 pb-3 bg-paper-3 border-b border-ink/10">
+            <div className="px-4 pt-3 pb-2.5 bg-paper-3 border-b border-ink/10">
               <div className="flex items-center border border-ink/10 bg-paper-4 rounded-full overflow-hidden">
                 <button
                   type="button"
                   aria-pressed={mode === "once"}
                   onClick={() => setMode("once")}
-                  className={`flex-1 h-10 font-condensed uppercase tracking-[0.18em] text-[11px] font-bold transition ${
+                  className={`flex-1 h-9 font-condensed uppercase tracking-[0.18em] text-[11px] font-bold transition ${
                     mode === "once" ? "bg-ink text-paper" : "text-ink hover:bg-accent-soft"
                   }`}
                 >
@@ -160,7 +160,7 @@ export function TicketsBuy() {
                   type="button"
                   aria-pressed={mode === "monthly"}
                   onClick={() => setMode("monthly")}
-                  className={`flex-1 h-10 font-condensed uppercase tracking-[0.18em] text-[11px] font-bold transition ${
+                  className={`flex-1 h-9 font-condensed uppercase tracking-[0.18em] text-[11px] font-bold transition ${
                     mode === "monthly" ? "bg-ink text-paper" : "text-ink hover:bg-accent-soft"
                   }`}
                 >
@@ -173,7 +173,7 @@ export function TicketsBuy() {
                   {ticketTiers.map((t) => (
                     <div
                       key={t.id}
-                      className={`relative flex flex-col items-center border rounded-lg bg-paper-4 px-3 pt-3.5 pb-3 ${
+                      className={`relative flex flex-col items-center border rounded-lg bg-paper-4 px-2.5 pt-3 pb-2.5 ${
                         t.popular ? "border-brass ring-1 ring-brass" : "border-ink/10"
                       }`}
                     >
@@ -182,16 +182,16 @@ export function TicketsBuy() {
                           ★ Most picked
                         </span>
                       )}
-                      <span className="font-condensed numeral text-3xl leading-none font-bold text-ink">{t.entries}</span>
+                      <span className="font-condensed numeral text-2xl leading-none font-bold text-ink">{t.entries}</span>
                       <span className="font-condensed uppercase tracking-[0.18em] text-[9px] text-ink-3 mt-0.5">
                         {t.entries === 1 ? "ticket" : "tickets"}
                       </span>
-                      <span className="mt-1.5 font-display font-bold text-xl text-ink leading-none">{usdc(t.priceUSD)}</span>
+                      <span className="mt-1 font-display font-bold text-lg text-ink leading-none">{usdc(t.priceUSD)}</span>
                       <span className={`dateline on-paper mt-1 ${t.blurb ? "" : "invisible"}`}>{t.blurb ?? "—"}</span>
                       <button
                         type="button"
                         onClick={() => onBuy(t.id, "once")}
-                        className="mt-2.5 w-full h-9 inline-flex items-center justify-center gap-1 rounded-full bg-brass text-ink border border-ink/10 font-condensed uppercase tracking-[0.18em] text-[11px] font-bold hover:bg-ink hover:text-paper transition-colors"
+                        className="mt-2 w-full h-8 inline-flex items-center justify-center gap-1 rounded-full bg-brass text-ink border border-ink/10 font-condensed uppercase tracking-[0.18em] text-[11px] font-bold hover:bg-ink hover:text-paper transition-colors"
                       >
                         Buy now
                       </button>
@@ -206,7 +206,7 @@ export function TicketsBuy() {
                     return (
                       <div
                         key={m.id}
-                        className={`relative border rounded-xl bg-paper-4 p-4 ${
+                        className={`relative border rounded-xl bg-paper-4 p-3.5 ${
                           m.popular ? "border-brass ring-1 ring-brass" : "border-ink/10"
                         }`}
                       >
@@ -222,7 +222,7 @@ export function TicketsBuy() {
                             <s className="font-condensed numeral text-ink-3 text-lg" aria-label={`Normal price ${usd(listValue)}`}>
                               {usd(listValue)}
                             </s>
-                            <span className="font-display font-bold text-2xl text-ink leading-none">
+                            <span className="font-display font-bold text-xl text-ink leading-none">
                               {usd(m.monthlyUSD)}<span className="text-ink-3 text-sm font-condensed">/mo</span>
                             </span>
                             <span className="inline-flex items-center bg-brass text-ink px-2 py-0.5 font-condensed uppercase tracking-[0.18em] text-[9px] font-bold border border-ink/10 rounded-full">
@@ -234,7 +234,7 @@ export function TicketsBuy() {
                         <button
                           type="button"
                           onClick={() => onBuy(m.id, "monthly")}
-                          className="mt-3 w-full h-10 inline-flex items-center justify-center gap-1 rounded-full bg-brass text-ink border border-ink/10 font-condensed uppercase tracking-[0.18em] text-[11px] font-bold hover:bg-ink hover:text-paper transition-colors"
+                          className="mt-2.5 w-full h-9 inline-flex items-center justify-center gap-1 rounded-full bg-brass text-ink border border-ink/10 font-condensed uppercase tracking-[0.18em] text-[11px] font-bold hover:bg-ink hover:text-paper transition-colors"
                         >
                           Buy now
                         </button>
@@ -245,7 +245,7 @@ export function TicketsBuy() {
               )}
             </div>
 
-            <div className="px-5 py-3">
+            <div className="px-4 py-2.5">
               <div className="grid grid-cols-3 gap-1.5">
                 <Pillar icon={<Lock size={11} />} label="Secure" />
                 <Pillar icon={<ShieldCheck size={11} />} label="501(c)(3)" />
