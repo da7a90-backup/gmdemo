@@ -16,6 +16,10 @@ export type Draw = {
     images: string[];
     /** Convenience alias for the first image. */
     image: string;
+    /** Headline performance figures — big stat tiles under the gallery. */
+    headlineSpecs: { label: string; value: number; suffix: string; decimals?: number }[];
+    /** Grouped spec-sheet rows. */
+    specGroups: { title: string; rows: { k: string; v: string }[] }[];
   };
   charity: {
     name: string;
@@ -48,6 +52,44 @@ export const draws: Draw[] = [
         "/vehicles/corvette-z06-4.jpg", // gallery — front grille detail
       ],
       image: "/vehicles/corvette-z06-1.jpg",
+      headlineSpecs: [
+        { label: "Horsepower", value: 670, suffix: " hp" },
+        { label: "0–60 mph", value: 2.6, suffix: " s", decimals: 1 },
+        { label: "Top speed", value: 195, suffix: " mph" },
+        { label: "Redline", value: 8600, suffix: " rpm" },
+      ],
+      specGroups: [
+        {
+          title: "Powertrain",
+          rows: [
+            { k: "Engine", v: "5.5L LT6 flat-plane V8" },
+            { k: "Induction", v: "Naturally aspirated" },
+            { k: "Torque", v: "460 lb-ft @ 6,300 rpm" },
+            { k: "Transmission", v: "8-speed dual-clutch" },
+            { k: "Drive", v: "Mid-engine · RWD" },
+          ],
+        },
+        {
+          title: "Performance",
+          rows: [
+            { k: "0–60 mph", v: "2.6 seconds" },
+            { k: "Quarter mile", v: "10.6 s @ 131 mph" },
+            { k: "Top speed", v: "195 mph" },
+            { k: "Redline", v: "8,600 rpm" },
+            { k: "Exhaust", v: "Center-exit quad tips" },
+          ],
+        },
+        {
+          title: "Body & chassis",
+          rows: [
+            { k: "Layout", v: "2-seat targa coupe" },
+            { k: "Wheels", v: "20″ front · 21″ rear" },
+            { k: "Curb weight", v: "3,666 lb" },
+            { k: "Paint", v: "Accelerate Yellow Metallic" },
+            { k: "MSRP as configured", v: "$119,000" },
+          ],
+        },
+      ],
     },
     charity: {
       name: "Habitat for Humanity",
