@@ -17,7 +17,7 @@ export default function WinnersPage() {
           className="absolute inset-0 -z-10"
           style={{
             background:
-              "radial-gradient(700px 350px at 80% 10%, rgba(242,185,13,0.14), transparent 60%), radial-gradient(500px 300px at 0% 100%, rgba(31,64,49,0.12), transparent 60%)",
+              "radial-gradient(700px 350px at 80% 10%, rgba(235,200,82,0.14), transparent 60%), radial-gradient(500px 300px at 0% 100%, rgba(31,64,49,0.12), transparent 60%)",
           }}
         />
         <div className="mx-auto max-w-[1400px] px-5 py-10 grid lg:grid-cols-12 gap-6 items-end border-b border-rule-soft">

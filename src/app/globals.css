@@ -33,12 +33,12 @@
   --color-charity-hover: #0f3520;
   --color-charity-soft: #d2decb;
 
-  /* Marker yellow — warm secondary paired with the teal accent.
+  /* Vault yellow — warm secondary paired with the teal accent.
      "brass" name kept as an alias so existing usages keep working.
      Yellow carries dark ink text only — never white. */
-  --color-brass: #f2b90d;        /* marker / highlighter yellow */
-  --color-brass-hover: #d9a406;  /* darker amber for hover states */
-  --color-brass-soft: #fdf0c2;   /* pale tint for soft backgrounds */
+  --color-brass: #ebc852;        /* vault yellow */
+  --color-brass-hover: #d4ad2f;  /* darker gold for hover states */
+  --color-brass-soft: #f8eec6;   /* pale tint for soft backgrounds */
   --color-brass-deep: #8a6d00;   /* legible amber for small text on cream */
 
   --color-navy: #163252;
