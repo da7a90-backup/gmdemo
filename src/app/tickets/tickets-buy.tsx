@@ -211,7 +211,7 @@ export function TicketsBuy() {
                       <button
                         type="button"
                         onClick={() => onBuy(t.id, "once")}
-                        className="mt-2 w-full h-8 inline-flex items-center justify-center gap-1 rounded-full bg-brass text-ink border border-ink/10 font-condensed uppercase tracking-[0.18em] text-[11px] font-bold hover:bg-ink hover:text-paper transition-colors"
+                        className="mt-2 w-full h-8 inline-flex items-center justify-center gap-1 rounded-full bg-accent-bright text-ink border border-ink/10 font-condensed uppercase tracking-[0.18em] text-[11px] font-bold hover:bg-accent hover:text-paper-3 transition-colors"
                       >
                         Buy now
                       </button>
@@ -252,7 +252,7 @@ export function TicketsBuy() {
                         <button
                           type="button"
                           onClick={() => onBuy(m.id, "monthly")}
-                          className="mt-2 w-full h-8 inline-flex items-center justify-center gap-1 rounded-full bg-brass text-ink border border-ink/10 font-condensed uppercase tracking-[0.18em] text-[11px] font-bold hover:bg-ink hover:text-paper transition-colors"
+                          className="mt-2 w-full h-8 inline-flex items-center justify-center gap-1 rounded-full bg-accent-bright text-ink border border-ink/10 font-condensed uppercase tracking-[0.18em] text-[11px] font-bold hover:bg-accent hover:text-paper-3 transition-colors"
                         >
                           Buy now
                         </button>
