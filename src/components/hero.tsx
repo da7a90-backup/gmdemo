@@ -20,9 +20,6 @@ export function Hero() {
           Fund the <span className="accent-brass">cause.</span>
         </h1>
 
-        <p className="mt-2 text-[13px] sm:text-[15px] text-paper/90 drop-shadow max-w-2xl">
-          One $10 ticket enters to win this {v.year} {v.make} {v.model} — drawn live · 10% to {activeDraw.charity.name} · 501(c)(3)
-        </p>
 
         <p className="mt-5 font-condensed uppercase tracking-[0.24em] text-[11px] font-semibold text-paper/80">
           Special promotion ends in
