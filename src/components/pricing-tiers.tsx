@@ -109,7 +109,7 @@ export function PricingTiers() {
             <article
               key={m.id}
               className={`relative p-8 flex flex-col ${
-                m.popular ? "bg-charity text-paper-3" : "bg-paper-3 text-ink"
+                m.popular ? "bg-ink text-paper-3" : "bg-paper-3 text-ink"
               }`}
             >
               <div className="flex items-center justify-between mb-2">
@@ -127,7 +127,7 @@ export function PricingTiers() {
               <ul className="mt-6 space-y-2.5">
                 {m.perks.map((p) => (
                   <li key={p} className="flex gap-2 text-[15px]">
-                    <Check size={18} className={`mt-0.5 shrink-0 ${m.popular ? "text-brass-deep" : "text-charity"}`} />
+                    <Check size={18} className={`mt-0.5 shrink-0 ${m.popular ? "text-brass" : "text-charity"}`} />
                     <span>{p}</span>
                   </li>
                 ))}
@@ -135,7 +135,7 @@ export function PricingTiers() {
               <Link
                 href={`/checkout?tier=${m.id}&type=monthly`}
                 className={`mt-8 inline-flex h-12 items-center justify-center border font-condensed uppercase tracking-[0.22em] text-[12px] rounded-full ${
-                  m.popular ? "bg-brass text-ink border-brass hover:bg-paper-3 hover:border-paper-3" : "bg-ink text-paper-3 border-ink/10 hover:bg-charity hover:border-charity"
+                  m.popular ? "bg-brass text-ink border-brass hover:bg-paper-3 hover:border-paper-3" : "bg-ink text-paper-3 border-ink/10 hover:bg-accent hover:border-accent"
                 } transition-colors`}
               >
                 Join {m.name}

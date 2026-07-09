@@ -6,13 +6,13 @@ import { Label } from "@/components/sticker";
 
 export function CharityBand() {
   return (
-    <section className="relative overflow-hidden border-y border-ink/10 bg-charity text-paper-3 grain">
+    <section className="relative overflow-hidden border-y border-ink/10 bg-ink text-paper-3 grain grain-dark">
       <span aria-hidden className="absolute -top-12 -left-12 text-paper-3/[0.08] display-mega select-none">10%</span>
 
       <div className="relative mx-auto max-w-[1400px] px-5 py-24 grid gap-12 lg:grid-cols-12 items-start">
         <div className="lg:col-span-7">
           <p className="section-eyebrow !text-paper-3/70 section-eyebrow-rule">This cycle&apos;s partner</p>
-          <h2 className="mt-4 hero-headline">
+          <h2 className="mt-4 hero-headline on-dark">
             Ten percent. <span className="accent-serif">Paid first.</span>
           </h2>
           <p className="mt-7 max-w-xl text-lg text-paper-3/85">
@@ -36,7 +36,7 @@ export function CharityBand() {
             </Link>
             <Link
               href="/blog/cycle-12-corvette-charity-pick"
-              className="inline-flex items-center gap-2 border border-paper-3 bg-transparent px-5 py-3 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper-3 hover:text-charity transition rounded-full"
+              className="inline-flex items-center gap-2 border border-paper-3 bg-transparent px-5 py-3 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper-3 hover:text-ink transition rounded-full"
             >
               <FileText size={14} /> Why we picked them
             </Link>
@@ -48,7 +48,7 @@ export function CharityBand() {
           </div>
         </div>
 
-        <div className="lg:col-span-5 border border-paper-3 bg-charity-hover rounded-2xl overflow-hidden">
+        <div className="lg:col-span-5 border border-paper-3 bg-ink-raised rounded-2xl overflow-hidden">
           <div className="border-b border-paper-3 p-5 flex items-baseline justify-between">
             <p className="section-eyebrow !text-paper-3/70">Lifetime · all cycles</p>
             <p className="dateline !text-paper-3/60">cumulative</p>
