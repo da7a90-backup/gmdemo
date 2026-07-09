@@ -259,61 +259,6 @@ export function TicketsBuy() {
         </div>
       </section>
 
-      {/* CHARITY PARTNER — giving back, this cycle */}
-      <section className="bg-ink text-paper-3 border-y border-ink/10 relative overflow-hidden grain grain-dark">
-        <span aria-hidden className="absolute -top-10 -right-10 display-mega text-paper-3/[0.08] select-none">10%</span>
-        <div className="relative mx-auto max-w-[1400px] px-5 py-16 grid gap-10 lg:grid-cols-12">
-          <div className="lg:col-span-7">
-            <p className="section-eyebrow on-dark section-eyebrow-rule">Giving back · this cycle&apos;s partner</p>
-            <h2 className="mt-4 hero-headline on-dark" style={{ fontSize: "clamp(2rem, 4vw, 3.5rem)" }}>
-              10% of cycle {activeDraw.cycle} goes to<br />
-              <span className="accent-serif">{activeDraw.charity.name}.</span>
-            </h2>
-            <p className="mt-5 max-w-xl text-paper-3/90 font-serif text-lg">
-              &ldquo;{activeDraw.charity.blurb}&rdquo;
-            </p>
-            <p className="mt-4 max-w-xl text-paper-3/80">
-              Paid on <em>gross</em> — before the car is bought, before payroll, before any expense. Receipt is wired within seven business days of the close and published on the blog.
-            </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Link
-                href="/about#charity"
-                className="inline-flex h-12 items-center gap-2 bg-accent-bright text-ink px-5 border border-paper-3 font-condensed uppercase tracking-[0.22em] text-[12px] font-bold hover:bg-paper-3 btn-poly"
-              >
-                How the funds flow <ArrowRight size={14} />
-              </Link>
-              <Link
-                href="/blog/cycle-12-corvette-charity-pick"
-                className="inline-flex h-12 items-center gap-2 border border-paper-3 px-5 text-paper-3 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper-3 hover:text-ink rounded-full"
-              >
-                Why we picked them
-              </Link>
-            </div>
-          </div>
-
-          <div className="lg:col-span-5 border border-paper-3 bg-ink-raised rounded-2xl overflow-hidden">
-            <div className="border-b border-paper-3 px-5 py-3 flex items-baseline justify-between">
-              <p className="section-eyebrow on-dark">Lifetime · all cycles</p>
-              <p className="dateline on-dark">all 501(c)(3) cycles</p>
-            </div>
-            <div className="p-6">
-              <p className="font-condensed numeral font-bold leading-none text-accent-bright" style={{ fontSize: "4.5rem" }}>
-                {usd(lifetimeStats.totalDonatedUSD)}
-              </p>
-              <p className="mt-2 font-condensed uppercase tracking-[0.22em] text-[12px] text-paper-3">
-                Donated to partner charities
-              </p>
-              <div className="mt-6 grid grid-cols-2 gap-4 pt-5 border-t border-paper-3/30">
-                <KCharity label="Cycles run" v={String(lifetimeStats.cyclesRun)} />
-                <KCharity label="Charities funded" v={String(lifetimeStats.charitiesFunded)} />
-                <KCharity label="Cars given away" v={String(lifetimeStats.carsGivenAway)} />
-                <KCharity label="Entries verified" v={intl(lifetimeStats.ticketsCounted)} />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* WINNERS CAROUSEL */}
       <section className="border-y border-ink/10 bg-paper-3">
         <div className="mx-auto max-w-[1400px] px-5 py-14">
@@ -399,6 +344,61 @@ export function TicketsBuy() {
               </li>
             ))}
           </ul>
+        </div>
+      </section>
+
+      {/* CHARITY PARTNER — giving back, this cycle */}
+      <section className="bg-ink text-paper-3 border-y border-ink/10 relative overflow-hidden grain grain-dark">
+        <span aria-hidden className="absolute -top-10 -right-10 display-mega text-paper-3/[0.08] select-none">10%</span>
+        <div className="relative mx-auto max-w-[1400px] px-5 py-16 grid gap-10 lg:grid-cols-12">
+          <div className="lg:col-span-7">
+            <p className="section-eyebrow on-dark section-eyebrow-rule">Giving back · this cycle&apos;s partner</p>
+            <h2 className="mt-4 hero-headline on-dark" style={{ fontSize: "clamp(2rem, 4vw, 3.5rem)" }}>
+              10% of cycle {activeDraw.cycle} goes to<br />
+              <span className="accent-serif">{activeDraw.charity.name}.</span>
+            </h2>
+            <p className="mt-5 max-w-xl text-paper-3/90 font-serif text-lg">
+              &ldquo;{activeDraw.charity.blurb}&rdquo;
+            </p>
+            <p className="mt-4 max-w-xl text-paper-3/80">
+              Paid on <em>gross</em> — before the car is bought, before payroll, before any expense. Receipt is wired within seven business days of the close and published on the blog.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link
+                href="/about#charity"
+                className="inline-flex h-12 items-center gap-2 bg-accent-bright text-ink px-5 border border-paper-3 font-condensed uppercase tracking-[0.22em] text-[12px] font-bold hover:bg-paper-3 btn-poly"
+              >
+                How the funds flow <ArrowRight size={14} />
+              </Link>
+              <Link
+                href="/blog/cycle-12-corvette-charity-pick"
+                className="inline-flex h-12 items-center gap-2 border border-paper-3 px-5 text-paper-3 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper-3 hover:text-ink rounded-full"
+              >
+                Why we picked them
+              </Link>
+            </div>
+          </div>
+
+          <div className="lg:col-span-5 border border-paper-3 bg-ink-raised rounded-2xl overflow-hidden">
+            <div className="border-b border-paper-3 px-5 py-3 flex items-baseline justify-between">
+              <p className="section-eyebrow on-dark">Lifetime · all cycles</p>
+              <p className="dateline on-dark">all 501(c)(3) cycles</p>
+            </div>
+            <div className="p-6">
+              <p className="font-condensed numeral font-bold leading-none text-accent-bright" style={{ fontSize: "4.5rem" }}>
+                {usd(lifetimeStats.totalDonatedUSD)}
+              </p>
+              <p className="mt-2 font-condensed uppercase tracking-[0.22em] text-[12px] text-paper-3">
+                Donated to partner charities
+              </p>
+              <div className="mt-6 grid grid-cols-2 gap-4 pt-5 border-t border-paper-3/30">
+                <KCharity label="Cycles run" v={String(lifetimeStats.cyclesRun)} />
+                <KCharity label="Charities funded" v={String(lifetimeStats.charitiesFunded)} />
+                <KCharity label="Cars given away" v={String(lifetimeStats.carsGivenAway)} />
+                <KCharity label="Entries verified" v={intl(lifetimeStats.ticketsCounted)} />
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
