@@ -20,7 +20,7 @@ export function CountdownCompact({ targetISO }: { targetISO: string }) {
       className="inline-flex items-center gap-2 border border-ink/10 bg-paper-3 px-3 py-1.5 rounded-full whitespace-nowrap"
     >
       <span className="h-1.5 w-1.5 rounded-full bg-brass animate-pulse" aria-hidden />
-      <span className="dateline on-paper hidden lg:inline">Draw in</span>
+      <span className="dateline on-paper hidden sm:inline">Live Drawing in:</span>
       <span className="font-condensed numeral font-bold text-[13px] text-ink tracking-[0.06em]">
         {p(t.days)}d : {p(t.hours)}h : {p(t.minutes)}m : {p(t.seconds)}s
       </span>

@@ -68,7 +68,7 @@ export function PricingTiers() {
                 <div className="flex items-center justify-between mb-2">
                   <p className={`section-eyebrow ${t.popular ? "!text-paper/70" : ""}`}>№{String(i + 1).padStart(2, "0")}</p>
                   {t.badge && (
-                    <Label tone={t.popular ? "brass" : "accent"} variant="outline">{t.badge}</Label>
+                    <Label tone={t.popular ? "brass" : "accent"} variant={t.popular ? "solid" : "outline"}>{t.badge}</Label>
                   )}
                 </div>
                 <h3 className="font-display font-bold text-3xl">{t.name}</h3>
@@ -78,7 +78,7 @@ export function PricingTiers() {
                   <span className={`${t.popular ? "text-paper/70" : "text-ink-2"} text-sm`}>one-time</span>
                 </div>
                 <p className={`mt-3 font-condensed uppercase tracking-[0.22em] text-[12px] ${t.popular ? "text-paper" : "text-ink"}`}>
-                  <span className={`numeral text-base ${t.popular ? "text-brass-deep" : "text-accent"}`}>{t.entries}</span> {t.entries === 1 ? "entry" : "entries"} · Cycle 12
+                  <span className={`numeral text-base ${t.popular ? "text-brass" : "text-accent"}`}>{t.entries}</span> {t.entries === 1 ? "entry" : "entries"} · Cycle 12
                 </p>
                 <Link
                   href={`/checkout?tier=${t.id}&type=once`}
