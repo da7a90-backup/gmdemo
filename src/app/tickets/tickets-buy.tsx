@@ -47,31 +47,15 @@ export function TicketsBuy() {
 
       {/* MAIN — viewport-fitting: small vehicle + tall buy machine side-by-side */}
       <section className="mx-auto max-w-[1400px] px-5 pt-6 pb-8 grid gap-5 lg:grid-cols-12 lg:gap-6">
-        {/* LEFT — vehicle (compact) */}
+        {/* LEFT — vehicle gallery first, name + draw date under it */}
         <div className="lg:col-span-7 flex flex-col">
-          <div className="flex items-baseline gap-3">
-            <span className="font-condensed numeral font-bold text-[2.25rem] text-accent leading-none">
-              №{String(activeDraw.cycle).padStart(2, "0")}
-            </span>
-            <div>
-              <p className="dateline on-paper">Cycle · drawn {niceWeekday(activeDraw.drawDateISO)}</p>
-              <p className="mt-0.5 font-condensed uppercase tracking-[0.22em] text-[11px] font-semibold text-charity">
-                10% to {activeDraw.charity.name}
-              </p>
-            </div>
-          </div>
-
-          <h1 className="hero-headline mt-2" style={{ fontSize: "clamp(1.5rem, 3vw, 2.5rem)", lineHeight: "1.05" }}>
-            Win <span className="accent-serif">the</span> {v.year} {v.make} {v.model}.
-          </h1>
-
-          {/* Short, landscape vehicle plate — image only, no duplicated stats */}
-          <div className="mt-3 border-heavy bg-paper-3 relative rounded-xl overflow-hidden">
+          {/* Tall landscape vehicle plate — image only, no duplicated stats */}
+          <div className="border-heavy bg-paper-3 relative rounded-xl overflow-hidden">
             {/* Mobile: image on top, thumbs in a horizontal row below.
                 Desktop (md+): image on left, thumbs in a vertical strip on right. */}
             <div className="flex flex-col md:flex-row">
               <div
-                className="relative md:flex-1 aspect-[2/1] overflow-hidden transition-[background-image] duration-300"
+                className="relative md:flex-1 aspect-[2/1] md:aspect-[16/10] overflow-hidden transition-[background-image] duration-300"
                 style={{
                   backgroundImage: `linear-gradient(to bottom, rgba(22,17,15,0.1) 0%, rgba(22,17,15,0.05) 35%, rgba(22,17,15,0.55) 100%), url(${v.images[activeImage] ?? v.image})`,
                   backgroundSize: "cover",
@@ -117,6 +101,16 @@ export function TicketsBuy() {
               )}
             </div>
 
+          </div>
+
+          {/* Car name + draw date — under the gallery */}
+          <div className="mt-4">
+            <h1 className="hero-headline" style={{ fontSize: "clamp(1.5rem, 3vw, 2.5rem)", lineHeight: "1.05" }}>
+              Win <span className="accent-serif">the</span> {v.year} {v.make} {v.model}.
+            </h1>
+            <p className="mt-1.5 dateline on-paper">
+              Drawn live · {niceWeekday(activeDraw.drawDateISO)}
+            </p>
           </div>
 
           {/* SPEC SHEET — headline figures + grouped data, right under the gallery */}
