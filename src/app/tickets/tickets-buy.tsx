@@ -1,39 +1,26 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  Minus, Plus, ShieldCheck, Tv2, HeartHandshake, Lock, Drum, ArrowRight, Quote, PlayCircle,
+  ShieldCheck, Tv2, HeartHandshake, Lock, Drum, ArrowRight, Quote, PlayCircle,
 } from "lucide-react";
-import { activeDraw, ticketTiers, winners, lifetimeStats } from "@/lib/mock-data";
+import { activeDraw, ticketTiers, membershipTiers, winners, lifetimeStats } from "@/lib/mock-data";
 import { usdc, intl, niceWeekday, niceDate, usd } from "@/lib/format";
-
-const PRESETS = [1, 5, 10, 25, 50, 100];
-const POPULAR = 10;
-
-function priceFor(qty: number): { total: number; saved: number } {
-  const tier = ticketTiers.find((t) => t.entries === qty);
-  const total = tier ? tier.priceUSD : qty * 10;
-  const saved = qty * 10 - total;
-  return { total, saved };
-}
+import { Label } from "@/components/sticker";
 
 export function TicketsBuy() {
-  const [qty, setQty] = useState<number>(POPULAR);
   const router = useRouter();
-  const { total, saved } = useMemo(() => priceFor(qty), [qty]);
   const remaining = activeDraw.ticketsCap - activeDraw.ticketsSold;
-  const charityCut = +(total * 0.10).toFixed(2);
   const v = activeDraw.vehicle;
   const [activeImage, setActiveImage] = useState(0);
   const [redirecting, setRedirecting] = useState(false);
+  const [mode, setMode] = useState<"once" | "monthly">("once");
 
-  const onBuy = () => {
+  const onBuy = (tierId: string, type: "once" | "monthly") => {
     setRedirecting(true);
-    const tier = ticketTiers.find((t) => t.entries === qty);
-    const target = tier ? `/checkout?tier=${tier.id}&type=once` : `/checkout?qty=${qty}`;
     // Brief delay sells the "leaving the merchant site for Shopify checkout" handoff.
-    setTimeout(() => router.push(target), 900);
+    setTimeout(() => router.push(`/checkout?tier=${tierId}&type=${type}`), 900);
   };
 
   return (
@@ -156,96 +143,114 @@ export function TicketsBuy() {
               </p>
             </div>
 
-            <div className="px-5 py-4 border-b border-ink/10 bg-paper-3">
-              <p className="section-eyebrow on-paper">Choose your quantity</p>
-              <div className="mt-3 grid grid-cols-3 sm:grid-cols-6 gap-1.5">
-                {PRESETS.map((n) => {
-                  const selected = n === qty;
-                  const tier = ticketTiers.find((t) => t.entries === n);
-                  return (
-                    <button
-                      key={n}
-                      type="button"
-                      aria-pressed={selected}
-                      onClick={() => setQty(n)}
-                      className={`relative h-[78px] border rounded-lg flex flex-col items-center justify-center transition ${
-                        selected ? "border-ink/10 bg-ink text-paper" : "border-ink/10 bg-paper-4 text-ink hover:bg-accent-soft"
+            {/* One-time / Membership selector */}
+            <div className="px-5 pt-4 pb-3 bg-paper-3 border-b border-ink/10">
+              <div className="flex items-center border border-ink/10 bg-paper-4 rounded-full overflow-hidden">
+                <button
+                  type="button"
+                  aria-pressed={mode === "once"}
+                  onClick={() => setMode("once")}
+                  className={`flex-1 h-10 font-condensed uppercase tracking-[0.18em] text-[11px] font-bold transition ${
+                    mode === "once" ? "bg-ink text-paper" : "text-ink hover:bg-accent-soft"
+                  }`}
+                >
+                  One-time bundles
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={mode === "monthly"}
+                  onClick={() => setMode("monthly")}
+                  className={`flex-1 h-10 font-condensed uppercase tracking-[0.18em] text-[11px] font-bold transition ${
+                    mode === "monthly" ? "bg-ink text-paper" : "text-ink hover:bg-accent-soft"
+                  }`}
+                >
+                  Membership · save more
+                </button>
+              </div>
+
+              {mode === "once" ? (
+                <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {ticketTiers.map((t) => (
+                    <div
+                      key={t.id}
+                      className={`relative flex flex-col items-center border rounded-lg bg-paper-4 px-3 pt-3.5 pb-3 ${
+                        t.popular ? "border-brass ring-1 ring-brass" : "border-ink/10"
                       }`}
                     >
-                      <span className="font-condensed numeral text-2xl leading-none font-bold">{n}</span>
-                      <span className={`font-condensed uppercase tracking-[0.18em] text-[9px] mt-0.5 ${selected ? "text-paper/70" : "text-ink-3"}`}>
-                        {n === 1 ? "tkt" : "tkts"}
+                      {t.popular && (
+                        <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0 border border-ink/10 bg-brass text-ink font-condensed uppercase tracking-[0.18em] text-[8px] whitespace-nowrap font-bold rounded-full">
+                          ★ Most picked
+                        </span>
+                      )}
+                      <span className="font-condensed numeral text-3xl leading-none font-bold text-ink">{t.entries}</span>
+                      <span className="font-condensed uppercase tracking-[0.18em] text-[9px] text-ink-3 mt-0.5">
+                        {t.entries === 1 ? "ticket" : "tickets"}
                       </span>
-                      {tier && tier.priceUSD && (
-                        <span className={`font-condensed numeral text-[12px] mt-0.5 ${selected ? "text-accent-bright" : "text-accent"} font-bold`}>
-                          ${tier.priceUSD}
-                        </span>
-                      )}
-                      {n === POPULAR && (
-                        <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-1.5 py-0 border border-ink/10 bg-accent-bright text-ink font-condensed uppercase tracking-[0.18em] text-[8px] whitespace-nowrap font-bold rounded-full">
-                          ★ Top
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="mt-3 flex items-center border border-ink/10 bg-paper-4 rounded-full overflow-hidden">
-                <button type="button" aria-label="Decrease" onClick={() => setQty((q) => Math.max(1, q - 1))} className="h-11 w-11 flex items-center justify-center border-r border-ink/10 hover:bg-ink hover:text-paper">
-                  <Minus size={16} />
-                </button>
-                <div className="flex-1 flex items-center justify-center gap-2 py-1">
-                  <input
-                    type="number"
-                    aria-label="Custom quantity"
-                    min={1}
-                    max={500}
-                    value={qty}
-                    onChange={(e) => setQty(Math.max(1, Math.min(500, Number(e.target.value) || 1)))}
-                    className="w-16 text-center bg-transparent font-condensed font-bold text-2xl text-ink outline-none"
-                  />
-                  <p className="dateline on-paper">tickets</p>
+                      <span className="mt-1.5 font-display font-bold text-xl text-ink leading-none">{usdc(t.priceUSD)}</span>
+                      <span className={`dateline on-paper mt-1 ${t.blurb ? "" : "invisible"}`}>{t.blurb ?? "—"}</span>
+                      <button
+                        type="button"
+                        onClick={() => onBuy(t.id, "once")}
+                        className="mt-2.5 w-full h-9 inline-flex items-center justify-center gap-1 rounded-full bg-brass text-ink border border-ink/10 font-condensed uppercase tracking-[0.18em] text-[11px] font-bold hover:bg-ink hover:text-paper transition-colors"
+                      >
+                        Buy now
+                      </button>
+                    </div>
+                  ))}
                 </div>
-                <button type="button" aria-label="Increase" onClick={() => setQty((q) => Math.min(500, q + 1))} className="h-11 w-11 flex items-center justify-center border-l border-ink/10 hover:bg-ink hover:text-paper">
-                  <Plus size={16} />
-                </button>
-              </div>
+              ) : (
+                <div className="mt-3 flex flex-col gap-2">
+                  {membershipTiers.map((m) => {
+                    const listValue = m.monthlyEntries * 10;
+                    const pctOff = Math.round((1 - m.monthlyUSD / listValue) * 100);
+                    return (
+                      <div
+                        key={m.id}
+                        className={`relative border rounded-xl bg-paper-4 p-4 ${
+                          m.popular ? "border-brass ring-1 ring-brass" : "border-ink/10"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="font-display font-bold text-lg text-ink leading-none">{m.name}</p>
+                          {m.popular && <Label tone="brass" size="sm">Best value</Label>}
+                        </div>
+                        <p className="mt-1.5 font-condensed uppercase tracking-[0.18em] text-[11px] text-charity font-semibold">
+                          {m.monthlyEntries} auto-entries · every cycle
+                        </p>
+                        <div className="mt-2 flex items-end justify-between gap-3">
+                          <div className="flex items-baseline gap-2">
+                            <s className="font-condensed numeral text-ink-3 text-lg" aria-label={`Normal price ${usd(listValue)}`}>
+                              {usd(listValue)}
+                            </s>
+                            <span className="font-display font-bold text-2xl text-ink leading-none">
+                              {usd(m.monthlyUSD)}<span className="text-ink-3 text-sm font-condensed">/mo</span>
+                            </span>
+                            <span className="inline-flex items-center bg-brass text-ink px-2 py-0.5 font-condensed uppercase tracking-[0.18em] text-[9px] font-bold border border-ink/10 rounded-full">
+                              Members save {pctOff}%
+                            </span>
+                          </div>
+                        </div>
+                        <p className="mt-1 dateline on-paper">{m.monthlyEntries} tickets normally {usd(listValue)} · +{m.shopDiscountPct}% off the shop</p>
+                        <button
+                          type="button"
+                          onClick={() => onBuy(m.id, "monthly")}
+                          className="mt-3 w-full h-10 inline-flex items-center justify-center gap-1 rounded-full bg-brass text-ink border border-ink/10 font-condensed uppercase tracking-[0.18em] text-[11px] font-bold hover:bg-ink hover:text-paper transition-colors"
+                        >
+                          Buy now
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
-            <div className="px-5 pt-3 pb-5">
-              <div className="flex items-baseline justify-between mb-1">
-                <span className="font-condensed uppercase tracking-[0.22em] text-[11px] text-ink-2 font-semibold">
-                  {qty} × $10.00
-                </span>
-                {saved > 0 && (
-                  <span className="inline-flex items-center gap-1 bg-charity text-paper-3 px-2 py-0.5 font-condensed uppercase tracking-[0.22em] text-[10px] border border-ink/10 rounded-full">
-                    Save ${saved}.00
-                  </span>
-                )}
-              </div>
-              <div className="flex items-end justify-between mb-3 pb-3 border-b border-ink/10">
-                <span className="font-condensed uppercase tracking-[0.22em] text-[12px] text-ink-2 font-semibold">Total</span>
-                <span className="font-display font-bold numeral text-ink leading-none" style={{ fontSize: "2.75rem" }}>
-                  {usdc(total)}
-                </span>
-              </div>
-
-              <button
-                onClick={onBuy}
-                className="w-full inline-flex items-center justify-center gap-2 bg-brass text-ink border-heavy-3 font-condensed uppercase tracking-[0.24em] text-[14px] font-bold hover:bg-ink hover:text-paper-3 transition-colors btn-poly-lg"
-                style={{ height: "56px" }}
-              >
-                Buy {qty} {qty === 1 ? "ticket" : "tickets"} — {usdc(total)}
-                <ArrowRight size={18} strokeWidth={2.5} />
-              </button>
-
-              <div className="mt-3 grid grid-cols-3 gap-1.5">
+            <div className="px-5 py-3">
+              <div className="grid grid-cols-3 gap-1.5">
                 <Pillar icon={<Lock size={11} />} label="Secure" />
                 <Pillar icon={<ShieldCheck size={11} />} label="501(c)(3)" />
-                <Pillar icon={<HeartHandshake size={11} />} label={`${usdc(charityCut)} → charity`} />
+                <Pillar icon={<HeartHandshake size={11} />} label="10% → charity" />
               </div>
-
             </div>
           </div>
         </div>
