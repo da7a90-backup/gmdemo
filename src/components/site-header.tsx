@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Logo } from "@/components/logo";
+import { CountdownCompact } from "@/components/countdown";
+import { activeDraw } from "@/lib/mock-data";
 
 const NAV = [
   { href: "/tickets", label: "Tickets" },
@@ -38,6 +40,12 @@ export function SiteHeader() {
             </Link>
           ))}
         </nav>
+
+        {/* Live-draw countdown — desktop: between My Entries and Buy tickets;
+            mobile: nav is hidden, so it sits between the logo and the hamburger. */}
+        <Link href="/live" aria-label="Countdown to the live drawing" className="shrink-0">
+          <CountdownCompact targetISO={activeDraw.drawDateISO} />
+        </Link>
 
         <div className="flex items-center gap-2">
           <Link

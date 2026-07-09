@@ -36,15 +36,6 @@ export function TicketsBuy() {
           </div>
         </div>
       )}
-      {/* PRIZE STRIP */}
-      <div className="bg-bg-dark text-fg border-b border-ink/10">
-        <div className="mx-auto max-w-[1400px] px-5 py-3 flex flex-wrap items-center justify-between gap-3 font-condensed uppercase tracking-[0.22em] text-[12px]">
-          <span><span className="text-accent-bright">Prize:</span> {v.year} {v.make} {v.model}</span>
-          <span><span className="text-fg-2">Value</span> <span className="numeral text-base text-fg">${(v.valueUSD / 1000).toFixed(0)}k</span></span>
-          <span><span className="text-fg-2">Drawn live</span> <span className="text-fg">{niceWeekday(activeDraw.drawDateISO)}</span></span>
-        </div>
-      </div>
-
       {/* MAIN — viewport-fitting: small vehicle + tall buy machine side-by-side */}
       <section className="mx-auto max-w-[1400px] px-5 pt-6 pb-8 grid gap-5 lg:grid-cols-12 lg:gap-6">
         {/* LEFT — vehicle gallery first, name + draw date under it */}

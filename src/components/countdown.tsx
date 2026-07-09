@@ -2,6 +2,32 @@
 import { useEffect, useState } from "react";
 import { timeUntil } from "@/lib/format";
 
+/** Slim one-line countdown pill for the site header — ticks every second. */
+export function CountdownCompact({ targetISO }: { targetISO: string }) {
+  const [t, setT] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, ms: 0 });
+
+  useEffect(() => {
+    setT(timeUntil(targetISO));
+    const id = setInterval(() => setT(timeUntil(targetISO)), 1000);
+    return () => clearInterval(id);
+  }, [targetISO]);
+
+  const p = (n: number) => String(n).padStart(2, "0");
+
+  return (
+    <span
+      suppressHydrationWarning
+      className="inline-flex items-center gap-2 border border-ink/10 bg-paper-3 px-3 py-1.5 rounded-full whitespace-nowrap"
+    >
+      <span className="h-1.5 w-1.5 rounded-full bg-brass animate-pulse" aria-hidden />
+      <span className="dateline on-paper hidden lg:inline">Draw in</span>
+      <span className="font-condensed numeral font-bold text-[13px] text-ink tracking-[0.06em]">
+        {p(t.days)}d : {p(t.hours)}h : {p(t.minutes)}m : {p(t.seconds)}s
+      </span>
+    </span>
+  );
+}
+
 export function Countdown({ targetISO }: { targetISO: string }) {
   const [t, setT] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, ms: 0 });
   const [mounted, setMounted] = useState(false);
