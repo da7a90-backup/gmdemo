@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { activeDraw } from "@/lib/mock-data";
-import { usd } from "@/lib/format";
 
 /**
  * Home-page prize plate.
@@ -65,9 +64,6 @@ export function PrizePlate({
 
       <span className="absolute top-3 left-3 bg-brass text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border border-ink/10 z-10 rounded-md">
         {v.year} · {v.make}
-      </span>
-      <span className="absolute top-3 right-3 bg-accent-bright text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border border-ink/10 z-10 rounded-md">
-        {usd(v.valueUSD)}
       </span>
 
       {!minimal && (
