@@ -15,7 +15,7 @@ export function Hero() {
       {/* Overlay — headline, one-liner, countdown, Enter Now. pointer-events pass
           through to the image except on the CTA. */}
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-end text-center px-5 pb-8 sm:pb-10 lg:pb-12 pointer-events-none">
-        <h1 className="hero-headline on-dark drop-shadow" style={{ fontSize: "clamp(1.9rem, 3.5vw + 0.5rem, 3.5rem)" }}>
+        <h1 className="hero-headline on-dark drop-shadow" style={{ fontSize: "clamp(1.9rem, 3.5vw + 0.5rem, 3.5rem)", lineHeight: 1.15 }}>
           Win the <span className="accent-serif">car.</span>{" "}
           Fund the <span className="accent-brass">cause.</span>
         </h1>
