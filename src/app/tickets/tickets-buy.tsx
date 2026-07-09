@@ -12,7 +12,6 @@ import { AnimatedCounter } from "@/components/animated-counter";
 
 export function TicketsBuy() {
   const router = useRouter();
-  const remaining = activeDraw.ticketsCap - activeDraw.ticketsSold;
   const v = activeDraw.vehicle;
   const [activeImage, setActiveImage] = useState(0);
   const [redirecting, setRedirecting] = useState(false);
@@ -116,11 +115,6 @@ export function TicketsBuy() {
               )}
             </div>
 
-            <dl className="grid grid-cols-3 divide-x divide-ink/10 border-t border-ink/10">
-              <Cell k="Sold" v={intl(activeDraw.ticketsSold)} />
-              <Cell k="Left" v={intl(remaining)} tone="accent" />
-              <Cell k="Cap" v={intl(activeDraw.ticketsCap)} />
-            </dl>
           </div>
 
           {/* SPEC SHEET — headline figures + grouped data, right under the gallery */}
@@ -442,15 +436,6 @@ export function TicketsBuy() {
           <Trust icon={<HeartHandshake size={28} />} title="10% to charity" body={`Cycle ${activeDraw.cycle}: ${activeDraw.charity.name}.`} />
         </div>
       </section>
-    </div>
-  );
-}
-
-function Cell({ k, v, tone }: { k: string; v: string; tone?: "accent" }) {
-  return (
-    <div className="p-4 bg-paper-3 text-center">
-      <dt className="dateline on-paper">{k}</dt>
-      <dd className={`mt-1 font-condensed font-bold numeral text-2xl leading-none ${tone === "accent" ? "text-accent" : "text-ink"}`}>{v}</dd>
     </div>
   );
 }

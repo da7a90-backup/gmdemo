@@ -1,14 +1,11 @@
 import Link from "next/link";
 import { Countdown } from "@/components/countdown";
 import { activeDraw } from "@/lib/mock-data";
-import { intl, usd, niceWeekday } from "@/lib/format";
+import { usd, niceWeekday } from "@/lib/format";
 import { Tv2, Radio, HeartHandshake, Drum, ArrowRight } from "lucide-react";
 import { PrizePlate } from "@/components/prize-plate";
 
 export function Hero() {
-  const sold = activeDraw.ticketsSold;
-  const cap = activeDraw.ticketsCap;
-  const pct = Math.round((sold / cap) * 100);
   const v = activeDraw.vehicle;
 
   return (
@@ -27,7 +24,7 @@ export function Hero() {
         <div className="w-full lg:w-[92%] mx-auto flex flex-col border border-ink/10 bg-paper-3 shadow-soft rounded-2xl overflow-hidden">
           <PrizePlate />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-ink/10 border-b border-ink/10 bg-paper-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-ink/10 bg-paper-3">
             <div className="p-4">
               <p className="section-eyebrow on-paper">Next draw</p>
               <p className="mt-1 font-condensed uppercase tracking-[0.06em] text-[14px] text-ink leading-tight">
@@ -37,21 +34,6 @@ export function Hero() {
             <div className="p-4 flex items-center justify-center sm:justify-end">
               <Countdown targetISO={activeDraw.drawDateISO} />
             </div>
-          </div>
-
-          <div className="p-4 bg-paper-3">
-            <div className="flex items-baseline justify-between mb-2 text-[13px]">
-              <span className="text-ink-2">
-                <strong className="text-ink font-condensed numeral text-base">{intl(sold)}</strong>
-                {" / "}
-                <span className="numeral">{intl(cap)}</span> sold
-              </span>
-              <span className="font-condensed numeral text-accent font-bold">{pct}%</span>
-            </div>
-            <div className="h-2.5 bg-paper border border-ink/10 overflow-hidden rounded-full">
-              <div className="h-full bg-accent rounded-full" style={{ width: `${pct}%` }} aria-hidden />
-            </div>
-            <p className="mt-2 dateline on-paper">Sales close when the cap is reached.</p>
           </div>
         </div>
 
