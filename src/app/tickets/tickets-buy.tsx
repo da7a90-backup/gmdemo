@@ -46,7 +46,7 @@ export function TicketsBuy() {
       {/* MAIN — viewport-fitting: small vehicle + tall buy machine side-by-side */}
       <section className="mx-auto max-w-[1400px] px-5 pt-6 pb-8 grid gap-5 lg:grid-cols-12 lg:gap-6">
         {/* LEFT — vehicle (compact) */}
-        <div className="lg:col-span-6 flex flex-col">
+        <div className="lg:col-span-7 flex flex-col">
           <div className="flex items-baseline gap-3">
             <span className="font-condensed numeral font-bold text-[2.25rem] text-accent leading-none">
               №{String(activeDraw.cycle).padStart(2, "0")}
@@ -124,7 +124,7 @@ export function TicketsBuy() {
         </div>
 
         {/* RIGHT — Compact ticket machine, single row of 6 */}
-        <div className="lg:col-span-6">
+        <div className="lg:col-span-5">
           <div className="lg:sticky lg:top-24 border-heavy-3 bg-paper-4 relative shadow-soft rounded-2xl overflow-hidden">
             <div className="bg-accent-bright text-ink border-b border-ink/10 px-5 py-2.5 flex items-center justify-between">
               <span className="font-condensed uppercase tracking-[0.24em] text-[12px] font-bold">★ Buy raffle tickets</span>
@@ -134,7 +134,7 @@ export function TicketsBuy() {
             <div className="px-5 pt-3 pb-2.5 flex items-end justify-between gap-3 border-b border-ink/10">
               <div>
                 <p className="section-eyebrow on-paper">Today&apos;s price</p>
-                <p className="mt-0.5 font-display font-bold leading-none text-ink" style={{ fontSize: "2.5rem", lineHeight: "0.85" }}>
+                <p className="mt-0.5 font-display font-bold leading-none text-ink" style={{ fontSize: "2rem", lineHeight: "0.85" }}>
                   $10<span className="text-ink-3 text-base align-top ml-1">/ticket</span>
                 </p>
               </div>
