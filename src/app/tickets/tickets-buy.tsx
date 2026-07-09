@@ -141,7 +141,7 @@ export function TicketsBuy() {
         <div className="lg:col-span-5">
           <div className="lg:sticky lg:top-24 border-heavy-3 bg-paper-4 relative shadow-soft rounded-2xl overflow-hidden">
             <div className="bg-accent-bright text-ink border-b border-ink/10 px-5 py-2.5 flex items-center justify-between">
-              <span className="font-condensed uppercase tracking-[0.24em] text-[12px] font-bold">★ Buy raffle tickets</span>
+              <span className="font-condensed uppercase tracking-[0.24em] text-[12px] font-bold">★ Buy tickets</span>
               <span className="font-condensed uppercase tracking-[0.22em] text-[11px]">$10 / ticket</span>
             </div>
 
