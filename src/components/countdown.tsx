@@ -59,13 +59,13 @@ export function Countdown({ targetISO }: { targetISO: string }) {
       suppressHydrationWarning
       className="inline-flex items-end gap-2 border border-ink/10 bg-paper px-3 py-2 rounded-md"
     >
-      <Cell n={t.days} label="d" />
+      <Cell n={t.days} label="days" />
       <span className="font-condensed text-xl text-ink-3 mb-3">:</span>
-      <Cell n={t.hours} label="h" />
+      <Cell n={t.hours} label="hours" />
       <span className="font-condensed text-xl text-ink-3 mb-3">:</span>
-      <Cell n={t.minutes} label="m" />
+      <Cell n={t.minutes} label="minutes" />
       <span className="font-condensed text-xl text-ink-3 mb-3">:</span>
-      <Cell n={t.seconds} label="s" />
+      <Cell n={t.seconds} label="seconds" />
     </div>
   );
 }
