@@ -9,6 +9,7 @@ import { activeDraw, ticketTiers, membershipTiers, winners, lifetimeStats } from
 import { usdc, intl, niceWeekday, niceDate, usd } from "@/lib/format";
 import { Label } from "@/components/sticker";
 import { AnimatedCounter } from "@/components/animated-counter";
+import { CountdownBar } from "@/components/countdown";
 import { FAQAccordion } from "@/components/faq-accordion";
 import { LatestWinnerCard } from "@/components/latest-winner-card";
 
@@ -160,6 +161,8 @@ export function TicketsBuy() {
         {/* RIGHT — Compact ticket machine */}
         <div className="lg:col-span-5">
           <div className="lg:sticky lg:top-24 border-heavy-3 bg-paper-4 relative shadow-soft rounded-2xl overflow-hidden">
+            <CountdownBar targetISO={activeDraw.drawDateISO} />
+
             {/* One-time / Membership selector */}
             <div className="px-4 pt-3 pb-2.5 bg-paper-3 border-b border-ink/10">
               <div className="flex items-center border border-ink/10 bg-paper-4 rounded-full overflow-hidden">

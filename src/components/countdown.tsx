@@ -28,6 +28,31 @@ export function CountdownCompact({ targetISO }: { targetISO: string }) {
   );
 }
 
+/** Full-width dark countdown bar — buy-box header on the tickets page. */
+export function CountdownBar({ targetISO, label = "Draw closes in" }: { targetISO: string; label?: string }) {
+  const [t, setT] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, ms: 0 });
+
+  useEffect(() => {
+    setT(timeUntil(targetISO));
+    const id = setInterval(() => setT(timeUntil(targetISO)), 1000);
+    return () => clearInterval(id);
+  }, [targetISO]);
+
+  const p = (n: number) => String(n).padStart(2, "0");
+
+  return (
+    <div
+      suppressHydrationWarning
+      className="w-full bg-ink text-paper px-5 py-3 flex items-center justify-between gap-3"
+    >
+      <span className="font-condensed uppercase tracking-[0.22em] text-[11px] text-paper/70">{label}</span>
+      <span className="font-condensed numeral font-bold text-xl text-brass tracking-[0.08em]">
+        {p(t.days)} : {p(t.hours)} : {p(t.minutes)} : {p(t.seconds)}
+      </span>
+    </div>
+  );
+}
+
 export function Countdown({ targetISO }: { targetISO: string }) {
   const [t, setT] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, ms: 0 });
   const [mounted, setMounted] = useState(false);
