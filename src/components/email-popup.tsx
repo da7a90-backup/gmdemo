@@ -1,13 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { X, Mail, ArrowRight, HeartHandshake } from "lucide-react";
+import Link from "next/link";
+import { X, ArrowRight, HeartHandshake, MessageSquareText, Smartphone } from "lucide-react";
 
-/** Routes where the newsletter popup should never appear (interrupts the buy / confirmation flow). */
+/** Routes where the SMS popup should never appear (interrupts the buy / confirmation flow). */
 const SUPPRESS_PATHS = ["/checkout", "/thank-you"];
 
 /**
- * Email-capture popup.
+ * SMS list-grabber popup (phone capture).
  *
  * Trigger logic comes from Popupsmart's 2025 benchmark report (1.24B displays)
  * + Omnisend/Wisepops data: scroll-based triggers convert at ~5.37% and 6-10s
@@ -15,17 +16,29 @@ const SUPPRESS_PATHS = ["/checkout", "/thank-you"];
  * or instant load (~1.9%). We fire on whichever comes first — 8s delay OR 50% scroll —
  * once per session, with a 1-click skip.
  *
- * Source: popupsmart.com/blog/popup-conversion-benchmark-report (2025)
+ * SMS capture pattern follows Postscript/Attentive guidance:
+ *  - phone opt-in stands alone (carriers prohibit combining it with email in one CTA)
+ *  - TCPA consent disclosure sits directly under the CTA, with an asterisk on the CTA
+ *  - Terms/Privacy links visually distinct from surrounding disclosure text
+ *  - double opt-in: success state tells the subscriber to reply Y to confirm
  */
 const STORAGE_KEY = "gm:popup-seen-v1";
 const DELAY_MS = 8000;
 const SCROLL_PCT = 0.5;
 
+/** Format a US phone number as (XXX) XXX-XXXX while typing. */
+function formatPhone(raw: string): string {
+  const d = raw.replace(/\D/g, "").slice(0, 10);
+  if (d.length < 4) return d;
+  if (d.length < 7) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
+  return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
+}
+
 export function EmailPopup() {
   const pathname = usePathname();
   const suppressed = SUPPRESS_PATHS.some((p) => pathname?.startsWith(p));
   const [open, setOpen] = useState(false);
-  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
@@ -75,8 +88,9 @@ export function EmailPopup() {
   const onClose = () => setOpen(false);
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (phone.replace(/\D/g, "").length !== 10) return;
     setSubmitted(true);
-    setTimeout(() => setOpen(false), 2200);
+    setTimeout(() => setOpen(false), 3200);
   };
 
   if (!open) return null;
@@ -85,7 +99,7 @@ export function EmailPopup() {
     <div
       role="dialog"
       aria-modal="true"
-      aria-labelledby="email-popup-title"
+      aria-labelledby="sms-popup-title"
       className="fixed inset-0 z-50 flex items-center justify-center px-4"
     >
       <button
@@ -106,49 +120,60 @@ export function EmailPopup() {
         </button>
 
         <div className="border-heavy-3 bg-paper-3 shadow-lift rounded-2xl overflow-hidden">
-        <div className="bg-accent-bright text-ink border-b border-ink/10 px-5 py-2.5 flex items-center justify-between">
-          <span className="font-condensed uppercase tracking-[0.24em] text-[12px] font-bold">★ Inner circle</span>
-          <span className="font-condensed uppercase tracking-[0.22em] text-[11px]">Free</span>
+        <div className="bg-brass text-ink border-b border-ink/10 px-5 py-2.5 flex items-center justify-between">
+          <span className="font-condensed uppercase tracking-[0.24em] text-[12px] font-bold">★ Text club</span>
+          <span className="font-condensed uppercase tracking-[0.22em] text-[11px]">Free to join</span>
         </div>
 
         {!submitted ? (
           <div className="px-6 pt-7 pb-6">
             <p className="section-eyebrow on-paper">Don&apos;t miss the next draw</p>
-            <h2 className="mt-2 font-display font-bold text-ink leading-[1.05]" style={{ fontSize: "1.875rem" }}>
-              Get the drawing alerts<br />
-              <span className="text-accent">before the public.</span>
+            <h2 id="sms-popup-title" className="mt-2 font-display font-bold text-ink leading-[1.05]" style={{ fontSize: "1.875rem" }}>
+              Get draw-night alerts<br />
+              <span className="text-accent">by text.</span>
             </h2>
             <p className="mt-3 text-[15px] text-ink-2 font-serif">
-              Early access to bonus ticket offers, flash sales, and live-drawing reminders. Email only — no spam, one click to unsubscribe.
+              Texts land first: bonus ticket offers, flash sales, and a heads-up before we go live. Beat the inbox crowd.
             </p>
 
             <form onSubmit={onSubmit} className="mt-6">
               <label className="block">
-                <span className="dateline on-paper">Email</span>
+                <span className="dateline on-paper">Mobile number</span>
                 <span className="mt-1.5 flex items-center border border-ink/10 bg-paper-4 px-3 rounded-lg">
-                  <Mail size={16} className="text-ink-3" />
+                  <Smartphone size={16} className="text-ink-3 shrink-0" />
+                  <span className="ml-2 font-condensed text-[15px] text-ink-3 select-none">+1</span>
                   <input
-                    type="email"
+                    type="tel"
+                    inputMode="tel"
+                    autoComplete="tel-national"
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    className="ml-2 w-full h-12 bg-transparent text-[16px] text-ink placeholder:text-ink-3 outline-none"
+                    value={phone}
+                    onChange={(e) => setPhone(formatPhone(e.target.value))}
+                    placeholder="(555) 123-4567"
+                    className="ml-2 w-full h-12 bg-transparent text-[16px] text-ink placeholder:text-ink-3 outline-none numeral"
                     autoFocus
                   />
                 </span>
               </label>
               <button
                 type="submit"
-                className="mt-4 w-full inline-flex items-center justify-center gap-2 h-12 bg-accent-bright text-ink border border-ink/10 font-condensed uppercase tracking-[0.24em] text-[13px] font-bold hover:bg-accent hover:text-paper-3 btn-poly"
+                className="mt-4 w-full inline-flex items-center justify-center gap-2 h-12 bg-brass text-ink border border-ink/10 font-condensed uppercase tracking-[0.24em] text-[13px] font-bold hover:bg-ink hover:text-paper-3 btn-poly transition-colors"
               >
-                Send me the alerts <ArrowRight size={16} strokeWidth={2.5} />
+                Text me the alerts* <ArrowRight size={16} strokeWidth={2.5} />
               </button>
+
+              {/* TCPA consent disclosure — must sit directly under the CTA, no gaps */}
+              <p className="mt-3 text-[11px] leading-snug text-ink-3">
+                *By signing up via text, you agree to receive recurring automated promotional and personalized marketing text messages (e.g. draw reminders) from Generous Motors at the number provided. Consent is not a condition of any purchase. Reply HELP for help and STOP to cancel. Msg frequency varies. Msg &amp; data rates may apply. View{" "}
+                <Link href="/about" className="font-bold underline underline-offset-2 text-accent">TERMS</Link>
+                {" "}&amp;{" "}
+                <Link href="/about" className="font-bold underline underline-offset-2 text-accent">PRIVACY</Link>.
+              </p>
             </form>
 
-            <div className="mt-5 pt-5 border-t border-rule-soft flex items-start gap-2.5 text-[12px] text-ink-3 font-serif italic">
+            <div className="mt-4 pt-4 border-t border-rule-soft flex items-start gap-2.5 text-[12px] text-ink-3 font-serif italic">
               <HeartHandshake size={14} className="mt-0.5 text-charity shrink-0" />
-              <span>10% of every cycle&apos;s gross profits goes directly to that cycle&apos;s nonprofit partner. Subscribing helps us reach more drivers — and more charities.</span>
+              <span>10% of every cycle&apos;s gross goes to that cycle&apos;s nonprofit partner. Joining the text club helps us reach more drivers — and more charities.</span>
             </div>
 
             <button
@@ -161,12 +186,12 @@ export function EmailPopup() {
           </div>
         ) : (
           <div className="px-6 pt-9 pb-9 text-center">
-            <div className="mx-auto inline-flex h-14 w-14 items-center justify-center bg-charity text-paper-3 border border-ink/10 rounded-full">
-              <Mail size={22} />
+            <div className="mx-auto inline-flex h-14 w-14 items-center justify-center bg-brass text-ink border border-ink/10 rounded-full">
+              <MessageSquareText size={22} />
             </div>
-            <h2 className="mt-5 font-display font-bold text-2xl text-ink">You&apos;re on the list.</h2>
+            <h2 className="mt-5 font-display font-bold text-2xl text-ink">Check your phone.</h2>
             <p className="mt-2 text-ink-2 font-serif">
-              First alert lands before the next bonus drop.
+              We just texted {phone || "you"}. Reply <strong className="font-condensed not-italic">Y</strong> to confirm your spot — that&apos;s it.
             </p>
           </div>
         )}
