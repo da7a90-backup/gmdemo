@@ -70,10 +70,7 @@ export function TicketsBuy() {
                   backgroundPosition: "center",
                 }}
               >
-                <span className="absolute top-2.5 left-2.5 bg-brass text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border border-ink/10 rounded-md">
-                  {v.year} · {v.make}
-                </span>
-                <span className="absolute bottom-2.5 right-2.5 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2 py-1 border border-ink/10 rounded-md">
+                <span className="absolute bottom-2.5 right-2.5 bg-ink/25 text-paper backdrop-blur-[1px] font-condensed uppercase tracking-[0.22em] text-[10px] px-2 py-1 rounded-md">
                   {activeImage + 1} / {v.images.length}
                 </span>
 
