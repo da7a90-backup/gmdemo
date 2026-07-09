@@ -119,24 +119,24 @@ export function EmailPopup() {
           <X size={16} />
         </button>
 
-        <div className="border-heavy-3 bg-paper-3 shadow-lift rounded-2xl overflow-hidden">
+        <div className="border-heavy-3 bg-paper-3 shadow-lift rounded-2xl overflow-hidden max-h-[88dvh] overflow-y-auto">
         <div className="bg-accent-bright text-ink border-b border-ink/10 px-5 py-2.5 flex items-center justify-between">
           <span className="font-condensed uppercase tracking-[0.24em] text-[12px] font-bold">★ Text club</span>
           <span className="font-condensed uppercase tracking-[0.22em] text-[11px]">Free to join</span>
         </div>
 
         {!submitted ? (
-          <div className="px-6 pt-7 pb-6">
+          <div className="px-5 pt-5 pb-5 sm:px-6 sm:pt-7 sm:pb-6">
             <p className="section-eyebrow on-paper">Don&apos;t miss the next draw</p>
-            <h2 id="sms-popup-title" className="mt-2 font-display font-bold text-ink leading-[1.05]" style={{ fontSize: "1.875rem" }}>
+            <h2 id="sms-popup-title" className="mt-2 font-display font-bold text-ink leading-[1.05] text-2xl sm:text-3xl">
               Get draw-night alerts<br />
               <span className="text-accent">by text.</span>
             </h2>
-            <p className="mt-3 text-[15px] text-ink-2 font-serif">
+            <p className="mt-2 text-[13px] sm:text-[15px] text-ink-2 font-serif">
               Texts land first: bonus ticket offers, flash sales, and a heads-up before we go live. Beat the inbox crowd.
             </p>
 
-            <form onSubmit={onSubmit} className="mt-6">
+            <form onSubmit={onSubmit} className="mt-4 sm:mt-6">
               <label className="block">
                 <span className="dateline on-paper">Mobile number</span>
                 <span className="mt-1.5 flex items-center border border-ink/10 bg-paper-4 px-3 rounded-lg">
@@ -150,20 +150,20 @@ export function EmailPopup() {
                     value={phone}
                     onChange={(e) => setPhone(formatPhone(e.target.value))}
                     placeholder="(555) 123-4567"
-                    className="ml-2 w-full h-12 bg-transparent text-[16px] text-ink placeholder:text-ink-3 outline-none numeral"
+                    className="ml-2 w-full h-11 sm:h-12 bg-transparent text-[16px] text-ink placeholder:text-ink-3 outline-none numeral"
                     autoFocus
                   />
                 </span>
               </label>
               <button
                 type="submit"
-                className="mt-4 w-full inline-flex items-center justify-center gap-2 h-12 bg-accent-bright text-ink border border-ink/10 font-condensed uppercase tracking-[0.24em] text-[13px] font-bold hover:bg-accent hover:text-paper-3 btn-poly transition-colors"
+                className="mt-3 w-full inline-flex items-center justify-center gap-2 h-11 sm:h-12 bg-accent-bright text-ink border border-ink/10 font-condensed uppercase tracking-[0.24em] text-[13px] font-bold hover:bg-accent hover:text-paper-3 btn-poly transition-colors"
               >
                 Text me the alerts* <ArrowRight size={16} strokeWidth={2.5} />
               </button>
 
               {/* TCPA consent disclosure — must sit directly under the CTA, no gaps */}
-              <p className="mt-3 text-[11px] leading-snug text-ink-3">
+              <p className="mt-2.5 text-[10px] sm:text-[11px] leading-snug text-ink-3">
                 *By signing up via text, you agree to receive recurring automated promotional and personalized marketing text messages (e.g. draw reminders) from Generous Motors at the number provided. Consent is not a condition of any purchase. Reply HELP for help and STOP to cancel. Msg frequency varies. Msg &amp; data rates may apply. View{" "}
                 <Link href="/about" className="font-bold underline underline-offset-2 text-accent">TERMS</Link>
                 {" "}&amp;{" "}
@@ -171,7 +171,7 @@ export function EmailPopup() {
               </p>
             </form>
 
-            <div className="mt-4 pt-4 border-t border-rule-soft flex items-start gap-2.5 text-[12px] text-ink-3 font-serif italic">
+            <div className="mt-4 pt-4 border-t border-rule-soft hidden sm:flex items-start gap-2.5 text-[12px] text-ink-3 font-serif italic">
               <HeartHandshake size={14} className="mt-0.5 text-charity shrink-0" />
               <span>10% of every cycle&apos;s gross goes to that cycle&apos;s nonprofit partner. Joining the text club helps us reach more drivers — and more charities.</span>
             </div>
@@ -179,7 +179,7 @@ export function EmailPopup() {
             <button
               type="button"
               onClick={onClose}
-              className="mt-4 w-full text-center text-[12px] text-ink-3 underline underline-offset-4 hover:text-ink"
+              className="mt-3 sm:mt-4 w-full text-center text-[12px] text-ink-3 underline underline-offset-4 hover:text-ink"
             >
               No thanks, take me back
             </button>
