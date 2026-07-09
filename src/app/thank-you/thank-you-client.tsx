@@ -117,7 +117,7 @@ export function ThankYouClient() {
         className="absolute inset-0 -z-10"
         style={{
           background:
-            "radial-gradient(900px 400px at 50% -10%, rgba(235,200,82,0.15), transparent 60%), radial-gradient(600px 250px at 30% 110%, rgba(31,64,49,0.13), transparent 60%)",
+            "radial-gradient(900px 400px at 50% -10%, rgba(255,242,0,0.15), transparent 60%), radial-gradient(600px 250px at 30% 110%, rgba(31,64,49,0.13), transparent 60%)",
         }}
       />
 

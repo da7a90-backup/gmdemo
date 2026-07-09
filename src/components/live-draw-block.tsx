@@ -15,7 +15,7 @@ export function LiveDrawBlock() {
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(800px 300px at 80% 30%, rgba(235,200,82,0.22), transparent 60%), radial-gradient(600px 200px at 10% 90%, rgba(26,77,48,0.22), transparent 60%)",
+              "radial-gradient(800px 300px at 80% 30%, rgba(255,242,0,0.22), transparent 60%), radial-gradient(600px 200px at 10% 90%, rgba(26,77,48,0.22), transparent 60%)",
           }}
         />
         <div className="relative grid gap-10 p-8 lg:grid-cols-12 lg:p-14 border-b border-paper/30">

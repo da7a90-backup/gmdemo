@@ -15,7 +15,7 @@ export default function AboutPage() {
           className="absolute inset-0 -z-10"
           style={{
             background:
-              "radial-gradient(900px 400px at 90% -10%, rgba(235,200,82,0.14), transparent 60%), radial-gradient(700px 350px at 0% 100%, rgba(31,64,49,0.12), transparent 60%)",
+              "radial-gradient(900px 400px at 90% -10%, rgba(255,242,0,0.14), transparent 60%), radial-gradient(700px 350px at 0% 100%, rgba(31,64,49,0.12), transparent 60%)",
           }}
         />
         <div className="mx-auto max-w-3xl px-5 py-12 relative">

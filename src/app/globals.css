@@ -33,13 +33,13 @@
   --color-charity-hover: #0f3520;
   --color-charity-soft: #d2decb;
 
-  /* Vault yellow — warm secondary paired with the teal accent.
+  /* Neon yellow — high-vis secondary paired with the teal accent.
      "brass" name kept as an alias so existing usages keep working.
      Yellow carries dark ink text only — never white. */
-  --color-brass: #ebc852;        /* vault yellow */
-  --color-brass-hover: #d4ad2f;  /* darker gold for hover states */
-  --color-brass-soft: #f8eec6;   /* pale tint for soft backgrounds */
-  --color-brass-deep: #8a6d00;   /* legible amber for small text on cream */
+  --color-brass: #fff200;       /* neon yellow */
+  --color-brass-hover: #d9ce00;  /* darker neon for hover states */
+  --color-brass-soft: #fffbc2;   /* pale tint for soft backgrounds */
+  --color-brass-deep: #6f6a00;   /* legible olive for small text on cream */
 
   --color-navy: #163252;
   --color-navy-soft: #cfd6df;

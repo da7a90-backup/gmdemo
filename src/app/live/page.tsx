@@ -15,7 +15,7 @@ export default function LivePage() {
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(900px 350px at 70% 30%, rgba(235,200,82,0.22), transparent 60%), radial-gradient(500px 200px at 10% 100%, rgba(31,64,49,0.22), transparent 60%)",
+            "radial-gradient(900px 350px at 70% 30%, rgba(255,242,0,0.22), transparent 60%), radial-gradient(500px 200px at 10% 100%, rgba(31,64,49,0.22), transparent 60%)",
         }}
       />
       <span aria-hidden className="absolute -top-6 -right-6 display-mega text-paper/[0.05] select-none">DRAW</span>

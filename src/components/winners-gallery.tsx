@@ -63,7 +63,7 @@ export function WinnerCard({ winner: w }: { winner: typeof winners[number] }) {
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(400px 160px at 50% 90%, rgba(235,200,82,0.4), transparent 60%)",
+              "radial-gradient(400px 160px at 50% 90%, rgba(255,242,0,0.4), transparent 60%)",
           }}
         />
         <div className="absolute inset-0 flex items-center justify-center">
