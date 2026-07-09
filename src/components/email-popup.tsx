@@ -120,7 +120,7 @@ export function EmailPopup() {
         </button>
 
         <div className="border-heavy-3 bg-paper-3 shadow-lift rounded-2xl overflow-hidden">
-        <div className="bg-brass text-ink border-b border-ink/10 px-5 py-2.5 flex items-center justify-between">
+        <div className="bg-accent-bright text-ink border-b border-ink/10 px-5 py-2.5 flex items-center justify-between">
           <span className="font-condensed uppercase tracking-[0.24em] text-[12px] font-bold">★ Text club</span>
           <span className="font-condensed uppercase tracking-[0.22em] text-[11px]">Free to join</span>
         </div>
@@ -157,7 +157,7 @@ export function EmailPopup() {
               </label>
               <button
                 type="submit"
-                className="mt-4 w-full inline-flex items-center justify-center gap-2 h-12 bg-brass text-ink border border-ink/10 font-condensed uppercase tracking-[0.24em] text-[13px] font-bold hover:bg-ink hover:text-paper-3 btn-poly transition-colors"
+                className="mt-4 w-full inline-flex items-center justify-center gap-2 h-12 bg-accent-bright text-ink border border-ink/10 font-condensed uppercase tracking-[0.24em] text-[13px] font-bold hover:bg-accent hover:text-paper-3 btn-poly transition-colors"
               >
                 Text me the alerts* <ArrowRight size={16} strokeWidth={2.5} />
               </button>
@@ -186,7 +186,7 @@ export function EmailPopup() {
           </div>
         ) : (
           <div className="px-6 pt-9 pb-9 text-center">
-            <div className="mx-auto inline-flex h-14 w-14 items-center justify-center bg-brass text-ink border border-ink/10 rounded-full">
+            <div className="mx-auto inline-flex h-14 w-14 items-center justify-center bg-charity text-paper-3 border border-ink/10 rounded-full">
               <MessageSquareText size={22} />
             </div>
             <h2 className="mt-5 font-display font-bold text-2xl text-ink">Check your phone.</h2>
