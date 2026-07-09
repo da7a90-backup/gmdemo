@@ -9,7 +9,15 @@ import { usd } from "@/lib/format";
  *  - Mobile (touch): tap-and-hold swap (pointerdown filtered by pointerType, pointerup).
  *  - Pen / stylus: treated like touch (press-and-hold).
  */
-export function PrizePlate() {
+export function PrizePlate({
+  minimal = false,
+  aspect = "aspect-[5/3] md:aspect-[2/1] lg:aspect-[21/9]",
+}: {
+  /** Hide the center hint pills + bottom caption (for heroes that overlay their own content). */
+  minimal?: boolean;
+  /** Tailwind aspect classes for the plate. */
+  aspect?: string;
+}) {
   const v = activeDraw.vehicle;
   const primary = v.images[0];
   const alt = v.images[1] ?? v.images[0];
@@ -17,7 +25,7 @@ export function PrizePlate() {
 
   return (
     <div
-      className="relative aspect-[5/3] md:aspect-[2/1] lg:aspect-[21/9] overflow-hidden border-b border-ink/10 select-none"
+      className={`relative ${aspect} overflow-hidden border-b border-ink/10 select-none`}
       style={{ WebkitTouchCallout: "none", WebkitUserSelect: "none" }}
       onMouseEnter={() => setActive(true)}
       onMouseLeave={() => setActive(false)}
@@ -62,6 +70,7 @@ export function PrizePlate() {
         {usd(v.valueUSD)}
       </span>
 
+      {!minimal && (
       <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end z-10">
         <div>
           <p className="font-condensed uppercase tracking-[0.22em] text-[10px] text-paper/70">Prize</p>
@@ -73,7 +82,10 @@ export function PrizePlate() {
           {v.trim}
         </p>
       </div>
+      )}
 
+      {!minimal && (
+      <>
       <span
         className="hint-hover absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 px-2.5 py-1 bg-paper text-ink border border-ink/10 font-condensed uppercase tracking-[0.22em] text-[10px] pointer-events-none transition-opacity duration-200 rounded-full"
         style={{ opacity: active ? 0 : 1 }}
@@ -86,6 +98,8 @@ export function PrizePlate() {
       >
         ↻ press for another angle
       </span>
+      </>
+      )}
 
       <style>{`
         .hint-press { display: none; }
