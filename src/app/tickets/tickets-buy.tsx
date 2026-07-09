@@ -134,28 +134,6 @@ export function TicketsBuy() {
             </p>
           </div>
 
-          {/* SPEC SHEET — headline figures */}
-          <div className="mt-4">
-            <div className="flex items-baseline justify-between gap-3">
-              <p className="section-eyebrow on-paper section-eyebrow-rule">Spec sheet · what you&apos;re winning</p>
-              <Label tone="brass" variant="outline" size="sm">As configured</Label>
-            </div>
-
-            <dl className="mt-3 grid grid-cols-2 sm:grid-cols-4 sm:divide-x divide-paper/10 bg-ink text-paper rounded-xl overflow-hidden border border-ink/10 shadow-soft">
-              {v.headlineSpecs.map((s) => (
-                <div key={s.label} className="px-2.5 py-2.5 text-center">
-                  <dd className="font-condensed numeral font-bold text-brass leading-none" style={{ fontSize: "clamp(1.15rem, 1.5vw, 1.5rem)" }}>
-                    {s.decimals ? (
-                      <>{s.value.toFixed(s.decimals)}{s.suffix}</>
-                    ) : (
-                      <AnimatedCounter value={s.value} suffix={s.suffix} />
-                    )}
-                  </dd>
-                  <dt className="mt-1 font-condensed uppercase tracking-[0.22em] text-[9px] text-paper/60">{s.label}</dt>
-                </div>
-              ))}
-            </dl>
-          </div>
         </div>
 
         {/* RIGHT — Compact ticket machine */}
@@ -270,6 +248,28 @@ export function TicketsBuy() {
                 <Pillar icon={<HeartHandshake size={11} />} label="10% → charity" />
               </div>
             </div>
+          </div>
+          {/* SPEC SHEET (under the ticket box) — headline figures */}
+          <div className="mt-4">
+            <div className="flex items-baseline justify-between gap-3">
+              <p className="section-eyebrow on-paper section-eyebrow-rule">Spec sheet · what you&apos;re winning</p>
+              <Label tone="brass" variant="outline" size="sm">As configured</Label>
+            </div>
+
+            <dl className="mt-3 grid grid-cols-2 sm:grid-cols-4 sm:divide-x divide-paper/10 bg-ink text-paper rounded-xl overflow-hidden border border-ink/10 shadow-soft">
+              {v.headlineSpecs.map((s) => (
+                <div key={s.label} className="px-2.5 py-2.5 text-center">
+                  <dd className="font-condensed numeral font-bold text-brass leading-none" style={{ fontSize: "clamp(1.15rem, 1.5vw, 1.5rem)" }}>
+                    {s.decimals ? (
+                      <>{s.value.toFixed(s.decimals)}{s.suffix}</>
+                    ) : (
+                      <AnimatedCounter value={s.value} suffix={s.suffix} />
+                    )}
+                  </dd>
+                  <dt className="mt-1 font-condensed uppercase tracking-[0.22em] text-[9px] text-paper/60">{s.label}</dt>
+                </div>
+              ))}
+            </dl>
           </div>
         </div>
       </section>
