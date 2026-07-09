@@ -160,23 +160,6 @@ export function TicketsBuy() {
         {/* RIGHT — Compact ticket machine */}
         <div className="lg:col-span-5">
           <div className="lg:sticky lg:top-24 border-heavy-3 bg-paper-4 relative shadow-soft rounded-2xl overflow-hidden">
-            <div className="bg-accent-bright text-ink border-b border-ink/10 px-5 py-2.5 flex items-center justify-between">
-              <span className="font-condensed uppercase tracking-[0.24em] text-[12px] font-bold">★ Buy tickets</span>
-              <span className="font-condensed uppercase tracking-[0.22em] text-[11px]">$10 / ticket</span>
-            </div>
-
-            <div className="px-4 pt-2.5 pb-2 flex items-end justify-between gap-3 border-b border-ink/10">
-              <div>
-                <p className="section-eyebrow on-paper">Today&apos;s price</p>
-                <p className="mt-0.5 font-display font-bold leading-none text-ink" style={{ fontSize: "1.75rem", lineHeight: "0.85" }}>
-                  $10<span className="text-ink-3 text-base align-top ml-1">/ticket</span>
-                </p>
-              </div>
-              <p className="dateline on-paper text-right">
-                Bundles save<br />up to <span className="text-accent">$300</span>
-              </p>
-            </div>
-
             {/* One-time / Membership selector */}
             <div className="px-4 pt-3 pb-2.5 bg-paper-3 border-b border-ink/10">
               <div className="flex items-center border border-ink/10 bg-paper-4 rounded-full overflow-hidden">
