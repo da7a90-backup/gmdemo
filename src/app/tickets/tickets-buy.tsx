@@ -235,42 +235,40 @@ export function TicketsBuy() {
                   ))}
                 </div>
               ) : (
-                <div className="mt-3 flex flex-col gap-2">
+                <div className="mt-3 grid grid-cols-3 gap-2">
                   {membershipTiers.map((m) => {
                     const listValue = m.monthlyEntries * 10;
                     const pctOff = Math.round((1 - m.monthlyUSD / listValue) * 100);
                     return (
                       <div
                         key={m.id}
-                        className={`relative border rounded-xl bg-paper-4 p-3.5 ${
+                        className={`relative flex flex-col items-center border rounded-lg bg-paper-4 px-2.5 pt-3 pb-2.5 text-center ${
                           m.popular ? "border-brass ring-1 ring-brass" : "border-ink/10"
                         }`}
                       >
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="font-display font-bold text-lg text-ink leading-none">{m.name}</p>
-                          {m.popular && <Label tone="brass" size="sm">Best value</Label>}
-                        </div>
-                        <p className="mt-1.5 font-condensed uppercase tracking-[0.18em] text-[11px] text-charity font-semibold">
-                          {m.monthlyEntries} auto-entries · every cycle
-                        </p>
-                        <div className="mt-2 flex items-end justify-between gap-3">
-                          <div className="flex items-baseline gap-2">
-                            <s className="font-condensed numeral text-ink-3 text-lg" aria-label={`Normal price ${usd(listValue)}`}>
-                              {usd(listValue)}
-                            </s>
-                            <span className="font-display font-bold text-xl text-ink leading-none">
-                              {usd(m.monthlyUSD)}<span className="text-ink-3 text-sm font-condensed">/mo</span>
-                            </span>
-                            <span className="inline-flex items-center bg-brass text-ink px-2 py-0.5 font-condensed uppercase tracking-[0.18em] text-[9px] font-bold border border-ink/10 rounded-full">
-                              Members save {pctOff}%
-                            </span>
-                          </div>
-                        </div>
-                        <p className="mt-1 dateline on-paper">{m.monthlyEntries} tickets normally {usd(listValue)} · +{m.shopDiscountPct}% off the shop</p>
+                        {m.popular && (
+                          <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0 border border-ink/10 bg-brass text-ink font-condensed uppercase tracking-[0.18em] text-[8px] whitespace-nowrap font-bold rounded-full">
+                            ★ Best value
+                          </span>
+                        )}
+                        <span className="font-display font-bold text-[15px] text-ink leading-none">{m.name}</span>
+                        <span className="mt-1.5 font-condensed numeral text-2xl leading-none font-bold text-ink">{m.monthlyEntries}</span>
+                        <span className="font-condensed uppercase tracking-[0.18em] text-[9px] text-ink-3 mt-0.5">
+                          entries / cycle
+                        </span>
+                        <span className="mt-1.5 flex items-baseline gap-1.5">
+                          <s className="font-condensed numeral text-ink-3 text-[13px]" aria-label={`Normal price ${usd(listValue)}`}>
+                            {usd(listValue)}
+                          </s>
+                          <span className="font-display font-bold text-lg text-ink leading-none">
+                            {usd(m.monthlyUSD)}<span className="text-ink-3 text-[11px] font-condensed">/mo</span>
+                          </span>
+                        </span>
+                        <span className="mt-1 dateline on-paper">Save {pctOff}%</span>
                         <button
                           type="button"
                           onClick={() => onBuy(m.id, "monthly")}
-                          className="mt-2.5 w-full h-9 inline-flex items-center justify-center gap-1 rounded-full bg-brass text-ink border border-ink/10 font-condensed uppercase tracking-[0.18em] text-[11px] font-bold hover:bg-ink hover:text-paper transition-colors"
+                          className="mt-2 w-full h-8 inline-flex items-center justify-center gap-1 rounded-full bg-brass text-ink border border-ink/10 font-condensed uppercase tracking-[0.18em] text-[11px] font-bold hover:bg-ink hover:text-paper transition-colors"
                         >
                           Buy now
                         </button>
