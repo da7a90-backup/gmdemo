@@ -293,7 +293,7 @@ export function TicketsBuy() {
       </section>
 
       {/* CHARITY PARTNER — giving back, this cycle */}
-      <section className="bg-charity text-paper-3 border-y border-ink/10 relative overflow-hidden grain grain-dark">
+      <section className="bg-ink text-paper-3 border-y border-ink/10 relative overflow-hidden grain grain-dark">
         <span aria-hidden className="absolute -top-10 -right-10 display-mega text-paper-3/[0.08] select-none">10%</span>
         <div className="relative mx-auto max-w-[1400px] px-5 py-16 grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-7">
@@ -317,14 +317,14 @@ export function TicketsBuy() {
               </Link>
               <Link
                 href="/blog/cycle-12-corvette-charity-pick"
-                className="inline-flex h-12 items-center gap-2 border border-paper-3 px-5 text-paper-3 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper-3 hover:text-charity rounded-full"
+                className="inline-flex h-12 items-center gap-2 border border-paper-3 px-5 text-paper-3 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper-3 hover:text-ink rounded-full"
               >
                 Why we picked them
               </Link>
             </div>
           </div>
 
-          <div className="lg:col-span-5 border border-paper-3 bg-charity-hover rounded-2xl overflow-hidden">
+          <div className="lg:col-span-5 border border-paper-3 bg-ink-raised rounded-2xl overflow-hidden">
             <div className="border-b border-paper-3 px-5 py-3 flex items-baseline justify-between">
               <p className="section-eyebrow on-dark">Lifetime · all cycles</p>
               <p className="dateline on-dark">all 501(c)(3) cycles</p>
