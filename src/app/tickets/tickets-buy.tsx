@@ -38,15 +38,15 @@ export function TicketsBuy() {
       )}
       {/* MAIN — viewport-fitting: small vehicle + tall buy machine side-by-side */}
       <section className="mx-auto max-w-[1400px] px-5 pt-6 pb-8 grid gap-5 lg:grid-cols-12 lg:gap-6">
-        {/* LEFT — vehicle gallery (second on mobile, buy box comes first) */}
-        <div className="lg:col-span-7 flex flex-col order-2 lg:order-1">
+        {/* LEFT — vehicle gallery (first on mobile too) */}
+        <div className="lg:col-span-7 flex flex-col">
           {/* Tall landscape vehicle plate — image only, no duplicated stats */}
           <div className="border-heavy bg-paper-3 relative rounded-xl overflow-hidden">
             {/* Mobile: image on top, thumbs in a horizontal row below.
                 Desktop (md+): image on left, thumbs in a vertical strip on right. */}
             <div className="flex flex-col md:flex-row">
               <div
-                className="relative md:flex-1 aspect-[2/1] md:aspect-[16/10] overflow-hidden transition-[background-image] duration-300"
+                className="relative md:flex-1 aspect-[16/10] overflow-hidden transition-[background-image] duration-300"
                 style={{
                   backgroundImage: `linear-gradient(to bottom, rgba(22,17,15,0.1) 0%, rgba(22,17,15,0.05) 35%, rgba(22,17,15,0.55) 100%), url(${v.images[activeImage] ?? v.image})`,
                   backgroundSize: "cover",
@@ -65,7 +65,7 @@ export function TicketsBuy() {
               </div>
 
               {v.images.length > 1 && (
-                <div className="border-t md:border-t-0 md:border-l border-ink/10 bg-paper-3 grid grid-cols-4 md:grid-cols-1 md:w-[90px]">
+                <div className="hidden md:grid md:border-l border-ink/10 bg-paper-3 md:grid-cols-1 md:w-[90px]">
                   {v.images.slice(0, 4).map((src, i) => {
                     const selected = i === activeImage;
                     return (
@@ -128,8 +128,8 @@ export function TicketsBuy() {
           </div>
         </div>
 
-        {/* RIGHT — Compact ticket machine (first on mobile) */}
-        <div className="lg:col-span-5 order-1 lg:order-2">
+        {/* RIGHT — Compact ticket machine */}
+        <div className="lg:col-span-5">
           <div className="lg:sticky lg:top-24 border-heavy-3 bg-paper-4 relative shadow-soft rounded-2xl overflow-hidden">
             <div className="bg-accent-bright text-ink border-b border-ink/10 px-5 py-2.5 flex items-center justify-between">
               <span className="font-condensed uppercase tracking-[0.24em] text-[12px] font-bold">★ Buy tickets</span>
