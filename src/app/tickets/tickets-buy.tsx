@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  ShieldCheck, Tv2, HeartHandshake, Lock, Drum, ArrowRight, Quote, PlayCircle,
+  ShieldCheck, Tv2, HeartHandshake, Lock, Drum, ArrowRight, Quote, PlayCircle, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { activeDraw, ticketTiers, membershipTiers, winners, lifetimeStats } from "@/lib/mock-data";
 import { usdc, intl, niceWeekday, niceDate, usd } from "@/lib/format";
@@ -56,12 +56,27 @@ export function TicketsBuy() {
                 <span className="absolute top-2.5 left-2.5 bg-brass text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border border-ink/10 rounded-md">
                   {v.year} · {v.make}
                 </span>
-                <span className="absolute top-2.5 right-2.5 bg-brass text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border border-ink/10 rounded-md">
-                  Worth · {usd(v.valueUSD)}
-                </span>
                 <span className="absolute bottom-2.5 right-2.5 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2 py-1 border border-ink/10 rounded-md">
                   {activeImage + 1} / {v.images.length}
                 </span>
+
+                {/* Mobile: transparent chevrons page through the gallery */}
+                <button
+                  type="button"
+                  aria-label="Previous image"
+                  onClick={() => setActiveImage((i) => (i - 1 + v.images.length) % v.images.length)}
+                  className="md:hidden absolute left-1.5 top-1/2 -translate-y-1/2 h-10 w-10 inline-flex items-center justify-center rounded-full bg-ink/25 text-paper backdrop-blur-[1px] active:bg-ink/40"
+                >
+                  <ChevronLeft size={24} strokeWidth={2.5} />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Next image"
+                  onClick={() => setActiveImage((i) => (i + 1) % v.images.length)}
+                  className="md:hidden absolute right-1.5 top-1/2 -translate-y-1/2 h-10 w-10 inline-flex items-center justify-center rounded-full bg-ink/25 text-paper backdrop-blur-[1px] active:bg-ink/40"
+                >
+                  <ChevronRight size={24} strokeWidth={2.5} />
+                </button>
               </div>
 
               {v.images.length > 1 && (
