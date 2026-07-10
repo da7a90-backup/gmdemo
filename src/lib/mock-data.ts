@@ -451,3 +451,27 @@ export const lifetimeStats = {
   charitiesFunded: 8,
   ticketsCounted: 423191,
 };
+
+// Purchase ledger for admin ticket printing — one row per completed order.
+export type Purchase = {
+  orderId: string;
+  fullName: string;
+  phone: string;
+  email: string;
+  drawCycle: number;
+  ticketCount: number;
+  purchasedAtISO: string;
+};
+
+export const purchases: Purchase[] = [
+  { orderId: "GM-ORD-2413", fullName: "Demo Player",     phone: "(555) 010-1234", email: "demo@generousmotors.org", drawCycle: 12, ticketCount: 10, purchasedAtISO: "2026-06-18T14:22:00-04:00" },
+  { orderId: "GM-ORD-2398", fullName: "Alicia Romero",   phone: "(305) 555-0142", email: "alicia.r@example.com",    drawCycle: 12, ticketCount: 25, purchasedAtISO: "2026-06-15T09:10:00-04:00" },
+  { orderId: "GM-ORD-2371", fullName: "Marcus Boone",    phone: "(646) 555-0177", email: "mboone@example.com",      drawCycle: 12, ticketCount: 5,  purchasedAtISO: "2026-06-28T19:45:00-04:00" },
+  { orderId: "GM-ORD-2344", fullName: "Priya Kapoor",    phone: "(512) 555-0128", email: "priya.k@example.com",     drawCycle: 12, ticketCount: 50, purchasedAtISO: "2026-07-03T11:05:00-04:00" },
+  { orderId: "GM-ORD-2331", fullName: "Tom Callahan",    phone: "(216) 555-0193", email: "tcallahan@example.com",   drawCycle: 12, ticketCount: 1,  purchasedAtISO: "2026-07-08T08:30:00-04:00" },
+  { orderId: "GM-ORD-2107", fullName: "Maria Torres",    phone: "(786) 555-0110", email: "maria.t@example.com",     drawCycle: 11, ticketCount: 25, purchasedAtISO: "2026-04-29T20:00:00-04:00" },
+  { orderId: "GM-ORD-2093", fullName: "James Wheeler",   phone: "(919) 555-0164", email: "jwheeler@example.com",    drawCycle: 11, ticketCount: 10, purchasedAtISO: "2026-05-12T13:25:00-04:00" },
+  { orderId: "GM-ORD-2075", fullName: "Demo Player",     phone: "(555) 010-1234", email: "demo@generousmotors.org", drawCycle: 11, ticketCount: 25, purchasedAtISO: "2026-04-29T20:00:00-04:00" },
+  { orderId: "GM-ORD-1899", fullName: "Angela Fontaine", phone: "(504) 555-0135", email: "angela.f@example.com",    drawCycle: 10, ticketCount: 10, purchasedAtISO: "2026-03-22T17:55:00-04:00" },
+  { orderId: "GM-ORD-1876", fullName: "Derek Fields",    phone: "(415) 555-0181", email: "derek.f@example.com",     drawCycle: 10, ticketCount: 100, purchasedAtISO: "2026-03-30T11:42:00-04:00" },
+];

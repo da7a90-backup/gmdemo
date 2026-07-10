@@ -1,5 +1,7 @@
+"use client";
 import Link from "next/link";
-import { winners } from "@/lib/mock-data";
+import { type Winner } from "@/lib/mock-data";
+import { useWinners } from "@/lib/winners-store";
 import { niceDate } from "@/lib/format";
 import { PlayCircle, ArrowRight } from "lucide-react";
 import { Label } from "@/components/sticker";
@@ -8,6 +10,7 @@ export function WinnersGallery({
   limit = 6,
   showHeader = true,
 }: { limit?: number; showHeader?: boolean }) {
+  const winners = useWinners();
   const list = winners.slice(0, limit);
 
   return (
@@ -48,7 +51,7 @@ export function WinnersGallery({
   );
 }
 
-export function WinnerCard({ winner: w }: { winner: typeof winners[number] }) {
+export function WinnerCard({ winner: w }: { winner: Winner }) {
   return (
     <article className="group block bg-paper-3">
       <div

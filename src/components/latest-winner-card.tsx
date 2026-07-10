@@ -1,10 +1,12 @@
-import { winners } from "@/lib/mock-data";
+"use client";
+import { useWinners } from "@/lib/winners-store";
 import { niceDate } from "@/lib/format";
 import { PlayCircle } from "lucide-react";
 import { Label } from "@/components/sticker";
 
 /** Featured card for the most recent winner (winners[0]). Shared by home + tickets. */
 export function LatestWinnerCard() {
+  const winners = useWinners();
   const latest = winners[0];
 
   return (

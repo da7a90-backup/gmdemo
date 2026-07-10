@@ -3,6 +3,7 @@ import { activeDraw, lifetimeStats } from "@/lib/mock-data";
 import { ArrowRight, FileText } from "lucide-react";
 import Link from "next/link";
 import { Label } from "@/components/sticker";
+import { Copy } from "@/components/copy";
 
 export function CharityBand() {
   return (
@@ -11,9 +12,9 @@ export function CharityBand() {
 
       <div className="relative mx-auto max-w-[1400px] px-5 py-24 grid gap-12 lg:grid-cols-12 items-start">
         <div className="lg:col-span-7">
-          <p className="section-eyebrow !text-paper-3/70 section-eyebrow-rule">This cycle&apos;s partner</p>
+          <p className="section-eyebrow !text-paper-3/70 section-eyebrow-rule"><Copy k="charity.eyebrow" /></p>
           <h2 className="mt-4 hero-headline on-dark">
-            Ten percent. <span className="accent-serif">Paid first.</span>
+            <Copy k="charity.h.lead" /> <span className="accent-serif"><Copy k="charity.h.accent" /></span>
           </h2>
           <p className="mt-7 max-w-xl text-lg text-paper-3/85">
             Cycle {activeDraw.cycle}&apos;s 10% goes to{" "}
@@ -24,7 +25,7 @@ export function CharityBand() {
           </p>
 
           <p className="mt-4 max-w-xl text-[15px] text-paper-3/75 font-serif">
-            We pay charity on <em>gross</em> — before the car is bought, before payroll, before any expense. It is a smaller number than &ldquo;net&rdquo; would let us say. It is a number we can defend on camera.
+            <Copy k="charity.body" />
           </p>
 
           <div className="mt-9 flex flex-wrap gap-3">

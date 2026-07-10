@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Facebook, Instagram, Youtube, Mail, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Label } from "@/components/sticker";
+import { Copy } from "@/components/copy";
+import { addEmailSubscriber } from "@/lib/subscribers";
 
 function NewsletterSignup() {
   const [email, setEmail] = useState("");
@@ -16,16 +18,16 @@ function NewsletterSignup() {
           The newsletter · 2X entries
         </p>
         <p className="mt-2 font-display font-bold text-2xl text-fg leading-tight">
-          Draw alerts, bonus offers, receipts.
+          <Copy k="newsletter.title" />
         </p>
         <p className="mt-1.5 font-serif text-[14px] text-fg-2">
-          Subscribers get double entries on every ticket. One email per cycle, one click to leave.
+          <Copy k="newsletter.body" />
         </p>
       </div>
 
       {!done ? (
         <form
-          onSubmit={(e) => { e.preventDefault(); setDone(true); }}
+          onSubmit={(e) => { e.preventDefault(); addEmailSubscriber(email, "Footer"); setDone(true); }}
           className="flex w-full max-w-md md:justify-self-end items-center border border-fg/30 bg-bg-dark-2 rounded-full overflow-hidden focus-within:border-accent-bright"
         >
           <Mail size={16} className="text-fg-3 shrink-0 ml-4" />
@@ -83,7 +85,7 @@ export function SiteFooter() {
         <div className="grid grid-cols-2 gap-10 md:grid-cols-5 pt-10">
           <div className="col-span-2 max-w-sm">
             <p className="font-serif text-[15px] text-fg-2 leading-relaxed">
-              Drive the car. Fund the cause. 10% of every cycle goes to a real, named US charity — paid on gross before any operating cost.
+              <Copy k="footer.mission" />
             </p>
             <button
               type="button"

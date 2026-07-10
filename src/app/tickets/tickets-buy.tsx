@@ -5,7 +5,8 @@ import Link from "next/link";
 import {
   ShieldCheck, Tv2, HeartHandshake, Lock, Drum, ArrowRight, Quote, PlayCircle, ChevronLeft, ChevronRight,
 } from "lucide-react";
-import { activeDraw, ticketTiers, membershipTiers, winners, lifetimeStats } from "@/lib/mock-data";
+import { activeDraw, ticketTiers, membershipTiers, lifetimeStats } from "@/lib/mock-data";
+import { useWinners } from "@/lib/winners-store";
 import { usdc, intl, niceWeekday, niceDate, usd } from "@/lib/format";
 import { Label } from "@/components/sticker";
 import { AnimatedCounter } from "@/components/animated-counter";
@@ -23,6 +24,7 @@ export function TicketsBuy() {
   const [activeImage, setActiveImage] = useState(0);
   const [redirecting, setRedirecting] = useState(false);
   const [mode, setMode] = useState<"once" | "monthly">("once");
+  const winners = useWinners();
   const [promo, setPromo] = useState<PromoTier | null>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const searchParams = useSearchParams();

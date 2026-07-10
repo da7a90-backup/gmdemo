@@ -1,5 +1,6 @@
+"use client";
 import Link from "next/link";
-import { winners } from "@/lib/mock-data";
+import { useWinners } from "@/lib/winners-store";
 import { niceDate } from "@/lib/format";
 import { ArrowRight, PlayCircle } from "lucide-react";
 import { LatestWinnerCard } from "@/components/latest-winner-card";
@@ -10,6 +11,7 @@ import { LatestWinnerCard } from "@/components/latest-winner-card";
  * and respects prefers-reduced-motion globally.
  */
 export function WinnersCarousel() {
+  const winners = useWinners();
   const row = [...winners, ...winners]; // duplicate for seamless -50% loop
 
   return (

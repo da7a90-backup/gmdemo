@@ -3,6 +3,7 @@ import { Countdown } from "@/components/countdown";
 import { activeDraw } from "@/lib/mock-data";
 import { ArrowRight } from "lucide-react";
 import { PrizePlate } from "@/components/prize-plate";
+import { Copy } from "@/components/copy";
 
 export function Hero() {
   const v = activeDraw.vehicle;
@@ -16,13 +17,13 @@ export function Hero() {
           through to the image except on the CTA. */}
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-end text-center px-5 pb-8 sm:pb-10 lg:pb-12 pointer-events-none">
         <h1 className="hero-headline on-dark drop-shadow" style={{ fontSize: "clamp(1.9rem, 3.5vw + 0.5rem, 3.5rem)", lineHeight: 1.15 }}>
-          Win the <span className="accent-serif">car.</span>{" "}
-          Fund the <span className="accent-brass">cause.</span>
+          <Copy k="hero.h1.lead" /> <span className="accent-serif"><Copy k="hero.h1.car" /></span>{" "}
+          <Copy k="hero.h1.fund" /> <span className="accent-brass"><Copy k="hero.h1.cause" /></span>
         </h1>
 
 
         <p className="mt-5 font-condensed uppercase tracking-[0.24em] text-[11px] font-semibold text-paper/80">
-          Special promotion ends in
+          <Copy k="hero.promoLabel" />
         </p>
         <div className="mt-2">
           <Countdown targetISO={activeDraw.drawDateISO} />
@@ -32,7 +33,7 @@ export function Hero() {
           href="/tickets"
           className="pointer-events-auto mt-5 inline-flex h-12 sm:h-14 items-center gap-3 bg-brass px-10 text-ink border border-ink/10 font-condensed uppercase tracking-[0.24em] text-[15px] font-bold hover:bg-paper hover:text-ink transition-colors shadow-lift rounded-full"
         >
-          Enter now
+          <Copy k="hero.cta" />
           <ArrowRight size={18} strokeWidth={2.5} />
         </Link>
       </div>

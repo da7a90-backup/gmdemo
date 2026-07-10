@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { X, ArrowRight, HeartHandshake, MessageSquareText, Smartphone } from "lucide-react";
+import { addSmsSubscriber } from "@/lib/subscribers";
 
 /** Routes where the SMS popup should never appear (interrupts the buy / confirmation flow). */
 const SUPPRESS_PATHS = ["/checkout", "/thank-you"];
@@ -89,6 +90,7 @@ export function EmailPopup() {
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (phone.replace(/\D/g, "").length !== 10) return;
+    addSmsSubscriber(phone, "Popup");
     setSubmitted(true);
     setTimeout(() => setOpen(false), 3200);
   };
