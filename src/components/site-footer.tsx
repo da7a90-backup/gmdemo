@@ -1,8 +1,61 @@
 "use client";
+import { useState } from "react";
 import Link from "next/link";
-import { Facebook, Instagram, Youtube, Mail } from "lucide-react";
+import { Facebook, Instagram, Youtube, Mail, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Label } from "@/components/sticker";
+
+function NewsletterSignup() {
+  const [email, setEmail] = useState("");
+  const [done, setDone] = useState(false);
+
+  return (
+    <div className="border-b border-fg/15 py-10 grid gap-6 md:grid-cols-2 md:items-center">
+      <div>
+        <p className="font-condensed uppercase tracking-[0.24em] text-[11px] font-bold text-brass">
+          The newsletter · 2X entries
+        </p>
+        <p className="mt-2 font-display font-bold text-2xl text-fg leading-tight">
+          Draw alerts, bonus offers, receipts.
+        </p>
+        <p className="mt-1.5 font-serif text-[14px] text-fg-2">
+          Subscribers get double entries on every ticket. One email per cycle, one click to leave.
+        </p>
+      </div>
+
+      {!done ? (
+        <form
+          onSubmit={(e) => { e.preventDefault(); setDone(true); }}
+          className="flex w-full max-w-md md:justify-self-end items-center border border-fg/30 bg-bg-dark-2 rounded-full overflow-hidden focus-within:border-accent-bright"
+        >
+          <Mail size={16} className="text-fg-3 shrink-0 ml-4" />
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            aria-label="Email address"
+            className="flex-1 min-w-0 h-12 bg-transparent px-3 text-[15px] text-fg placeholder:text-fg-3 outline-none"
+          />
+          <button
+            type="submit"
+            className="shrink-0 h-12 inline-flex items-center gap-2 bg-accent-bright text-ink px-5 font-condensed uppercase tracking-[0.18em] text-[12px] font-bold hover:bg-brass transition-colors"
+          >
+            Subscribe <ArrowRight size={14} strokeWidth={2.5} />
+          </button>
+        </form>
+      ) : (
+        <div className="flex w-full max-w-md md:justify-self-end items-center gap-3 border border-accent-bright/50 bg-bg-dark-2 rounded-full px-5 py-3">
+          <CheckCircle2 size={18} className="text-accent-bright shrink-0" />
+          <p className="text-[14px] text-fg">
+            You&apos;re on the list — your 2X kicks in with the next cycle&apos;s email.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function SiteFooter() {
   return (
@@ -23,6 +76,9 @@ export function SiteFooter() {
             <Label tone="paper" variant="outline">Drawn live</Label>
           </div>
         </div>
+
+        {/* Email newsletter — the email-subscriber tier's front door */}
+        <NewsletterSignup />
 
         <div className="grid grid-cols-2 gap-10 md:grid-cols-5 pt-10">
           <div className="col-span-2 max-w-sm">
