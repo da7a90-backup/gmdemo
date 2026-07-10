@@ -98,8 +98,11 @@ export default function MemberTicketsPage() {
             </p>
 
             <div className="mt-4 border-heavy-3 bg-paper-4 rounded-2xl overflow-hidden shadow-soft">
-              {live && member?.endISO ? (
-                <CountdownBar targetISO={member.endISO} label={member.countdownLabel ?? "Promo ends in"} />
+              {live && member ? (
+                <CountdownBar
+                  targetISO={member.endISO ?? activeDraw.drawDateISO}
+                  label={member.countdownLabel ?? "Promo closes in"}
+                />
               ) : (
                 <CountdownBar targetISO={activeDraw.drawDateISO} label="Draw closes in" />
               )}

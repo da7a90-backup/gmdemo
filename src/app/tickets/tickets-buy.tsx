@@ -17,8 +17,8 @@ import { PromoBanner } from "@/components/promo-banner";
 import { resolvePromo, getPromoConfig, isPromoLive, PROMOS_EVENT, type PromoTier } from "@/lib/promotions";
 import { trackVisit, track, describeTrigger } from "@/lib/analytics";
 import { VehicleGallery } from "@/components/vehicle-gallery";
+import { Copy } from "@/components/copy";
 import { getUser, SESSION_EVENT } from "@/lib/session";
-import { Sparkles } from "lucide-react";
 
 export function TicketsBuy() {
   const router = useRouter();
@@ -106,10 +106,13 @@ export function TicketsBuy() {
         {/* RIGHT — Compact ticket machine */}
         <div className="lg:col-span-5">
           <div className="lg:sticky lg:top-24 border-heavy-3 bg-paper-4 relative shadow-soft rounded-2xl overflow-hidden">
-            {promo && isPromoLive(promo) && promo.endISO ? (
-              <CountdownBar targetISO={promo.endISO} label={promo.countdownLabel ?? "Promo ends in"} />
+            {promo && isPromoLive(promo) ? (
+              <CountdownBar
+                targetISO={promo.endISO ?? activeDraw.drawDateISO}
+                label={promo.countdownLabel ?? "Promo closes in"}
+              />
             ) : (
-              <CountdownBar targetISO={activeDraw.drawDateISO} label="Draw closes in" />
+              <CountdownBar targetISO={activeDraw.drawDateISO} label={<Copy k="tickets.drawLabel" />} />
             )}
 
             {/* One-time / Membership selector */}
@@ -123,7 +126,7 @@ export function TicketsBuy() {
                     mode === "once" ? "bg-ink text-paper" : "text-ink hover:bg-accent-soft"
                   }`}
                 >
-                  One-time bundles
+                  <Copy k="tickets.toggle.once" />
                 </button>
                 <button
                   type="button"
@@ -133,7 +136,7 @@ export function TicketsBuy() {
                     mode === "monthly" ? "bg-ink text-paper" : "text-ink hover:bg-accent-soft"
                   }`}
                 >
-                  Membership · save more
+                  <Copy k="tickets.toggle.monthly" />
                 </button>
               </div>
 
@@ -151,22 +154,26 @@ export function TicketsBuy() {
                           ★ Most picked
                         </span>
                       )}
-                      <span className="font-condensed numeral text-2xl leading-none font-bold text-ink">{t.entries}</span>
-                      <span className="font-condensed uppercase tracking-[0.18em] text-[9px] text-ink-3 mt-0.5">
-                        {t.entries === 1 ? "ticket" : "tickets"}
-                      </span>
-                      {mult > 1 && (
-                        <span className="mt-1 inline-flex items-center gap-1 bg-ink text-brass px-2 py-0.5 rounded-full font-condensed uppercase tracking-[0.14em] text-[9px] font-bold">
-                          <Sparkles size={9} /> = {intl(t.entries * mult)} entries
+                      <span className="flex items-baseline gap-1.5">
+                        {mult > 1 && (
+                          <s className="font-condensed numeral text-sm text-ink-3" aria-label={`Normally ${t.entries}`}>
+                            {intl(t.entries)}
+                          </s>
+                        )}
+                        <span className="font-condensed numeral text-2xl leading-none font-bold text-ink">
+                          {intl(t.entries * mult)}
                         </span>
-                      )}
+                      </span>
+                      <span className="font-condensed uppercase tracking-[0.18em] text-[9px] text-ink-3 mt-0.5">
+                        {t.entries * mult === 1 ? "ticket" : "tickets"}
+                      </span>
                       <span className="mt-1 font-display font-bold text-lg text-ink leading-none">{usdc(t.priceUSD)}</span>
                       <button
                         type="button"
                         onClick={() => onBuy(t.id, "once")}
                         className="mt-2 w-full h-8 inline-flex items-center justify-center gap-1 rounded-full bg-accent-bright text-ink border border-ink/10 font-condensed uppercase tracking-[0.18em] text-[11px] font-bold hover:bg-accent hover:text-paper-3 transition-colors"
                       >
-                        Buy now
+                        <Copy k="tickets.buy" />
                       </button>
                     </div>
                   ))}
@@ -207,7 +214,7 @@ export function TicketsBuy() {
                           onClick={() => onBuy(m.id, "monthly")}
                           className="mt-2 w-full h-8 inline-flex items-center justify-center gap-1 rounded-full bg-accent-bright text-ink border border-ink/10 font-condensed uppercase tracking-[0.18em] text-[11px] font-bold hover:bg-accent hover:text-paper-3 transition-colors"
                         >
-                          Buy now
+                          <Copy k="tickets.buy" />
                         </button>
                       </div>
                     );
@@ -232,9 +239,9 @@ export function TicketsBuy() {
         <div className="mx-auto max-w-[1400px] px-5 py-14">
           <div className="flex items-end justify-between gap-4 mb-7">
             <div>
-              <p className="section-eyebrow on-paper section-eyebrow-rule">Spec sheet · as configured</p>
+              <p className="section-eyebrow on-paper section-eyebrow-rule"><Copy k="tickets.spec.eyebrow" /></p>
               <h2 className="mt-3 hero-headline" style={{ fontSize: "clamp(1.75rem,3.5vw,2.5rem)" }}>
-                What you&apos;re <span className="accent-serif">winning.</span>
+                <Copy k="tickets.spec.h.lead" /> <span className="accent-serif"><Copy k="tickets.spec.h.accent" /></span>
               </h2>
             </div>
             <Label tone="brass" variant="outline">{v.year} {v.make} {v.model}</Label>
@@ -262,9 +269,9 @@ export function TicketsBuy() {
         <div className="mx-auto max-w-[1400px] px-5 py-14">
           <div className="flex items-end justify-between gap-4 mb-7">
             <div>
-              <p className="section-eyebrow on-paper section-eyebrow-rule">Recent winners</p>
+              <p className="section-eyebrow on-paper section-eyebrow-rule"><Copy k="tickets.winners.eyebrow" /></p>
               <h2 className="mt-3 hero-headline" style={{ fontSize: "clamp(1.75rem,3.5vw,2.5rem)" }}>
-                The wall <span className="accent-serif">is real.</span>
+                <Copy k="tickets.winners.h.lead" /> <span className="accent-serif"><Copy k="tickets.winners.h.accent" /></span>
               </h2>
             </div>
             <Link

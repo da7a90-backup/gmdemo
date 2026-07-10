@@ -15,7 +15,7 @@ function NewsletterSignup() {
     <div className="border-b border-fg/15 py-10 grid gap-6 md:grid-cols-2 md:items-center">
       <div>
         <p className="font-condensed uppercase tracking-[0.24em] text-[11px] font-bold text-brass">
-          The newsletter · 2X entries
+          <Copy k="newsletter.eyebrow" />
         </p>
         <p className="mt-2 font-display font-bold text-2xl text-fg leading-tight">
           <Copy k="newsletter.title" />
@@ -124,10 +124,10 @@ export function SiteFooter() {
 
         <div className="mt-16 border-t border-fg/15 pt-6 grid gap-5 md:grid-cols-[1fr_auto]">
           <p className="font-condensed uppercase tracking-[0.18em] text-[10px] text-fg-2 leading-[1.7]">
-            Generous Motors is a registered 501(c)(3) nonprofit organization. No purchase necessary to enter or win. A purchase does not increase your chances of winning. Open to legal residents of the United States, 18 years of age or older. Void where prohibited. Charitable contribution: 10% of gross profits per cycle donated to featured nonprofit partner.
+            <Copy k="footer.fineprint" />
           </p>
           <p className="font-serif italic text-[13px] text-fg-3 md:text-right">
-            Generous Motors · 120 Cedar Ave · Brooklyn, NY 11215 · © {new Date().getFullYear()}
+            <Copy k="footer.address" /> · © {new Date().getFullYear()}
           </p>
         </div>
       </div>

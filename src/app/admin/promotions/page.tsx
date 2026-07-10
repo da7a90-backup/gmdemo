@@ -159,7 +159,7 @@ export default function AdminPage() {
                   <input
                     type="text"
                     value={t.countdownLabel ?? ""}
-                    placeholder="Promo ends in"
+                    placeholder="Promo closes in"
                     onChange={(e) => update(t.id, { countdownLabel: e.target.value || undefined })}
                     className="w-full h-11 border border-ink/10 bg-paper-3 rounded-lg px-3 text-[15px] text-ink outline-none focus:border-accent"
                   />

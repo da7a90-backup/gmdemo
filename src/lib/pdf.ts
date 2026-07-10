@@ -1,5 +1,6 @@
 "use client";
 import { PDFDocument, StandardFonts, rgb, degrees, PDFFont, PDFPage } from "pdf-lib";
+import fontkit from "@pdf-lib/fontkit";
 import { generateTicketIDs, type TicketID } from "@/lib/ticket-gen";
 
 export type PdfBuyer = { firstName: string; lastInitial: string; city: string; state: string };
@@ -384,15 +385,30 @@ function drawMonoTicket(opts: {
   });
 }
 
+/** Load the site's General Sans faces for PDF embedding (served from /public/fonts). */
+async function loadGeneralSans(fonts?: SheetFonts): Promise<SheetFonts> {
+  if (fonts) return fonts;
+  const [regular, semibold, bold] = await Promise.all(
+    ["GeneralSans-Regular.ttf", "GeneralSans-Semibold.ttf", "GeneralSans-Bold.ttf"].map((f) =>
+      fetch(`/fonts/${f}`).then((r) => r.arrayBuffer()),
+    ),
+  );
+  return { regular, semibold, bold };
+}
+
+export type SheetFonts = { regular: ArrayBuffer; semibold: ArrayBuffer; bold: ArrayBuffer };
+
 /**
  * Batch A3 sheet: every ticket for the given purchases (already filtered by
- * cycle + date range by the caller), black & white, 15 per sheet.
+ * cycle + date range by the caller), black & white, 15 per sheet, no page
+ * header — the full sheet is ticket real estate. Set in General Sans.
  */
 export async function buildCycleSheetsPdf(opts: {
   cycleLabel: string;
   drawDateLabel: string;
   rangeLabel: string;
   purchases: AdminTicketPurchase[];
+  fonts?: SheetFonts;
 }): Promise<Uint8Array> {
   const jobs: { id: TicketID; purchase: AdminTicketPurchase }[] = [];
   for (const p of opts.purchases) {
@@ -405,49 +421,27 @@ export async function buildCycleSheetsPdf(opts: {
   }
 
   const pdf = await PDFDocument.create();
-  const fontSans = await pdf.embedFont(StandardFonts.Helvetica);
-  const fontSansBold = await pdf.embedFont(StandardFonts.HelveticaBold);
-  const fontSerif = await pdf.embedFont(StandardFonts.TimesRomanBold);
+  pdf.registerFontkit(fontkit);
+  const gs = await loadGeneralSans(opts.fonts);
+  const fontSans = await pdf.embedFont(gs.regular, { subset: true });
+  const fontSansBold = await pdf.embedFont(gs.semibold, { subset: true });
+  const fontSerif = await pdf.embedFont(gs.bold, { subset: true }); // ticket number face
 
   const cellW = (A3_W - PAGE_MARGIN * 2 - GUTTER * (COLS - 1)) / COLS;
-  const cellH = (A3_H - PAGE_MARGIN * 2 - 80 - GUTTER * (ROWS - 1)) / ROWS;
+  const cellH = (A3_H - PAGE_MARGIN * 2 - GUTTER * (ROWS - 1)) / ROWS;
   const perPage = COLS * ROWS;
-  const pageTotal = Math.max(1, Math.ceil(jobs.length / perPage));
 
   let page: PDFPage | null = null;
 
   for (let i = 0; i < jobs.length; i++) {
     const pos = i % perPage;
-    if (pos === 0) {
-      page = pdf.addPage([A3_W, A3_H]);
-      const pageNum = Math.floor(i / perPage) + 1;
-      const top = A3_H - PAGE_MARGIN;
-      drawLogoMark(page, PAGE_MARGIN, top, 22);
-      page.drawText("GENEROUS MOTORS — TICKET SHEETS", {
-        x: PAGE_MARGIN + 48, y: top - 14, size: 13, font: fontSansBold, color: BLACK,
-      });
-      page.drawText(`${opts.cycleLabel} · Draw ${opts.drawDateLabel}`, {
-        x: PAGE_MARGIN + 48, y: top - 28, size: 9, font: fontSans, color: GREY,
-      });
-      page.drawText(`Purchases ${opts.rangeLabel} · ${jobs.length} tickets · ${opts.purchases.length} orders`, {
-        x: PAGE_MARGIN, y: top - 46, size: 8, font: fontSans, color: GREY,
-      });
-      const pageLabel = `Sheet ${pageNum}/${pageTotal} · A3 · black & white · print at 100%`;
-      page.drawText(pageLabel, {
-        x: A3_W - PAGE_MARGIN - fontSans.widthOfTextAtSize(pageLabel, 8),
-        y: top - 14, size: 8, font: fontSans, color: GREY,
-      });
-      page.drawLine({
-        start: { x: PAGE_MARGIN, y: top - 58 }, end: { x: A3_W - PAGE_MARGIN, y: top - 58 },
-        thickness: 1, color: BLACK,
-      });
-    }
+    if (pos === 0) page = pdf.addPage([A3_W, A3_H]);
     const col = pos % COLS;
     const row = Math.floor(pos / COLS);
     drawMonoTicket({
       page: page!,
       x: PAGE_MARGIN + col * (cellW + GUTTER),
-      y: A3_H - PAGE_MARGIN - 80 - (row + 1) * cellH - row * GUTTER,
+      y: A3_H - PAGE_MARGIN - (row + 1) * cellH - row * GUTTER,
       w: cellW,
       h: cellH,
       id: jobs[i].id,

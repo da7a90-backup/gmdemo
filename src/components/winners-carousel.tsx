@@ -4,6 +4,7 @@ import { useWinners } from "@/lib/winners-store";
 import { niceDate } from "@/lib/format";
 import { ArrowRight, PlayCircle } from "lucide-react";
 import { LatestWinnerCard } from "@/components/latest-winner-card";
+import { Copy } from "@/components/copy";
 
 /**
  * Auto-scrolling winners carousel for the home page.
@@ -18,9 +19,9 @@ export function WinnersCarousel() {
     <section className="bg-paper-3 text-ink border-y border-ink/10 py-12 overflow-hidden">
       <div className="mx-auto max-w-[1400px] px-5 flex items-end justify-between gap-4 mb-7">
         <div>
-          <p className="section-eyebrow section-eyebrow-rule">Recent winners</p>
+          <p className="section-eyebrow section-eyebrow-rule"><Copy k="home.winners.eyebrow" /></p>
           <h2 className="mt-3 hero-headline" style={{ fontSize: "clamp(1.75rem,3.5vw,2.75rem)" }}>
-            Real people. <span className="accent-serif">Real cars.</span>
+            <Copy k="home.winners.h.lead" /> <span className="accent-serif"><Copy k="home.winners.h.accent" /></span>
           </h2>
         </div>
         <Link

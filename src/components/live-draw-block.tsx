@@ -3,6 +3,7 @@ import { niceDateTime } from "@/lib/format";
 import Link from "next/link";
 import { Tv2, Radio, Drum, ArrowRight } from "lucide-react";
 import { Label } from "@/components/sticker";
+import { Copy } from "@/components/copy";
 
 export function LiveDrawBlock() {
   return (
@@ -20,13 +21,13 @@ export function LiveDrawBlock() {
         />
         <div className="relative grid gap-10 p-8 lg:grid-cols-12 lg:p-14 border-b border-paper/30">
           <div className="lg:col-span-7">
-            <p className="section-eyebrow on-dark section-eyebrow-rule">The draw, on camera</p>
+            <p className="section-eyebrow on-dark section-eyebrow-rule"><Copy k="home.live.eyebrow" /></p>
             <h2 className="mt-4 hero-headline on-dark" style={{ fontSize: "clamp(2.25rem,5vw,4.25rem)" }}>
-              Every winner is pulled<br />
-              from <span className="accent-serif">a real drum.</span>
+              <Copy k="home.live.h.l1" /><br />
+              <Copy k="home.live.h.l2" /> <span className="accent-serif"><Copy k="home.live.h.accent" /></span>
             </h2>
             <p className="mt-6 max-w-xl text-lg text-fg font-serif">
-              Every entry is printed onto paper and dropped into a physical drum. Two cameras. One pull. The phone rings on stream.
+              <Copy k="home.live.body" />
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -34,7 +35,7 @@ export function LiveDrawBlock() {
                 href="/live"
                 className="inline-flex h-12 items-center gap-2 bg-paper text-ink px-5 border border-paper font-condensed uppercase tracking-[0.22em] text-[12px] font-bold hover:bg-brass rounded-full"
               >
-                Watch the next draw live <ArrowRight size={14} />
+                <Copy k="home.live.cta" /> <ArrowRight size={14} />
               </Link>
               <span className="inline-flex h-12 items-center border border-paper/40 px-5 text-fg-2 font-condensed uppercase tracking-[0.22em] text-[11px] rounded-full">
                 {niceDateTime(activeDraw.drawDateISO)}

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Plus, Minus, FileText, ArrowRight } from "lucide-react";
+import { Copy } from "@/components/copy";
 
 const FAQ = [
   { q: "How do I enter?", a: "Pick a ticket tier on the Tickets page. Each tier comes with a set number of entries." },
@@ -22,9 +23,9 @@ export function FAQAccordion() {
     <section className="bg-paper-3 text-ink border-y border-rule" id="faq">
       <div className="mx-auto max-w-3xl px-5 py-24">
       <div className="border-b border-rule-soft pb-12">
-        <p className="section-eyebrow section-eyebrow-rule">FAQ</p>
+        <p className="section-eyebrow section-eyebrow-rule"><Copy k="home.faq.eyebrow" /></p>
         <h2 className="mt-4 hero-headline" style={{ fontSize: "clamp(2.25rem,5vw,4rem)" }}>
-          Plain answers. <span className="accent-serif">Obvious questions.</span>
+          <Copy k="home.faq.h.lead" /> <span className="accent-serif"><Copy k="home.faq.h.accent" /></span>
         </h2>
       </div>
       <ul className="mt-10 border border-ink/10 bg-paper-3 divide-y divide-ink/10 rounded-xl overflow-hidden">

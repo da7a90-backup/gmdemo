@@ -29,7 +29,7 @@ export function CountdownCompact({ targetISO }: { targetISO: string }) {
 }
 
 /** Full-width dark countdown bar — buy-box header on the tickets page. */
-export function CountdownBar({ targetISO, label = "Draw closes in" }: { targetISO: string; label?: string }) {
+export function CountdownBar({ targetISO, label = "Draw closes in" }: { targetISO: string; label?: React.ReactNode }) {
   const [t, setT] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, ms: 0 });
 
   useEffect(() => {

@@ -12,12 +12,14 @@ export default function AdminContentPage() {
     setValues(getContent());
   }, []);
 
-  const groups = useMemo(() => {
-    const g = new Map<string, typeof CONTENT_FIELDS>();
+  const pages = useMemo(() => {
+    const byPage = new Map<string, Map<string, typeof CONTENT_FIELDS>>();
     for (const f of CONTENT_FIELDS) {
-      g.set(f.group, [...(g.get(f.group) ?? []), f]);
+      const groups = byPage.get(f.page) ?? new Map<string, typeof CONTENT_FIELDS>();
+      groups.set(f.group, [...(groups.get(f.group) ?? []), f]);
+      byPage.set(f.page, groups);
     }
-    return [...g.entries()];
+    return [...byPage.entries()].map(([page, groups]) => [page, [...groups.entries()]] as const);
   }, []);
 
   if (!values) return null;
@@ -67,8 +69,17 @@ export default function AdminContentPage() {
         </div>
       </div>
 
-      <div className="mt-8 grid gap-5">
-        {groups.map(([group, fields]) => (
+      <div className="mt-8 grid gap-10">
+        {pages.map(([page, groups]) => (
+          <section key={page}>
+            <div className="flex items-center justify-between border-b-2 border-ink pb-3">
+              <h2 className="font-display font-bold text-2xl text-ink">{page}</h2>
+              <Label tone="ink" variant="solid" size="sm">
+                {groups.reduce((n, [, f]) => n + f.length, 0)} fields
+              </Label>
+            </div>
+            <div className="mt-4 grid gap-5">
+              {groups.map(([group, fields]) => (
           <section key={group} className="border border-ink/10 bg-paper-4 rounded-2xl shadow-soft overflow-hidden">
             <div className="px-5 py-3 bg-paper-3 border-b border-ink/10 flex items-center justify-between">
               <p className="font-display font-bold text-ink">{group}</p>
@@ -109,6 +120,9 @@ export default function AdminContentPage() {
                   </label>
                 );
               })}
+            </div>
+          </section>
+              ))}
             </div>
           </section>
         ))}

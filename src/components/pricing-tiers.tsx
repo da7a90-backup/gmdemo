@@ -5,6 +5,7 @@ import { Check, Plus, Minus } from "lucide-react";
 import { ticketTiers, membershipTiers } from "@/lib/mock-data";
 import { usd } from "@/lib/format";
 import { Label } from "@/components/sticker";
+import { Copy } from "@/components/copy";
 
 export function PricingTiers() {
   const [mode, setMode] = useState<"once" | "monthly">("once");
@@ -16,14 +17,14 @@ export function PricingTiers() {
       <div className="mx-auto max-w-[1400px] px-5 py-24">
       <div className="grid lg:grid-cols-12 gap-8 items-end border-b border-rule-soft pb-12">
         <div className="lg:col-span-8">
-          <p className="section-eyebrow section-eyebrow-rule">Pick a bundle</p>
+          <p className="section-eyebrow section-eyebrow-rule"><Copy k="home.pricing.eyebrow" /></p>
           <h2 className="mt-4 hero-headline" style={{ fontSize: "clamp(2.25rem,5vw,4.25rem)" }}>
-            Pick a tier. <span className="accent-serif">Or join the monthly.</span>
+            <Copy k="home.pricing.h.lead" /> <span className="accent-serif"><Copy k="home.pricing.h.accent" /></span>
           </h2>
         </div>
         <div className="lg:col-span-4 flex flex-col items-start lg:items-end gap-4">
           <p className="text-ink-2 text-[17px] font-serif leading-[1.55]">
-            One-time enters you in this draw. Monthly enters you in every draw, automatically, plus early access to bonus offers and drawing alerts.
+            <Copy k="home.pricing.blurb" />
           </p>
           <div
             role="tablist"

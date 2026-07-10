@@ -1,5 +1,6 @@
 import { Ticket, Printer, Tv2, Flag } from "lucide-react";
 import { YouTubeFacade } from "@/components/youtube-facade";
+import { Copy } from "@/components/copy";
 
 const STEPS = [
   {
@@ -29,9 +30,9 @@ export function HowItWorks() {
     <section className="bg-paper-3 text-ink border-y border-rule" id="how-it-works">
       <div className="mx-auto max-w-[1400px] px-5 py-24">
         <div className="border-b border-rule-soft pb-10">
-          <p className="section-eyebrow section-eyebrow-rule">How it works</p>
+          <p className="section-eyebrow section-eyebrow-rule"><Copy k="home.how.eyebrow" /></p>
           <h2 className="mt-4 hero-headline" style={{ fontSize: "clamp(2.25rem,5vw,4.25rem)" }}>
-            Four <span className="accent-serif">steps.</span>
+            <Copy k="home.how.h.lead" /> <span className="accent-serif"><Copy k="home.how.h.accent" /></span>
           </h2>
         </div>
 

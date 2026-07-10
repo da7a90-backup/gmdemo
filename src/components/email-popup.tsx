@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { X, ArrowRight, HeartHandshake, MessageSquareText, Smartphone } from "lucide-react";
 import { addSmsSubscriber } from "@/lib/subscribers";
+import { Copy } from "@/components/copy";
 
 /** Routes where the SMS popup should never appear (interrupts the buy / confirmation flow). */
 const SUPPRESS_PATHS = ["/checkout", "/thank-you"];
@@ -129,13 +130,13 @@ export function EmailPopup() {
 
         {!submitted ? (
           <div className="px-5 pt-5 pb-5 sm:px-6 sm:pt-7 sm:pb-6">
-            <p className="section-eyebrow on-paper">Don&apos;t miss the next draw</p>
+            <p className="section-eyebrow on-paper"><Copy k="popup.eyebrow" /></p>
             <h2 id="sms-popup-title" className="mt-2 font-display font-bold text-ink leading-[1.05] text-2xl sm:text-3xl">
-              Get draw-night alerts<br />
-              <span className="text-accent">by text.</span>
+              <Copy k="popup.h.lead" /><br />
+              <span className="text-accent"><Copy k="popup.h.accent" /></span>
             </h2>
             <p className="mt-2 text-[13px] sm:text-[15px] text-ink-2 font-serif">
-              Texts land first: bonus ticket offers, flash sales, and a heads-up before we go live. Beat the inbox crowd.
+              <Copy k="popup.body" />
             </p>
 
             <form onSubmit={onSubmit} className="mt-4 sm:mt-6">
@@ -161,7 +162,7 @@ export function EmailPopup() {
                 type="submit"
                 className="mt-3 w-full inline-flex items-center justify-center gap-2 h-11 sm:h-12 bg-accent-bright text-ink border border-ink/10 font-condensed uppercase tracking-[0.24em] text-[13px] font-bold hover:bg-accent hover:text-paper-3 btn-poly transition-colors"
               >
-                Text me the alerts* <ArrowRight size={16} strokeWidth={2.5} />
+                <Copy k="popup.cta" /> <ArrowRight size={16} strokeWidth={2.5} />
               </button>
 
               {/* TCPA consent disclosure — must sit directly under the CTA, no gaps */}
@@ -191,7 +192,7 @@ export function EmailPopup() {
             <div className="mx-auto inline-flex h-14 w-14 items-center justify-center bg-charity text-paper-3 border border-ink/10 rounded-full">
               <MessageSquareText size={22} />
             </div>
-            <h2 className="mt-5 font-display font-bold text-2xl text-ink">Check your phone.</h2>
+            <h2 className="mt-5 font-display font-bold text-2xl text-ink"><Copy k="popup.success.title" /></h2>
             <p className="mt-2 text-ink-2 font-serif">
               We just texted {phone || "you"}. Reply <strong className="font-condensed not-italic">Y</strong> to confirm your spot — that&apos;s it.
             </p>
