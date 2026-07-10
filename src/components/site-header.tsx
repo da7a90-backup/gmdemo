@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, X, CircleUserRound } from "lucide-react";
 import { useState } from "react";
 import { Logo } from "@/components/logo";
 import { CountdownCompact } from "@/components/countdown";
@@ -48,6 +48,13 @@ export function SiteHeader() {
         </Link>
 
         <div className="flex items-center gap-2">
+          <Link
+            href="/account"
+            aria-label="Your account"
+            className="inline-flex h-11 w-11 items-center justify-center border border-ink/10 bg-paper text-ink rounded-full hover:bg-ink hover:text-paper transition-colors"
+          >
+            <CircleUserRound size={20} />
+          </Link>
           <Link
             href="/tickets"
             className="hidden md:inline-flex items-center gap-2 bg-accent-bright text-ink px-6 py-2.5 font-condensed uppercase tracking-[0.24em] text-[12px] font-bold border border-ink/10 btn-poly hover:bg-accent hover:text-paper-3 transition-colors"

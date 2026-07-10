@@ -1,6 +1,6 @@
 "use client";
-import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   ShieldCheck, Tv2, HeartHandshake, Lock, Drum, ArrowRight, Quote, PlayCircle, ChevronLeft, ChevronRight,
@@ -12,6 +12,10 @@ import { AnimatedCounter } from "@/components/animated-counter";
 import { CountdownBar } from "@/components/countdown";
 import { FAQAccordion } from "@/components/faq-accordion";
 import { LatestWinnerCard } from "@/components/latest-winner-card";
+import { PromoBanner } from "@/components/promo-banner";
+import { resolvePromo, getPromoConfig, PROMOS_EVENT, type PromoTier } from "@/lib/promotions";
+import { getUser, SESSION_EVENT } from "@/lib/session";
+import { Sparkles } from "lucide-react";
 
 export function TicketsBuy() {
   const router = useRouter();
@@ -19,7 +23,24 @@ export function TicketsBuy() {
   const [activeImage, setActiveImage] = useState(0);
   const [redirecting, setRedirecting] = useState(false);
   const [mode, setMode] = useState<"once" | "monthly">("once");
+  const [promo, setPromo] = useState<PromoTier | null>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const searchParams = useSearchParams();
+
+  // Promotion pickup: membership login, ?promo=CODE links, or utm_* ad campaigns.
+  useEffect(() => {
+    const resolve = () =>
+      setPromo(resolvePromo(searchParams, !!getUser(), getPromoConfig()));
+    resolve();
+    window.addEventListener(PROMOS_EVENT, resolve);
+    window.addEventListener(SESSION_EVENT, resolve);
+    return () => {
+      window.removeEventListener(PROMOS_EVENT, resolve);
+      window.removeEventListener(SESSION_EVENT, resolve);
+    };
+  }, [searchParams]);
+
+  const mult = promo?.multiplier ?? 1;
 
   const prevImage = () => setActiveImage((i) => (i - 1 + v.images.length) % v.images.length);
   const nextImage = () => setActiveImage((i) => (i + 1) % v.images.length);
@@ -27,7 +48,8 @@ export function TicketsBuy() {
   const onBuy = (tierId: string, type: "once" | "monthly") => {
     setRedirecting(true);
     // Brief delay sells the "leaving the merchant site for Shopify checkout" handoff.
-    setTimeout(() => router.push(`/checkout?tier=${tierId}&type=${type}`), 900);
+    const promoQS = promo ? `&promo=${encodeURIComponent(promo.code ?? promo.id)}` : "";
+    setTimeout(() => router.push(`/checkout?tier=${tierId}&type=${type}${promoQS}`), 900);
   };
 
   return (
@@ -41,6 +63,9 @@ export function TicketsBuy() {
           </div>
         </div>
       )}
+      {/* Active promotion — triggered by login, ?promo= links, or utm_* params */}
+      {promo && <PromoBanner promo={promo} />}
+
       {/* MAIN — viewport-fitting: small vehicle + tall buy machine side-by-side */}
       <section className="mx-auto max-w-[1400px] px-5 pt-6 pb-8 grid gap-5 lg:grid-cols-12 lg:gap-6">
         {/* LEFT — vehicle gallery (first on mobile too) */}
@@ -184,6 +209,11 @@ export function TicketsBuy() {
                       <span className="font-condensed uppercase tracking-[0.18em] text-[9px] text-ink-3 mt-0.5">
                         {t.entries === 1 ? "ticket" : "tickets"}
                       </span>
+                      {mult > 1 && (
+                        <span className="mt-1 inline-flex items-center gap-1 bg-ink text-brass px-2 py-0.5 rounded-full font-condensed uppercase tracking-[0.14em] text-[9px] font-bold">
+                          <Sparkles size={9} /> = {intl(t.entries * mult)} entries
+                        </span>
+                      )}
                       <span className="mt-1 font-display font-bold text-lg text-ink leading-none">{usdc(t.priceUSD)}</span>
                       <button
                         type="button"
