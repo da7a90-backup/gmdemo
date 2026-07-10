@@ -7,7 +7,7 @@ import { addSmsSubscriber } from "@/lib/subscribers";
 import { Copy } from "@/components/copy";
 
 /** Routes where the SMS popup should never appear (interrupts the buy / confirmation flow). */
-const SUPPRESS_PATHS = ["/checkout", "/thank-you"];
+const SUPPRESS_PATHS = ["/checkout", "/thank-you", "/admin"];
 
 /**
  * SMS list-grabber popup (phone capture).
