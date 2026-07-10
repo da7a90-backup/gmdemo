@@ -110,11 +110,12 @@ export function SiteFooter() {
           ]} />
           <FooterCol title="Trust" links={[
             ["/about", "How the draw works"],
+            ["/partners", "Our partners"],
             ["/blog", "Field notes"],
-            ["/about#charity", "Charity flow"],
             ["/rules", "Official rules"],
           ]} />
           <FooterCol title="Help" links={[
+            ["/contact", "Contact us"],
             ["/legal/privacy", "Privacy"],
             ["/legal/terms", "Terms"],
             ["/legal/play", "Responsible play"],

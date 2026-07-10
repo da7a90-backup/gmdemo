@@ -220,6 +220,9 @@ export function ThankYouClient() {
           </button>
         </motion.div>
 
+        {/* POST-PURCHASE UPSELL — fires after payment, better than the checkout offer */}
+        <PostPurchaseOffer />
+
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -334,5 +337,53 @@ function ConfettiOnce() {
         />
       ))}
     </div>
+  );
+}
+
+/**
+ * Post-purchase upsell — separate trigger from the checkout upsell, shown
+ * only after payment confirms. Framed as a reward: a deeper discount than
+ * anything offered pre-payment.
+ */
+function PostPurchaseOffer() {
+  const [claimed, setClaimed] = useState(false);
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.45 }}
+      className="mt-10 mx-auto max-w-xl text-left border border-brass bg-ink text-paper rounded-2xl overflow-hidden shadow-lift"
+    >
+      <div className="px-5 py-2.5 bg-brass text-ink flex items-center justify-between">
+        <span className="font-condensed uppercase tracking-[0.22em] text-[11px] font-bold">★ Winner&apos;s bonus — this page only</span>
+        <span className="font-condensed uppercase tracking-[0.18em] text-[10px]">Won&apos;t be offered again</span>
+      </div>
+      {!claimed ? (
+        <div className="p-5 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="font-display font-bold text-xl leading-tight">
+              Add 10 more tickets for <span className="text-brass">$49</span>
+            </p>
+            <p className="mt-1 text-[13px] text-paper/70">
+              51% off the door price — as a thank-you for entering this cycle. Same order, no extra checkout.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setClaimed(true)}
+            className="inline-flex h-11 items-center gap-2 bg-brass text-ink px-6 rounded-full font-condensed uppercase tracking-[0.22em] text-[12px] font-bold hover:bg-paper transition-colors"
+          >
+            Claim it
+          </button>
+        </div>
+      ) : (
+        <div className="p-5">
+          <p className="font-display font-bold text-lg text-brass">10 bonus tickets added.</p>
+          <p className="mt-1 text-[13px] text-paper/70">
+            They&apos;re printing with the rest of your order — watch for the updated ticket list in your email.
+          </p>
+        </div>
+      )}
+    </motion.div>
   );
 }

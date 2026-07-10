@@ -18,6 +18,7 @@ import { resolvePromo, getPromoConfig, isPromoLive, PROMOS_EVENT, type PromoTier
 import { trackVisit, track, describeTrigger } from "@/lib/analytics";
 import { VehicleGallery } from "@/components/vehicle-gallery";
 import { Copy } from "@/components/copy";
+import { CharityName, CharityBlurb, CyclePartnerBadge } from "@/components/cycle-partner";
 import { getUser, SESSION_EVENT } from "@/lib/session";
 
 export function TicketsBuy() {
@@ -328,11 +329,15 @@ export function TicketsBuy() {
             <p className="section-eyebrow on-dark section-eyebrow-rule">Giving back · this cycle&apos;s partner</p>
             <h2 className="mt-4 hero-headline on-dark" style={{ fontSize: "clamp(2rem, 4vw, 3.5rem)" }}>
               10% of cycle {activeDraw.cycle} goes to<br />
-              <span className="accent-serif">{activeDraw.charity.name}.</span>
+              <span className="accent-serif"><CharityName />.</span>
             </h2>
             <p className="mt-5 max-w-xl text-paper-3/90 font-serif text-lg">
-              &ldquo;{activeDraw.charity.blurb}&rdquo;
+              &ldquo;<CharityBlurb />&rdquo;
             </p>
+
+            <div className="mt-5">
+              <CyclePartnerBadge dark />
+            </div>
             <p className="mt-4 max-w-xl text-paper-3/80">
               Paid on <em>gross</em> — before the car is bought, before payroll, before any expense. Receipt is wired within seven business days of the close and published on the blog.
             </p>

@@ -4,6 +4,7 @@ import { ArrowRight, FileText } from "lucide-react";
 import Link from "next/link";
 import { Label } from "@/components/sticker";
 import { Copy } from "@/components/copy";
+import { CharityName, CharityBlurb, CyclePartnerBadge } from "@/components/cycle-partner";
 
 export function CharityBand() {
   return (
@@ -19,9 +20,9 @@ export function CharityBand() {
           <p className="mt-7 max-w-xl text-lg text-paper-3/85">
             Cycle {activeDraw.cycle}&apos;s 10% goes to{" "}
             <span className="font-condensed uppercase tracking-[0.06em]">
-              {activeDraw.charity.name}
+              <CharityName />
             </span>
-            . &ldquo;{activeDraw.charity.blurb}&rdquo;
+            . &ldquo;<CharityBlurb />&rdquo;
           </p>
 
           <p className="mt-4 max-w-xl text-[15px] text-paper-3/75 font-serif">
@@ -46,6 +47,10 @@ export function CharityBand() {
           <div className="mt-7 flex flex-wrap gap-2 text-[12px]">
             <Label tone="brass" variant="solid">Registered 501(c)(3)</Label>
             <Label tone="paper" variant="outline">10% of gross to charity</Label>
+          </div>
+
+          <div className="mt-6">
+            <CyclePartnerBadge dark />
           </div>
         </div>
 

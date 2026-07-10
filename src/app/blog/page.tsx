@@ -1,14 +1,14 @@
+"use client";
 import Link from "next/link";
-import { blogPosts } from "@/lib/mock-data";
+import { useMergedPosts } from "@/lib/blog-store";
 import { niceDate } from "@/lib/format";
 import { ArrowRight } from "lucide-react";
 import { Announce } from "@/components/marquee";
 import { Label } from "@/components/sticker";
 
-export const metadata = { title: "Field Notes — Generous Motors" };
-
 export default function BlogPage() {
-  const [featured, ...rest] = blogPosts;
+  const posts = useMergedPosts();
+  const [featured, ...rest] = posts;
 
   return (
     <div className="bg-paper-3 text-ink">

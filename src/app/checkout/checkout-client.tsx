@@ -94,6 +94,22 @@ export function CheckoutClient() {
     };
   }, [tierId, qtyParam, type]);
 
+  // Checkout upsell — one clean upgrade offer (next bundle up), pre-payment.
+  const upgrade = useMemo(() => {
+    if (item.kind !== "ticket") return null;
+    const idx = ticketTiers.findIndex((t) => t.id === item.tierId);
+    if (idx < 0 || idx >= ticketTiers.length - 1) return null;
+    return ticketTiers[idx + 1];
+  }, [item]);
+
+  const onUpgrade = () => {
+    if (!upgrade) return;
+    const next = new URLSearchParams(sp.toString());
+    next.set("tier", upgrade.id);
+    next.set("type", "once");
+    router.replace(`/checkout?${next.toString()}`);
+  };
+
   const charityCut = +(item.priceUSD * 0.10).toFixed(2);
   const subtotal = item.priceUSD;
   const shipping = 0;
@@ -401,6 +417,28 @@ export function CheckoutClient() {
               )}
             </div>
           </Section>
+
+          {/* Checkout upsell — quiet, single offer */}
+          {upgrade && (
+            <div className="mt-8 border rounded-lg p-4 flex flex-wrap items-center justify-between gap-3" style={{ borderColor: C.border, background: "#F7F7F7" }}>
+              <div>
+                <p className="text-[13px] font-semibold" style={{ color: C.ink }}>
+                  Make it {upgrade.entries} tickets instead
+                </p>
+                <p className="text-[12px]" style={{ color: C.inkSubdued }}>
+                  {usdc(upgrade.priceUSD)} — save {usdc(upgrade.entries * 10 - upgrade.priceUSD)} vs. buying singles
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={onUpgrade}
+                className="text-[13px] font-medium px-4 py-2 rounded-md border transition-colors"
+                style={{ borderColor: C.primary, color: C.primary }}
+              >
+                Upgrade order
+              </button>
+            </div>
+          )}
 
           {/* Pay button */}
           <button

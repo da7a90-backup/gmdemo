@@ -1,16 +1,18 @@
 "use client";
 import { useEffect, useState } from "react";
 import { timeUntil } from "@/lib/format";
+import { useCycleDrawDate } from "@/lib/cycle-store";
 
 /** Slim one-line countdown pill for the site header — ticks every second. */
 export function CountdownCompact({ targetISO }: { targetISO: string }) {
+  const target = useCycleDrawDate(targetISO);
   const [t, setT] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, ms: 0 });
 
   useEffect(() => {
-    setT(timeUntil(targetISO));
-    const id = setInterval(() => setT(timeUntil(targetISO)), 1000);
+    setT(timeUntil(target));
+    const id = setInterval(() => setT(timeUntil(target)), 1000);
     return () => clearInterval(id);
-  }, [targetISO]);
+  }, [target]);
 
   const p = (n: number) => String(n).padStart(2, "0");
 
@@ -30,13 +32,14 @@ export function CountdownCompact({ targetISO }: { targetISO: string }) {
 
 /** Full-width dark countdown bar — buy-box header on the tickets page. */
 export function CountdownBar({ targetISO, label = "Draw closes in" }: { targetISO: string; label?: React.ReactNode }) {
+  const target = useCycleDrawDate(targetISO);
   const [t, setT] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, ms: 0 });
 
   useEffect(() => {
-    setT(timeUntil(targetISO));
-    const id = setInterval(() => setT(timeUntil(targetISO)), 1000);
+    setT(timeUntil(target));
+    const id = setInterval(() => setT(timeUntil(target)), 1000);
     return () => clearInterval(id);
-  }, [targetISO]);
+  }, [target]);
 
   const p = (n: number) => String(n).padStart(2, "0");
 
@@ -54,15 +57,16 @@ export function CountdownBar({ targetISO, label = "Draw closes in" }: { targetIS
 }
 
 export function Countdown({ targetISO }: { targetISO: string }) {
+  const target = useCycleDrawDate(targetISO);
   const [t, setT] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, ms: 0 });
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    setT(timeUntil(targetISO));
-    const id = setInterval(() => setT(timeUntil(targetISO)), 1000);
+    setT(timeUntil(target));
+    const id = setInterval(() => setT(timeUntil(target)), 1000);
     return () => clearInterval(id);
-  }, [targetISO]);
+  }, [target]);
 
   const Cell = ({ n, label }: { n: number; label: string }) => (
     <div className="flex flex-col items-center min-w-[42px]">
