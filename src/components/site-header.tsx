@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
 import { Menu, X, CircleUserRound } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getUser, SESSION_EVENT } from "@/lib/session";
 import { Logo } from "@/components/logo";
 import { CountdownCompact } from "@/components/countdown";
 import { activeDraw } from "@/lib/mock-data";
@@ -16,6 +17,14 @@ const NAV = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+
+  useEffect(() => {
+    const load = () => setSignedIn(!!getUser());
+    load();
+    window.addEventListener(SESSION_EVENT, load);
+    return () => window.removeEventListener(SESSION_EVENT, load);
+  }, []);
 
   return (
     <header className="sticky top-0 z-40 border-b border-ink/10 bg-paper">
@@ -51,9 +60,10 @@ export function SiteHeader() {
           <Link
             href="/account"
             aria-label="Your account"
-            className="inline-flex h-11 w-11 items-center justify-center border border-ink/10 bg-paper text-ink rounded-full hover:bg-ink hover:text-paper transition-colors"
+            className="inline-flex h-11 items-center gap-2 px-3.5 border border-ink/10 bg-paper text-ink rounded-full hover:bg-ink hover:text-paper transition-colors font-condensed uppercase tracking-[0.18em] text-[11px] font-semibold"
           >
-            <CircleUserRound size={20} />
+            <CircleUserRound size={18} />
+            <span suppressHydrationWarning>{signedIn ? "Account" : "Sign in"}</span>
           </Link>
           <Link
             href="/tickets"

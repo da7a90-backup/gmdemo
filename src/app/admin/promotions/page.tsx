@@ -155,7 +155,16 @@ export default function AdminPage() {
                     </label>
                   </div>
                 </Field>
-                <div className="sm:col-span-2 lg:col-span-4">
+                <Field label="Countdown label (tickets pages)">
+                  <input
+                    type="text"
+                    value={t.countdownLabel ?? ""}
+                    placeholder="Promo ends in"
+                    onChange={(e) => update(t.id, { countdownLabel: e.target.value || undefined })}
+                    className="w-full h-11 border border-ink/10 bg-paper-3 rounded-lg px-3 text-[15px] text-ink outline-none focus:border-accent"
+                  />
+                </Field>
+                <div className="sm:col-span-2 lg:col-span-3">
                   <Field label="Marketing message (shown in the promo banner)">
                     <input
                       type="text"

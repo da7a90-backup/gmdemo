@@ -1,9 +1,9 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
-  ShieldCheck, Tv2, HeartHandshake, Lock, Drum, ArrowRight, Quote, PlayCircle, ChevronLeft, ChevronRight,
+  ShieldCheck, Tv2, HeartHandshake, Lock, Drum, ArrowRight, PlayCircle,
 } from "lucide-react";
 import { activeDraw, ticketTiers, membershipTiers, lifetimeStats } from "@/lib/mock-data";
 import { useWinners } from "@/lib/winners-store";
@@ -14,25 +14,33 @@ import { CountdownBar } from "@/components/countdown";
 import { FAQAccordion } from "@/components/faq-accordion";
 import { LatestWinnerCard } from "@/components/latest-winner-card";
 import { PromoBanner } from "@/components/promo-banner";
-import { resolvePromo, getPromoConfig, PROMOS_EVENT, type PromoTier } from "@/lib/promotions";
+import { resolvePromo, getPromoConfig, isPromoLive, PROMOS_EVENT, type PromoTier } from "@/lib/promotions";
+import { trackVisit, track, describeTrigger } from "@/lib/analytics";
+import { VehicleGallery } from "@/components/vehicle-gallery";
 import { getUser, SESSION_EVENT } from "@/lib/session";
 import { Sparkles } from "lucide-react";
 
 export function TicketsBuy() {
   const router = useRouter();
   const v = activeDraw.vehicle;
-  const [activeImage, setActiveImage] = useState(0);
   const [redirecting, setRedirecting] = useState(false);
   const [mode, setMode] = useState<"once" | "monthly">("once");
   const winners = useWinners();
   const [promo, setPromo] = useState<PromoTier | null>(null);
-  const touchStart = useRef<{ x: number; y: number } | null>(null);
   const searchParams = useSearchParams();
 
   // Promotion pickup: membership login, ?promo=CODE links, or utm_* ad campaigns.
   useEffect(() => {
-    const resolve = () =>
-      setPromo(resolvePromo(searchParams, !!getUser(), getPromoConfig()));
+    const resolve = () => {
+      const p = resolvePromo(searchParams, !!getUser(), getPromoConfig());
+      setPromo(p);
+      trackVisit({
+        source: p?.id ?? "organic",
+        channel: p?.label ?? "Organic",
+        trigger: describeTrigger(searchParams, p?.id === "member"),
+        page: "/tickets",
+      });
+    };
     resolve();
     window.addEventListener(PROMOS_EVENT, resolve);
     window.addEventListener(SESSION_EVENT, resolve);
@@ -44,10 +52,19 @@ export function TicketsBuy() {
 
   const mult = promo?.multiplier ?? 1;
 
-  const prevImage = () => setActiveImage((i) => (i - 1 + v.images.length) % v.images.length);
-  const nextImage = () => setActiveImage((i) => (i + 1) % v.images.length);
-
   const onBuy = (tierId: string, type: "once" | "monthly") => {
+    const item = type === "once"
+      ? ticketTiers.find((t) => t.id === tierId)
+      : membershipTiers.find((m) => m.id === tierId);
+    track({
+      type: "purchase",
+      source: promo?.id ?? "organic",
+      channel: promo?.label ?? "Organic",
+      trigger: describeTrigger(searchParams, promo?.id === "member"),
+      page: "/tickets",
+      item: item ? ("name" in item ? item.name : tierId) : tierId,
+      amountUSD: item ? ("priceUSD" in item ? item.priceUSD : item.monthlyUSD) : undefined,
+    });
     setRedirecting(true);
     // Brief delay sells the "leaving the merchant site for Shopify checkout" handoff.
     const promoQS = promo ? `&promo=${encodeURIComponent(promo.code ?? promo.id)}` : "";
@@ -72,84 +89,7 @@ export function TicketsBuy() {
       <section className="mx-auto max-w-[1400px] px-5 pt-6 pb-8 grid gap-5 lg:grid-cols-12 lg:gap-6">
         {/* LEFT — vehicle gallery (first on mobile too) */}
         <div className="lg:col-span-7 flex flex-col">
-          {/* Tall landscape vehicle plate — image only, no duplicated stats */}
-          <div className="border-heavy bg-paper-3 relative rounded-xl overflow-hidden">
-            {/* Mobile: image on top, thumbs in a horizontal row below.
-                Desktop (md+): image on left, thumbs in a vertical strip on right. */}
-            <div className="flex flex-col md:flex-row">
-              <div
-                className="relative md:flex-1 aspect-[16/10] overflow-hidden transition-[background-image] duration-300 touch-pan-y"
-                onTouchStart={(e) => {
-                  touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-                }}
-                onTouchEnd={(e) => {
-                  const start = touchStart.current;
-                  touchStart.current = null;
-                  if (!start) return;
-                  const dx = e.changedTouches[0].clientX - start.x;
-                  const dy = e.changedTouches[0].clientY - start.y;
-                  if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
-                    if (dx < 0) nextImage(); else prevImage();
-                  }
-                }}
-                style={{
-                  backgroundImage: `linear-gradient(to bottom, rgba(22,17,15,0.1) 0%, rgba(22,17,15,0.05) 35%, rgba(22,17,15,0.55) 100%), url(${v.images[activeImage] ?? v.image})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              >
-                <span className="absolute bottom-2.5 right-2.5 bg-ink/25 text-paper backdrop-blur-[1px] font-condensed uppercase tracking-[0.22em] text-[10px] px-2 py-1 rounded-md">
-                  {activeImage + 1} / {v.images.length}
-                </span>
-
-                {/* Mobile: transparent chevrons page through the gallery */}
-                <button
-                  type="button"
-                  aria-label="Previous image"
-                  onClick={prevImage}
-                  className="md:hidden absolute left-1.5 top-1/2 -translate-y-1/2 h-10 w-10 inline-flex items-center justify-center rounded-full bg-ink/25 text-paper backdrop-blur-[1px] active:bg-ink/40"
-                >
-                  <ChevronLeft size={24} strokeWidth={2.5} />
-                </button>
-                <button
-                  type="button"
-                  aria-label="Next image"
-                  onClick={nextImage}
-                  className="md:hidden absolute right-1.5 top-1/2 -translate-y-1/2 h-10 w-10 inline-flex items-center justify-center rounded-full bg-ink/25 text-paper backdrop-blur-[1px] active:bg-ink/40"
-                >
-                  <ChevronRight size={24} strokeWidth={2.5} />
-                </button>
-              </div>
-
-              {v.images.length > 1 && (
-                <div className="hidden md:grid md:border-l border-ink/10 bg-paper-3 md:grid-cols-1 md:w-[90px]">
-                  {v.images.slice(0, 4).map((src, i) => {
-                    const selected = i === activeImage;
-                    return (
-                      <button
-                        key={src + i}
-                        type="button"
-                        aria-pressed={selected}
-                        aria-label={`View image ${i + 1}`}
-                        onClick={() => setActiveImage(i)}
-                        className={`relative aspect-[4/3] md:aspect-auto md:flex-1 border-r md:border-r-0 md:border-b last:border-r-0 md:last:border-b-0 border-ink/10 overflow-hidden transition ${
-                          selected ? "ring-2 ring-inset ring-accent" : "hover:opacity-90"
-                        }`}
-                        style={{
-                          backgroundImage: `url(${src})`,
-                          backgroundSize: "cover",
-                          backgroundPosition: "center",
-                        }}
-                      >
-                        <span className="sr-only">Image {i + 1}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-          </div>
+          <VehicleGallery />
 
           {/* Car name + draw date — right under the gallery */}
           <div className="mt-3">
@@ -166,7 +106,11 @@ export function TicketsBuy() {
         {/* RIGHT — Compact ticket machine */}
         <div className="lg:col-span-5">
           <div className="lg:sticky lg:top-24 border-heavy-3 bg-paper-4 relative shadow-soft rounded-2xl overflow-hidden">
-            <CountdownBar targetISO={activeDraw.drawDateISO} />
+            {promo && isPromoLive(promo) && promo.endISO ? (
+              <CountdownBar targetISO={promo.endISO} label={promo.countdownLabel ?? "Promo ends in"} />
+            ) : (
+              <CountdownBar targetISO={activeDraw.drawDateISO} label="Draw closes in" />
+            )}
 
             {/* One-time / Membership selector */}
             <div className="px-4 pt-3 pb-2.5 bg-paper-3 border-b border-ink/10">
@@ -280,28 +224,36 @@ export function TicketsBuy() {
               </div>
             </div>
           </div>
-          {/* SPEC SHEET (under the ticket box) — headline figures */}
-          <div className="mt-4">
-            <div className="flex items-baseline justify-between gap-3">
-              <p className="section-eyebrow on-paper section-eyebrow-rule">Spec sheet · what you&apos;re winning</p>
-              <Label tone="brass" variant="outline" size="sm">As configured</Label>
-            </div>
+        </div>
+      </section>
 
-            <dl className="mt-3 grid grid-cols-2 sm:grid-cols-4 sm:divide-x divide-paper/10 bg-ink text-paper rounded-xl overflow-hidden border border-ink/10 shadow-soft">
-              {v.headlineSpecs.map((s) => (
-                <div key={s.label} className="px-2.5 py-2.5 text-center">
-                  <dd className="font-condensed numeral font-bold text-brass leading-none" style={{ fontSize: "clamp(1.15rem, 1.5vw, 1.5rem)" }}>
-                    {s.decimals ? (
-                      <>{s.value.toFixed(s.decimals)}{s.suffix}</>
-                    ) : (
-                      <AnimatedCounter value={s.value} suffix={s.suffix} />
-                    )}
-                  </dd>
-                  <dt className="mt-1 font-condensed uppercase tracking-[0.22em] text-[9px] text-paper/60">{s.label}</dt>
-                </div>
-              ))}
-            </dl>
+      {/* SPEC SHEET — what you're winning, full-width */}
+      <section className="border-y border-ink/10 bg-paper-3">
+        <div className="mx-auto max-w-[1400px] px-5 py-14">
+          <div className="flex items-end justify-between gap-4 mb-7">
+            <div>
+              <p className="section-eyebrow on-paper section-eyebrow-rule">Spec sheet · as configured</p>
+              <h2 className="mt-3 hero-headline" style={{ fontSize: "clamp(1.75rem,3.5vw,2.5rem)" }}>
+                What you&apos;re <span className="accent-serif">winning.</span>
+              </h2>
+            </div>
+            <Label tone="brass" variant="outline">{v.year} {v.make} {v.model}</Label>
           </div>
+
+          <dl className="grid grid-cols-2 sm:grid-cols-4 sm:divide-x divide-paper/10 bg-ink text-paper rounded-2xl overflow-hidden border border-ink/10 shadow-soft">
+            {v.headlineSpecs.map((s) => (
+              <div key={s.label} className="px-4 py-7 text-center">
+                <dd className="font-condensed numeral font-bold text-brass leading-none" style={{ fontSize: "clamp(1.9rem, 3vw, 3rem)" }}>
+                  {s.decimals ? (
+                    <>{s.value.toFixed(s.decimals)}{s.suffix}</>
+                  ) : (
+                    <AnimatedCounter value={s.value} suffix={s.suffix} />
+                  )}
+                </dd>
+                <dt className="mt-2.5 font-condensed uppercase tracking-[0.22em] text-[11px] text-paper/60">{s.label}</dt>
+              </div>
+            ))}
+          </dl>
         </div>
       </section>
 

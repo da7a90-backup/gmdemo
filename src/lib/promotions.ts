@@ -26,6 +26,8 @@ export type PromoTier = {
   endISO?: string;
   /** Show the independent countdown in the promo banner. */
   showCountdown?: boolean;
+  /** Label for the promo countdown — defaults to "Promo ends in". */
+  countdownLabel?: string;
 };
 
 export const DEFAULT_PROMOS: PromoTier[] = [
@@ -47,6 +49,7 @@ export const DEFAULT_PROMOS: PromoTier[] = [
     utm: "ads",
     endISO: "2026-07-12T19:00:00-04:00",
     showCountdown: true,
+    countdownLabel: "Promo ends in",
   },
   {
     id: "email",
@@ -69,6 +72,7 @@ export const DEFAULT_PROMOS: PromoTier[] = [
     utm: "sms",
     endISO: "2026-07-12T19:00:00-04:00",
     showCountdown: true,
+    countdownLabel: "Promo ends in",
   },
   {
     id: "member",

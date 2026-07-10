@@ -1,11 +1,12 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Megaphone, PenLine, Trophy, Printer, MessageSquareText, Mail } from "lucide-react";
+import { Megaphone, PenLine, Trophy, Printer, MessageSquareText, Mail, ChartNoAxesColumn } from "lucide-react";
 import { Label } from "@/components/sticker";
 
 const SECTIONS = [
   { href: "/admin/promotions", label: "Promotions", icon: Megaphone },
+  { href: "/admin/attribution", label: "Attribution", icon: ChartNoAxesColumn },
   { href: "/admin/content", label: "Content", icon: PenLine },
   { href: "/admin/winners", label: "Winners", icon: Trophy },
   { href: "/admin/tickets", label: "Print tickets", icon: Printer },
