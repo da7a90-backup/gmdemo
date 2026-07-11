@@ -9,7 +9,8 @@ import { activeDraw } from "@/lib/mock-data";
 
 const NAV = [
   { href: "/tickets", label: "Tickets" },
-  { href: "/winners", label: "Winners" },
+  { href: "/winners", label: "Archive" },
+  { href: "/live", label: "Live draw" },
   { href: "/partners", label: "Partners" },
   { href: "/about", label: "About" },
   { href: "/blog", label: "Field Notes" },
