@@ -28,7 +28,7 @@ export default function LivePage() {
               <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" /> Pre-stream
             </span>
           </div>
-          <h1 className="hero-headline">
+          <h1 className="hero-headline on-dark">
             Draw starts <span className="accent-serif">in…</span>
           </h1>
           <div className="mt-8">

@@ -98,7 +98,7 @@ export const draws: Draw[] = [
       logo: "/charities/habitat.svg",
       url: "https://www.habitat.org/",
     },
-    drawDateISO: "2026-07-12T19:00:00-04:00",
+    drawDateISO: "2026-07-18T19:00:00-04:00",
     ticketsSold: 3247,
     ticketsCap: 5000,
     pricePerTicketUSD: 10,
@@ -404,7 +404,7 @@ export const entryDB: EntryRecord[] = [
         ticketCount: 10,
         status: "active",
         purchasedAtISO: "2026-06-18T14:22:00-04:00",
-        drawDateISO: "2026-07-12T19:00:00-04:00",
+        drawDateISO: "2026-07-18T19:00:00-04:00",
       },
     ],
     past: [
