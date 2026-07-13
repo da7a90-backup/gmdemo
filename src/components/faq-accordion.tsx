@@ -10,7 +10,7 @@ const FAQ = [
   { q: "How do I know the draw is fair?", a: "Three things: every entry is a physically printed paper ticket, the pull is on a livestream archived to YouTube forever, and our 990 is publicly filed (we are a 501(c)(3))." },
   { q: "What if I win — when do I get the car?", a: "We call you on the stream and arrange delivery, registration, and title transfer typically within 30 days." },
   { q: "Can I take the cash instead?", a: "Yes. Every prize has a cash equivalent disclosed in the cycle's Official Rules. You choose at claim time." },
-  { q: "Where does the charity money go?", a: "10% of gross proceeds — calculated before any operating cost — goes directly to the cycle's named partner charity. Each cycle publishes a reconciliation PDF and signed receipt." },
+  { q: "Where does the charity money go?", a: "10% of every cycle goes directly to the cycle's named partner charity. Each cycle publishes a reconciliation PDF and signed receipt." },
   { q: "Can I cancel my membership?", a: "Yes, in 1 click from your account. Already-issued entries for the current cycle stay valid; no refunds for entries already in the drum." },
   { q: "Who can enter?", a: "Legal residents of the 50 United States and DC, age 18+. Void where prohibited. See Official Rules for full eligibility." },
   { q: "Where do I find the official rules?", a: "At generousmotors.org/rules — also linked below, in the footer of every page, and from every ticket-purchase confirmation email." },

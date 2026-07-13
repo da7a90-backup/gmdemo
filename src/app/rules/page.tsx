@@ -97,7 +97,7 @@ export default function RulesPage() {
             ineligible, a replacement winner is drawn from the same drum on a recorded stream.
           </Rule>
           <Rule n={8} title="Charity commitment">
-            10% of the cycle&apos;s gross proceeds — calculated before any expense — is paid to the
+            10% of the cycle&apos;s proceeds is paid to the
             cycle&apos;s named partner charity ({activeDraw.charity.name} for cycle
             {" "}{activeDraw.cycle}). The wire receipt is published on the blog within seven business
             days of the cycle close.

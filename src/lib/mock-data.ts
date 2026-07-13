@@ -346,7 +346,7 @@ export const blogPosts: BlogPost[] = [
     tag: "Behind the draw",
     excerpt:
       "Being IRS-recognized as a non-profit is not a slogan. Here is exactly what shifts: the receipts, the rules, the public 990, the audit trail.",
-    body: "We're a registered 501(c)(3). 10% of every cycle's gross profits — measured before operating cost — goes directly to that cycle's nonprofit partner. Each cycle produces a receipt for the charity's records. The 10% you see on the home page is the same 10% the charity sees.",
+    body: "We're a registered 501(c)(3). 10% of every cycle goes directly to that cycle's nonprofit partner. Each cycle produces a receipt for the charity's records. The 10% you see on the home page is the same 10% the charity sees.",
   },
   {
     slug: "membership-explained",

@@ -27,12 +27,12 @@ export default function AboutPage() {
             Generous Motors was founded on a simple belief: good things happen when good people come together. We make giving exciting, transparent, and rewarding.
           </p>
           <p className="mt-3 text-[16px] text-ink-2 font-serif leading-relaxed">
-            Each 60-day cycle partners with a new nonprofit. Ten percent of every cycle&apos;s gross profits goes directly to that cycle&apos;s nonprofit partner.
+            Each 60-day cycle partners with a new nonprofit. Ten percent of every cycle goes directly to that cycle&apos;s nonprofit partner.
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
             <Label tone="charity" variant="outline">Registered 501(c)(3)</Label>
             <Label tone="brass" variant="outline">Drawn live, every cycle</Label>
-            <Label tone="ink" variant="outline">10% of gross to charity</Label>
+            <Label tone="ink" variant="outline">10% to charity</Label>
           </div>
         </div>
       </section>
@@ -45,7 +45,7 @@ export default function AboutPage() {
           "On camera",
           "Fully transparent",
           "Streamed, archived",
-          "10% of gross paid first",
+          "10% paid first",
         ]}
       />
 
@@ -84,10 +84,10 @@ export default function AboutPage() {
           <div className="lg:col-span-5">
             <p className="section-eyebrow !text-paper-3/70 section-eyebrow-rule">Charity flow</p>
             <h2 className="mt-4 hero-headline">
-              10% of gross. <span className="accent-serif">Paid first.</span>
+              Ten percent. <span className="accent-serif">Paid first.</span>
             </h2>
             <p className="mt-7 text-paper-3/85 text-lg font-serif">
-              Most raffles talk about &ldquo;net&rdquo; donations. We pay charity on <em>gross</em> — before the car is bought, before payroll, before any expense. It is a smaller number than &ldquo;net&rdquo; would let us say. It is a number we can defend.
+              We pay the charity first — before the car is bought, before payroll, before any expense. It is a number we can defend.
             </p>
             <Link
               href="/blog/cycle-12-corvette-charity-pick"

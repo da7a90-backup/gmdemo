@@ -63,7 +63,7 @@ export default function LivePage() {
             <div className="mt-6">
               <p className="font-condensed uppercase tracking-[0.22em] text-[11px] text-paper/60">This cycle&apos;s charity</p>
               <p className="font-display font-bold text-2xl">{activeDraw.charity.name}</p>
-              <p className="dateline !text-paper/60 mt-2">10% of gross. Wired within 7 business days of close.</p>
+              <p className="dateline !text-paper/60 mt-2">10%. Wired within 7 business days of close.</p>
             </div>
           </div>
 

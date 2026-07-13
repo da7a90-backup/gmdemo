@@ -339,7 +339,7 @@ export function TicketsBuy() {
               <CyclePartnerBadge dark />
             </div>
             <p className="mt-4 max-w-xl text-paper-3/80">
-              Paid on <em>gross</em> — before the car is bought, before payroll, before any expense. Receipt is wired within seven business days of the close and published on the blog.
+              Paid first — before the car is bought, before payroll, before any expense. Receipt is wired within seven business days of the close and published on the blog.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Link

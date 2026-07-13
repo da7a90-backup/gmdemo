@@ -176,7 +176,7 @@ export function EmailPopup() {
 
             <div className="mt-4 pt-4 border-t border-rule-soft hidden sm:flex items-start gap-2.5 text-[12px] text-ink-3 font-serif italic">
               <HeartHandshake size={14} className="mt-0.5 text-charity shrink-0" />
-              <span>10% of every cycle&apos;s gross goes to that cycle&apos;s nonprofit partner. Joining the text club helps us reach more drivers — and more charities.</span>
+              <span>10% of every cycle goes to that cycle&apos;s nonprofit partner. Joining the text club helps us reach more drivers — and more charities.</span>
             </div>
 
             <button

@@ -46,7 +46,7 @@ export function CharityBand() {
 
           <div className="mt-7 flex flex-wrap gap-2 text-[12px]">
             <Label tone="brass" variant="solid">Registered 501(c)(3)</Label>
-            <Label tone="paper" variant="outline">10% of gross to charity</Label>
+            <Label tone="paper" variant="outline">10% to charity</Label>
           </div>
 
           <div className="mt-6">

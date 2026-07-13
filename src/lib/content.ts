@@ -51,7 +51,7 @@ export const CONTENT_FIELDS: ContentField[] = [
   { key: "charity.h.accent", page: "Homepage", group: "Charity band", label: "Heading — italic accent", def: "Paid first." },
   {
     key: "charity.body", page: "Homepage", group: "Charity band", label: "Supporting paragraph", long: true,
-    def: "We pay charity on gross — before the car is bought, before payroll, before any expense. It is a smaller number than “net” would let us say. It is a number we can defend on camera.",
+    def: "We pay the charity first — before the car is bought, before payroll, before any expense. It is a number we can defend on camera.",
   },
 
   { key: "home.faq.eyebrow", page: "Homepage", group: "FAQ", label: "Eyebrow", def: "FAQ" },
@@ -86,7 +86,7 @@ export const CONTENT_FIELDS: ContentField[] = [
   /* ------------------------------- Footer ------------------------------- */
   {
     key: "footer.mission", page: "Footer", group: "Masthead", label: "Mission line", long: true,
-    def: "Drive the car. Fund the cause. 10% of every cycle goes to a real, named US charity — paid on gross before any operating cost.",
+    def: "Drive the car. Fund the cause. 10% of every cycle goes to a real, named US charity — paid first, every cycle.",
   },
   { key: "newsletter.eyebrow", page: "Footer", group: "Newsletter signup", label: "Eyebrow", def: "The newsletter · 2X entries" },
   { key: "newsletter.title", page: "Footer", group: "Newsletter signup", label: "Title", def: "Draw alerts, bonus offers, receipts." },
@@ -96,7 +96,7 @@ export const CONTENT_FIELDS: ContentField[] = [
   },
   {
     key: "footer.fineprint", page: "Footer", group: "Fine print", label: "Legal disclaimer", long: true,
-    def: "Generous Motors is a registered 501(c)(3) nonprofit organization. No purchase necessary to enter or win. A purchase does not increase your chances of winning. Open to legal residents of the United States, 18 years of age or older. Void where prohibited. Charitable contribution: 10% of gross profits per cycle donated to featured nonprofit partner.",
+    def: "Generous Motors is a registered 501(c)(3) nonprofit organization. No purchase necessary to enter or win. A purchase does not increase your chances of winning. Open to legal residents of the United States, 18 years of age or older. Void where prohibited. Charitable contribution: 10% per cycle donated to featured nonprofit partner.",
   },
   { key: "footer.address", page: "Footer", group: "Fine print", label: "Address line", def: "Generous Motors · 120 Cedar Ave · Brooklyn, NY 11215" },
 ];

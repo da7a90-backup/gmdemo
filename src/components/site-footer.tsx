@@ -74,7 +74,7 @@ export function SiteFooter() {
           </Link>
           <div className="flex flex-wrap items-center gap-2">
             <Label tone="paper" variant="outline">501(c)(3) nonprofit</Label>
-            <Label tone="paper" variant="outline">10% of gross to charity</Label>
+            <Label tone="paper" variant="outline">10% to charity</Label>
             <Label tone="paper" variant="outline">Drawn live</Label>
           </div>
         </div>

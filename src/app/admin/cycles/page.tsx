@@ -120,7 +120,7 @@ export default function AdminCyclesPage() {
             <input type="number" min={100} step={100} value={config.ticketsCap}
               onChange={(e) => setConfig((c) => ({ ...c!, ticketsCap: Number(e.target.value) || c!.ticketsCap }))}
               className={`${input} numeral`} /></label>
-          <label className="block sm:col-span-2"><span className="dateline on-paper">Charity partner (10% of gross)</span>
+          <label className="block sm:col-span-2"><span className="dateline on-paper">Charity partner (10% of every cycle)</span>
             <select value={config.charityPartnerId}
               onChange={(e) => setConfig((c) => ({ ...c!, charityPartnerId: e.target.value }))}
               className={input}>

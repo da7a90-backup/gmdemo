@@ -33,7 +33,7 @@ export default function PartnersPage() {
       <section className="mx-auto max-w-[1400px] px-5 py-14">
         <div className="flex items-center gap-2.5">
           <HeartHandshake size={16} className="text-charity" />
-          <p className="section-eyebrow on-paper">Charity partners · 10% of gross, every cycle</p>
+          <p className="section-eyebrow on-paper">Charity partners · 10%, every cycle</p>
         </div>
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {charities.map((p) => (
