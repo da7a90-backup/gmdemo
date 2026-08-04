@@ -8,5 +8,6 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   const g = requireAdmin(req); if (g) return g;
-  try { return ok(await ensureCopy()); } catch (e) { return fail(errMsg(e), 500); }
+  const reset = new URL(req.url).searchParams.get("reset") === "1";
+  try { return ok(await ensureCopy(reset)); } catch (e) { return fail(errMsg(e), 500); }
 }

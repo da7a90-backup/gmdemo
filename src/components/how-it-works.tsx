@@ -1,43 +1,36 @@
 import { Ticket, Printer, Tv2, Flag } from "lucide-react";
 import { YouTubeFacade } from "@/components/youtube-facade";
-import { Copy } from "@/components/copy";
+import { getContentServer } from "@/lib/server/copy";
 
-const STEPS = [
-  {
-    icon: Ticket,
-    label: "Get Your Ticket",
-    body: "Pick a tier. Every ticket is a real chance plus a real donation to this cycle's charity.",
-  },
-  {
-    icon: Printer,
-    label: "We Print Your Ticket",
-    body: "Every entry is physically printed and dropped into the drum before the draw.",
-  },
-  {
-    icon: Tv2,
-    label: "Watch Live",
-    body: "Drum spins. A hand pulls one. The camera reads it. We call the winner on stream.",
-  },
-  {
-    icon: Flag,
-    label: "Drive It Away",
-    body: "Winner picks delivery or cash equivalent. The charity check is presented on the next stream.",
-  },
-];
+const ICONS = [Ticket, Printer, Tv2, Flag];
 
-export function HowItWorks() {
+/** Extract a YouTube video id from a watch/share/embed URL (or pass through an id). */
+function youtubeId(url: string): string {
+  const m = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/);
+  return m?.[1] ?? url.trim();
+}
+
+export async function HowItWorks() {
+  const copy = await getContentServer();
+  const steps = ICONS.map((icon, i) => ({
+    icon,
+    label: copy[`home.how.step${i + 1}.label`],
+    body: copy[`home.how.step${i + 1}.body`],
+  }));
+  const videoId = youtubeId(copy["home.how.videoUrl"] ?? "");
+  const poster = copy["home.how.poster"] || "/vehicles/drum-poster.jpg";
   return (
     <section className="bg-paper-3 text-ink border-y border-rule" id="how-it-works">
       <div className="mx-auto max-w-[1400px] px-5 py-24">
         <div className="border-b border-rule-soft pb-10">
-          <p className="section-eyebrow section-eyebrow-rule"><Copy k="home.how.eyebrow" /></p>
+          <p className="section-eyebrow section-eyebrow-rule">{copy["home.how.eyebrow"]}</p>
           <h2 className="mt-4 hero-headline" style={{ fontSize: "clamp(2.25rem,5vw,4.25rem)" }}>
-            <Copy k="home.how.h.lead" /> <span className="accent-serif"><Copy k="home.how.h.accent" /></span>
+            {copy["home.how.h.lead"]} <span className="accent-serif">{copy["home.how.h.accent"]}</span>
           </h2>
         </div>
 
         <ol className="mt-12 grid border border-ink/10 bg-paper-3 sm:grid-cols-2 lg:grid-cols-4 divide-y divide-ink/10 lg:divide-y-0 lg:divide-x rounded-2xl overflow-hidden">
-          {STEPS.map((s, i) => (
+          {steps.map((s, i) => (
             <li key={s.label} className="relative p-8">
               <div className="flex items-baseline justify-between gap-4 mb-6">
                 <span className="font-condensed text-5xl font-semibold text-ink leading-none numeral">№{String(i + 1).padStart(2, "0")}</span>
@@ -51,8 +44,8 @@ export function HowItWorks() {
 
         <div className="mt-12 mx-auto max-w-4xl shadow-soft rounded-2xl">
           <YouTubeFacade
-            videoId="dQw4w9WgXcQ"
-            poster="/vehicles/drum-poster.jpg"
+            videoId={videoId}
+            poster={poster}
             title="How a Generous Motors cycle runs"
           />
         </div>

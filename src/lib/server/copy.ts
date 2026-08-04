@@ -17,7 +17,22 @@ function pages() {
 type UE = { message: string }[];
 
 /** Create the definitions (if missing) and seed each with a 'default' entry of defaults. */
-export async function ensureCopy() {
+async function deleteCopyDefinition(type: string) {
+  const r = await shopifyAdmin<{ metaobjectDefinitionByType: { id: string } | null }>(
+    `query($t: String!) { metaobjectDefinitionByType(type: $t) { id } }`, { t: type },
+  ).catch(() => null);
+  const id = r?.metaobjectDefinitionByType?.id;
+  if (id) {
+    await shopifyAdmin(
+      `mutation($id: ID!) { metaobjectDefinitionDelete(id: $id) { deletedId userErrors { message } } }`, { id },
+    ).catch(() => {});
+  }
+}
+
+export async function ensureCopy(_reset = false) {
+  // Note: Shopify deletes metaobject definitions ASYNCHRONOUSLY, so a
+  // delete-then-recreate in one request fails with "key in use". To change the
+  // field set, delete the copy_* definitions in Shopify admin first, then re-run.
   const done: { page: string; type: string; definition: string; entry: string }[] = [];
   for (const [page, fields] of pages()) {
     const type = typeFor(page);
@@ -77,4 +92,13 @@ export async function getCopyMap(): Promise<Record<string, string>> {
     }),
   );
   return out;
+}
+
+// Defaults from the code registry, merged under the Shopify values (server-side read).
+const DEFAULTS: Record<string, string> = Object.fromEntries(CONTENT_FIELDS.map((f) => [f.key, f.def]));
+
+/** Full copy map for server components: code defaults overlaid with Shopify copy. */
+export async function getContentServer(): Promise<Record<string, string>> {
+  const shop = await getCopyMap().catch(() => ({}));
+  return { ...DEFAULTS, ...shop };
 }
