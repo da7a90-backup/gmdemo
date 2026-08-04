@@ -14,6 +14,8 @@ export default async function LivePage() {
   const drawDateISO = c?.drawDateISO || activeDraw.drawDateISO;
   const ticketsSold = c?.ticketsSold ?? activeDraw.ticketsSold;
   const charityName = c?.charity.name || activeDraw.charity.name;
+  const fb = c?.livestreamFacebook || "#";
+  const yt = c?.livestreamYoutube || "#";
   return (
     <section className="relative border-y border-ink/10 bg-ink text-paper grain overflow-hidden">
       <div
@@ -44,10 +46,10 @@ export default async function LivePage() {
             We&apos;ll go live at <strong className="text-paper font-condensed uppercase tracking-[0.04em]">{niceDateTime(drawDateISO)}</strong> on Facebook (primary) with a YouTube mirror. Tickets close 30 minutes before the stream begins. The drum is loaded on camera.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href="#" className="inline-flex h-12 items-center gap-2 rounded-full bg-paper text-ink border border-paper px-5 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-brass">
+            <a href={fb} target="_blank" rel="noopener" className="inline-flex h-12 items-center gap-2 rounded-full bg-paper text-ink border border-paper px-5 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-brass">
               <Facebook size={14} /> Facebook Live
             </a>
-            <a href="#" className="inline-flex h-12 items-center gap-2 rounded-full bg-paper/10 border border-paper/30 px-5 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper hover:text-ink">
+            <a href={yt} target="_blank" rel="noopener" className="inline-flex h-12 items-center gap-2 rounded-full bg-paper/10 border border-paper/30 px-5 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper hover:text-ink">
               <Youtube size={14} /> YouTube mirror
             </a>
           </div>

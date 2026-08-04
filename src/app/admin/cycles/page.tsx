@@ -12,6 +12,7 @@ type CycleContent = {
   charityPartnerId?: string; charityBlurb?: string;
   vehicle: { year: number; make: string; model: string; trim: string; valueUSD: number; images: string[] };
   pricePerTicketUSD: number; ticketsSold: number;
+  livestreamFacebook?: string; livestreamYoutube?: string;
 };
 
 function toLocalInput(iso: string): string {
@@ -54,6 +55,8 @@ export default function AdminCyclesPage() {
         valueUSD: config.vehicle.valueUSD,
         pricePerTicketUSD: config.pricePerTicketUSD,
         images: config.vehicle.images,
+        livestreamFacebook: config.livestreamFacebook ?? "",
+        livestreamYoutube: config.livestreamYoutube ?? "",
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
@@ -140,6 +143,14 @@ export default function AdminCyclesPage() {
             <input type="text" value={config.charityBlurb ?? ""}
               onChange={(e) => setConfig((c) => ({ ...c!, charityBlurb: e.target.value }))}
               className={input} /></label>
+          <label className="block sm:col-span-2"><span className="dateline on-paper">Livestream — Facebook URL</span>
+            <input type="url" value={config.livestreamFacebook ?? ""}
+              onChange={(e) => setConfig((c) => ({ ...c!, livestreamFacebook: e.target.value }))}
+              placeholder="https://facebook.com/…/live" className={input} /></label>
+          <label className="block sm:col-span-2"><span className="dateline on-paper">Livestream — YouTube URL</span>
+            <input type="url" value={config.livestreamYoutube ?? ""}
+              onChange={(e) => setConfig((c) => ({ ...c!, livestreamYoutube: e.target.value }))}
+              placeholder="https://youtube.com/…" className={input} /></label>
         </div>
       </div>
 

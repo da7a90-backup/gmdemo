@@ -107,6 +107,7 @@ export type CycleFull = {
     images: string[]; image: string; headlineSpecs: Spec[]; specGroups: SpecGroup[];
   };
   ticketsSold: number; pricePerTicketUSD: number;
+  livestreamFacebook: string; livestreamYoutube: string;
 };
 const toCycle = (r: Row): CycleFull => {
   const images = (r.images as string[]) ?? [];
@@ -127,6 +128,7 @@ const toCycle = (r: Row): CycleFull => {
       headlineSpecs: (r.headline_specs as Spec[]) ?? [], specGroups: (r.spec_groups as SpecGroup[]) ?? [],
     },
     ticketsSold: (r.tickets_sold as number) ?? 0, pricePerTicketUSD: (r.price_per_ticket_usd as number) ?? 0,
+    livestreamFacebook: (r.livestream_facebook as string) ?? "", livestreamYoutube: (r.livestream_youtube as string) ?? "",
   };
 };
 export type CycleUpdate = Partial<{
@@ -134,6 +136,7 @@ export type CycleUpdate = Partial<{
   vehicleYear: number; vehicleMake: string; vehicleModel: string; vehicleTrim: string;
   valueUSD: number; pricePerTicketUSD: number; ticketsSold: number;
   images: string[]; headlineSpecs: Spec[]; specGroups: SpecGroup[];
+  livestreamFacebook: string; livestreamYoutube: string;
 }>;
 export async function getCurrentCycle(): Promise<CycleFull | null> {
   const r = await query(
@@ -152,7 +155,8 @@ export async function updateCurrentCycle(c: CycleUpdate): Promise<CycleFull | nu
        vehicle_model = coalesce($7, vehicle_model), vehicle_trim = coalesce($8, vehicle_trim),
        value_usd = coalesce($9, value_usd), price_per_ticket_usd = coalesce($10, price_per_ticket_usd),
        tickets_sold = coalesce($11, tickets_sold), images = coalesce($12, images),
-       headline_specs = coalesce($13, headline_specs), spec_groups = coalesce($14, spec_groups)
+       headline_specs = coalesce($13, headline_specs), spec_groups = coalesce($14, spec_groups),
+       livestream_facebook = coalesce($15, livestream_facebook), livestream_youtube = coalesce($16, livestream_youtube)
      where id = (select id from cycles where status='open' order by id limit 1) returning *`,
     [c.vehicleLabel ?? null, c.drawDateISO ?? null,
      c.charityPartnerId ? Number(c.charityPartnerId) : null, c.charityBlurb ?? null,
@@ -160,7 +164,8 @@ export async function updateCurrentCycle(c: CycleUpdate): Promise<CycleFull | nu
      c.valueUSD ?? null, c.pricePerTicketUSD ?? null, c.ticketsSold ?? null,
      c.images ? JSON.stringify(c.images) : null,
      c.headlineSpecs ? JSON.stringify(c.headlineSpecs) : null,
-     c.specGroups ? JSON.stringify(c.specGroups) : null],
+     c.specGroups ? JSON.stringify(c.specGroups) : null,
+     c.livestreamFacebook ?? null, c.livestreamYoutube ?? null],
   );
   return r.rows[0] ? getCurrentCycle() : null; // re-read with the partner join
 }
