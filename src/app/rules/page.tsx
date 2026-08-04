@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { activeDraw } from "@/lib/mock-data";
+import { getCurrentCycle } from "@/lib/server/editorial";
 import { usd } from "@/lib/format";
 import { Label } from "@/components/sticker";
 import { ShieldCheck, ArrowRight } from "lucide-react";
@@ -11,25 +12,22 @@ export const metadata: Metadata = {
     "Official rules for the Generous Motors charitable drawing, conducted in accordance with Fla. Stat. § 849.0935. No purchase or contribution necessary.",
 };
 
-const drawWhen = new Date(activeDraw.drawDateISO).toLocaleString("en-US", {
-  timeZone: "America/New_York",
-  weekday: "long",
-  month: "long",
-  day: "numeric",
-  year: "numeric",
-  hour: "numeric",
-  minute: "2-digit",
-});
-
-export default function RulesPage() {
-  const v = activeDraw.vehicle;
+export default async function RulesPage() {
+  const c = await getCurrentCycle();
+  const cycleNo = c?.cycle ?? activeDraw.cycle;
+  const charityName = c?.charity.name || activeDraw.charity.name;
+  const v = c?.vehicle ?? activeDraw.vehicle;
+  const drawWhen = new Date(c?.drawDateISO || activeDraw.drawDateISO).toLocaleString("en-US", {
+    timeZone: "America/New_York", weekday: "long", month: "long", day: "numeric",
+    year: "numeric", hour: "numeric", minute: "2-digit",
+  });
   return (
     <main className="bg-paper text-ink">
       {/* HEADER */}
       <section className="relative overflow-hidden border-b border-ink/10 grain">
         <div className="mx-auto max-w-3xl px-5 pt-14 pb-10">
           <div className="flex flex-wrap items-center gap-2">
-            <Label tone="ink" variant="outline">Cycle №{String(activeDraw.cycle).padStart(2, "0")}</Label>
+            <Label tone="ink" variant="outline">Cycle №{String(cycleNo).padStart(2, "0")}</Label>
             <Label tone="brass" variant="outline">Fla. Stat. § 849.0935</Label>
           </div>
           <h1 className="mt-5 hero-headline" style={{ fontSize: "clamp(2.25rem, 5vw, 4rem)" }}>
@@ -37,7 +35,7 @@ export default function RulesPage() {
           </h1>
           <p className="mt-5 text-lg text-ink-2 font-serif">
             These rules govern the conduct and operation of the Generous Motors drawing by chance for
-            cycle {activeDraw.cycle}. They are disclosed in accordance with Florida Statute § 849.0935
+            cycle {cycleNo}. They are disclosed in accordance with Florida Statute § 849.0935
             (charitable, nonprofit organizations; drawings by chance).
           </p>
           <div className="mt-6 border border-ink/10 bg-paper-4 rounded-xl p-5 font-condensed uppercase tracking-[0.12em] text-[14px] text-ink font-bold">
@@ -67,13 +65,13 @@ export default function RulesPage() {
             membership; each ticket equals one entry into the cycle&apos;s drawing. (b) <em>Free
             alternate method of entry:</em> hand-print your full name, mailing address, phone number,
             email, and date of birth on a 3&Prime;×5&Prime; card and mail it in a stamped envelope to
-            &ldquo;Cycle {activeDraw.cycle} Free Entry, Generous Motors Foundation, Inc., 2900 NW 2nd
+            &ldquo;Cycle {cycleNo} Free Entry, Generous Motors Foundation, Inc., 2900 NW 2nd
             Avenue, Miami, FL 33127.&rdquo; One free entry per outer envelope. Free entries have equal
             odds and are printed onto identical paper tickets and placed in the same drum as all other
             entries.
           </Rule>
           <Rule n={4} title="The drawing — date, hour, and place">
-            The cycle {activeDraw.cycle} winner will be selected on <strong>{drawWhen} (ET)</strong>,
+            The cycle {cycleNo} winner will be selected on <strong>{drawWhen} (ET)</strong>,
             streamed live on Facebook Live and archived to YouTube, from the Generous Motors garage in
             Miami, Florida. Every entry is printed onto a physical paper ticket and drawn by hand from
             a rotating drum on camera. No winner is predetermined and the selection is not rigged in
@@ -88,7 +86,7 @@ export default function RulesPage() {
           </Rule>
           <Rule n={6} title="Odds of winning">
             Odds of winning depend on the total number of entries received for cycle
-            {" "}{activeDraw.cycle}.
+            {" "}{cycleNo}.
           </Rule>
           <Rule n={7} title="Winner notification & claim">
             The winner is announced on the live stream and contacted by phone and email within 24
@@ -98,8 +96,8 @@ export default function RulesPage() {
           </Rule>
           <Rule n={8} title="Charity commitment">
             10% of the cycle&apos;s proceeds is paid to the
-            cycle&apos;s named partner charity ({activeDraw.charity.name} for cycle
-            {" "}{activeDraw.cycle}). The wire receipt is published on the blog within seven business
+            cycle&apos;s named partner charity ({charityName} for cycle
+            {" "}{cycleNo}). The wire receipt is published on the blog within seven business
             days of the cycle close.
           </Rule>
           <Rule n={9} title="Governing law">

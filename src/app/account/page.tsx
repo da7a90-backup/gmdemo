@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight, LogOut, Ticket, Sparkles } from "lucide-react";
 import { getUser, signOut, type SessionUser, SESSION_EVENT } from "@/lib/session";
-import { activeDraw, entryDB } from "@/lib/mock-data";
+import { entryDB } from "@/lib/mock-data";
+import { usePrizeCycle } from "@/lib/cycle-store";
 import { generateTicketIDs } from "@/lib/ticket-gen";
 import { getPromoConfig, PROMOS_EVENT } from "@/lib/promotions";
 import { niceDate, niceWeekday, intl } from "@/lib/format";
@@ -45,6 +46,7 @@ export default function AccountPage() {
 
   // Demo: every signed-in account sees the demo entry record.
   const record = entryDB[0];
+  const activeDraw = usePrizeCycle();
   const v = activeDraw.vehicle;
 
   return (

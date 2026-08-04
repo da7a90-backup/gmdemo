@@ -1,13 +1,19 @@
 import Link from "next/link";
 import { Countdown } from "@/components/countdown";
 import { activeDraw } from "@/lib/mock-data";
+import { getCurrentCycle } from "@/lib/server/editorial";
 import { niceDateTime, intl } from "@/lib/format";
 import { Tv2, Facebook, Youtube } from "lucide-react";
 import { Label } from "@/components/sticker";
 
 export const metadata = { title: "Live draw — Generous Motors" };
 
-export default function LivePage() {
+export default async function LivePage() {
+  const c = await getCurrentCycle();
+  const cycle = c?.cycle ?? activeDraw.cycle;
+  const drawDateISO = c?.drawDateISO || activeDraw.drawDateISO;
+  const ticketsSold = c?.ticketsSold ?? activeDraw.ticketsSold;
+  const charityName = c?.charity.name || activeDraw.charity.name;
   return (
     <section className="relative border-y border-ink/10 bg-ink text-paper grain overflow-hidden">
       <div
@@ -23,7 +29,7 @@ export default function LivePage() {
       <div className="relative mx-auto max-w-[1400px] px-5 py-24 grid gap-10 lg:grid-cols-12 border-b border-paper/15">
         <div className="lg:col-span-7">
           <div className="flex items-center gap-3 flex-wrap mb-6">
-            <Label tone="accent" variant="outline">Cycle №{String(activeDraw.cycle).padStart(2, "0")}</Label>
+            <Label tone="accent" variant="outline">Cycle №{String(cycle).padStart(2, "0")}</Label>
             <span className="inline-flex items-center gap-2 rounded-full bg-paper/10 px-3 py-1 font-condensed uppercase tracking-[0.22em] text-[11px] text-paper/85 border border-paper/15">
               <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" /> Pre-stream
             </span>
@@ -32,10 +38,10 @@ export default function LivePage() {
             Draw starts <span className="accent-serif">in…</span>
           </h1>
           <div className="mt-8">
-            <Countdown targetISO={activeDraw.drawDateISO} />
+            <Countdown targetISO={drawDateISO} />
           </div>
           <p className="mt-8 text-paper/80 max-w-xl text-lg font-serif">
-            We&apos;ll go live at <strong className="text-paper font-condensed uppercase tracking-[0.04em]">{niceDateTime(activeDraw.drawDateISO)}</strong> on Facebook (primary) with a YouTube mirror. Tickets close 30 minutes before the stream begins. The drum is loaded on camera.
+            We&apos;ll go live at <strong className="text-paper font-condensed uppercase tracking-[0.04em]">{niceDateTime(drawDateISO)}</strong> on Facebook (primary) with a YouTube mirror. Tickets close 30 minutes before the stream begins. The drum is loaded on camera.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href="#" className="inline-flex h-12 items-center gap-2 rounded-full bg-paper text-ink border border-paper px-5 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-brass">
@@ -52,7 +58,7 @@ export default function LivePage() {
             <p className="section-eyebrow !text-paper/60">Live counter</p>
             <div className="mt-5 grid grid-cols-2 gap-5 pb-6 border-b border-paper/15">
               <div>
-                <p className="font-condensed numeral font-semibold text-5xl leading-[0.9]">{intl(activeDraw.ticketsSold)}</p>
+                <p className="font-condensed numeral font-semibold text-5xl leading-[0.9]">{intl(ticketsSold)}</p>
                 <p className="font-condensed uppercase tracking-[0.22em] text-[11px] text-paper/60 mt-3">paid entries</p>
               </div>
               <div>
@@ -62,7 +68,7 @@ export default function LivePage() {
             </div>
             <div className="mt-6">
               <p className="font-condensed uppercase tracking-[0.22em] text-[11px] text-paper/60">This cycle&apos;s charity</p>
-              <p className="font-display font-bold text-2xl">{activeDraw.charity.name}</p>
+              <p className="font-display font-bold text-2xl">{charityName}</p>
               <p className="dateline !text-paper/60 mt-2">10%. Wired within 7 business days of close.</p>
             </div>
           </div>

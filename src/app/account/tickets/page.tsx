@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getUser } from "@/lib/session";
-import { activeDraw, ticketTiers } from "@/lib/mock-data";
+import { ticketTiers } from "@/lib/mock-data";
+import { usePrizeCycle } from "@/lib/cycle-store";
 import { getPromoConfig, PROMOS_EVENT, isPromoLive, type PromoTier } from "@/lib/promotions";
 import { trackVisit, track } from "@/lib/analytics";
 import { usdc, intl, niceWeekday } from "@/lib/format";
@@ -17,6 +18,7 @@ export default function MemberTicketsPage() {
   const [ready, setReady] = useState(false);
   const [member, setMember] = useState<PromoTier | null>(null);
   const [redirecting, setRedirecting] = useState(false);
+  const activeDraw = usePrizeCycle();
   const v = activeDraw.vehicle;
 
   useEffect(() => {
