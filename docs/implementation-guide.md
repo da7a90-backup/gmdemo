@@ -43,9 +43,11 @@
 - **Postgres owns the raffle**: which ticket numbers exist, who holds them, per-cycle sequence, attribution, promo state. This is the source of truth Kevin cares about.
 - **Shopify Metaobjects own editorial content**: winners, cycles, partners, blog posts — so Kevin edits in one admin without a deploy.
 
-> **Note on Vercel storage (2026):** "Vercel Postgres" as a first-party product is retired.
-> Provision **Neon Postgres through the Vercel Marketplace** — same DX (`POSTGRES_URL`
-> auto-injected), serverless driver, autoscaling, branching for previews.
+> **Database: Supabase Postgres.** "Vercel Postgres" as a first-party product is retired; we
+> use **Supabase** (Postgres + Auth + RLS + Storage + Realtime in one). It also supplies the
+> OTP auth and file storage referenced later, collapsing custom pieces. Branch DBs give
+> per-preview isolation. (Anywhere below that says "Postgres" = Supabase.) See
+> `docs/build/tracks.md` for the track/sprint plan built on this.
 
 ---
 
