@@ -248,6 +248,12 @@ export const CONTENT_FIELDS: ContentField[] = [
   { key: "pricing.show", page: "Pricing", group: "Ladder toggle", label: "Show word", def: "Show" },
   { key: "pricing.hide", page: "Pricing", group: "Ladder toggle", label: "Hide word", def: "Hide" },
   { key: "pricing.ladder", page: "Pricing", group: "Ladder toggle", label: "Ladder label", def: "the full 6-tier ladder" },
+  { key: "pricing.entrySingular", page: "Pricing", group: "Cards", label: "Entry unit (singular)", def: "entry" },
+  { key: "pricing.entryPlural", page: "Pricing", group: "Cards", label: "Entry unit (plural)", def: "entries" },
+  { key: "pricing.cyclePrefix", page: "Pricing", group: "Cards", label: "Cycle prefix (before cycle no.)", def: "· Cycle" },
+  { key: "pricing.tierPrefix", page: "Pricing", group: "Cards", label: "Membership tier prefix", def: "Tier №" },
+  { key: "pricing.bestValue", page: "Pricing", group: "Cards", label: "Best-value badge", def: "Best value" },
+  { key: "pricing.monthlyMeta", page: "Pricing", group: "Cards", label: "Membership entries meta (after count)", def: "entries · every draw · auto-entered" },
 
   /* -------------------------------- Winners ------------------------------ */
   { key: "winners.fullArchive", page: "Winners", group: "Carousel", label: "Archive link", def: "Full archive" },

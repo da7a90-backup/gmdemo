@@ -3,11 +3,14 @@ import { useState } from "react";
 import Link from "next/link";
 import { Check, Plus, Minus } from "lucide-react";
 import { ticketTiers, membershipTiers } from "@/lib/mock-data";
+import { usePrizeCycle } from "@/lib/cycle-store";
 import { usd } from "@/lib/format";
 import { Label } from "@/components/sticker";
-import { Copy } from "@/components/copy";
+import { Copy, useCopy } from "@/components/copy";
 
 export function PricingTiers() {
+  const cp = useCopy();
+  const activeDraw = usePrizeCycle();
   const [mode, setMode] = useState<"once" | "monthly">("once");
   const [showAll, setShowAll] = useState(false);
   const visibleOnce = showAll ? ticketTiers : ticketTiers.slice(0, 3);
@@ -79,7 +82,7 @@ export function PricingTiers() {
                   <span className={`${t.popular ? "text-paper/70" : "text-ink-2"} text-sm`}><Copy k="pricing.oneTime" /></span>
                 </div>
                 <p className={`mt-3 font-condensed uppercase tracking-[0.22em] text-[12px] ${t.popular ? "text-paper" : "text-ink"}`}>
-                  <span className={`numeral text-base ${t.popular ? "text-brass" : "text-accent"}`}>{t.entries}</span> {t.entries === 1 ? "entry" : "entries"} · Cycle 12
+                  <span className={`numeral text-base ${t.popular ? "text-brass" : "text-accent"}`}>{t.entries}</span> {t.entries === 1 ? cp("pricing.entrySingular") : cp("pricing.entryPlural")} {cp("pricing.cyclePrefix")} {activeDraw.cycle}
                 </p>
                 <Link
                   href={`/checkout?tier=${t.id}&type=once`}
@@ -114,8 +117,8 @@ export function PricingTiers() {
               }`}
             >
               <div className="flex items-center justify-between mb-2">
-                <p className={`section-eyebrow ${m.popular ? "!text-paper-3/70" : ""}`}>Tier №{String(i + 1).padStart(2, "0")}</p>
-                {m.popular && <Label tone="brass">Best value</Label>}
+                <p className={`section-eyebrow ${m.popular ? "!text-paper-3/70" : ""}`}><Copy k="pricing.tierPrefix" />{String(i + 1).padStart(2, "0")}</p>
+                {m.popular && <Label tone="brass"><Copy k="pricing.bestValue" /></Label>}
               </div>
               <h3 className="font-display font-bold text-3xl">{m.name}</h3>
               <div className="mt-5 flex items-baseline gap-2">
@@ -123,7 +126,7 @@ export function PricingTiers() {
                 <span className={`${m.popular ? "text-paper-3/70" : "text-ink-3"} text-sm`}><Copy k="pricing.perMonth" /></span>
               </div>
               <p className={`mt-3 font-condensed uppercase tracking-[0.22em] text-[12px]`}>
-                <span className="numeral text-base">{m.monthlyEntries}</span> entries · every draw · auto-entered
+                <span className="numeral text-base">{m.monthlyEntries}</span> <Copy k="pricing.monthlyMeta" />
               </p>
               <ul className="mt-6 space-y-2.5">
                 {m.perks.map((p) => (
