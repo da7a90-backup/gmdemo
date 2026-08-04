@@ -18,11 +18,12 @@ import { PromoBanner } from "@/components/promo-banner";
 import { resolvePromo, getPromoConfig, isPromoLive, PROMOS_EVENT, type PromoTier } from "@/lib/promotions";
 import { trackVisit, track, describeTrigger } from "@/lib/analytics";
 import { VehicleGallery } from "@/components/vehicle-gallery";
-import { Copy } from "@/components/copy";
+import { Copy, useCopy } from "@/components/copy";
 import { CharityName, CharityBlurb, CyclePartnerBadge } from "@/components/cycle-partner";
 import { getUser, SESSION_EVENT } from "@/lib/session";
 
 export function TicketsBuy() {
+  const t = useCopy();
   const router = useRouter();
   const activeDraw = usePrizeCycle();
   const v = activeDraw.vehicle;
@@ -80,8 +81,8 @@ export function TicketsBuy() {
         <div className="fixed inset-0 z-50 bg-white/95 flex items-center justify-center">
           <div className="text-center px-5">
             <div className="mx-auto h-10 w-10 border-4 border-[#e1e3e5] border-t-[#1773b0] rounded-full animate-spin" />
-            <p className="mt-5 text-[15px] text-[#202223]">Redirecting to secure checkout…</p>
-            <p className="mt-1 text-[12px] text-[#6b7177]">Powered by Shopify</p>
+            <p className="mt-5 text-[15px] text-[#202223]">{t("tickets.redirecting")}</p>
+            <p className="mt-1 text-[12px] text-[#6b7177]">{t("tickets.poweredBy")}</p>
           </div>
         </div>
       )}
@@ -100,7 +101,7 @@ export function TicketsBuy() {
               {v.year} {v.make} {v.model}
             </h1>
             <p className="mt-1 dateline on-paper">
-              Drawn live · {niceWeekday(activeDraw.drawDateISO)}
+              <Copy k="tickets.drawnLivePrefix" /> {niceWeekday(activeDraw.drawDateISO)}
             </p>
           </div>
 
@@ -145,35 +146,35 @@ export function TicketsBuy() {
 
               {mode === "once" ? (
                 <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {ticketTiers.map((t) => (
+                  {ticketTiers.map((tier) => (
                     <div
-                      key={t.id}
+                      key={tier.id}
                       className={`relative flex flex-col items-center border rounded-lg bg-paper-4 px-2.5 pt-3 pb-2.5 ${
-                        t.popular ? "border-brass ring-1 ring-brass" : "border-ink/10"
+                        tier.popular ? "border-brass ring-1 ring-brass" : "border-ink/10"
                       }`}
                     >
-                      {t.popular && (
+                      {tier.popular && (
                         <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0 border border-ink/10 bg-brass text-ink font-condensed uppercase tracking-[0.18em] text-[8px] whitespace-nowrap font-bold rounded-full">
-                          ★ Most picked
+                          <Copy k="tickets.mostPicked" />
                         </span>
                       )}
                       <span className="flex items-baseline gap-1.5">
                         {mult > 1 && (
-                          <s className="font-condensed numeral text-sm text-ink-3" aria-label={`Normally ${t.entries}`}>
-                            {intl(t.entries)}
+                          <s className="font-condensed numeral text-sm text-ink-3" aria-label={`Normally ${tier.entries}`}>
+                            {intl(tier.entries)}
                           </s>
                         )}
                         <span className="font-condensed numeral text-2xl leading-none font-bold text-ink">
-                          {intl(t.entries * mult)}
+                          {intl(tier.entries * mult)}
                         </span>
                       </span>
                       <span className="font-condensed uppercase tracking-[0.18em] text-[9px] text-ink-3 mt-0.5">
-                        {t.entries * mult === 1 ? "ticket" : "tickets"}
+                        {tier.entries * mult === 1 ? t("tickets.unitSingular") : t("tickets.unitPlural")}
                       </span>
-                      <span className="mt-1 font-display font-bold text-lg text-ink leading-none">{usdc(t.priceUSD)}</span>
+                      <span className="mt-1 font-display font-bold text-lg text-ink leading-none">{usdc(tier.priceUSD)}</span>
                       <button
                         type="button"
-                        onClick={() => onBuy(t.id, "once")}
+                        onClick={() => onBuy(tier.id, "once")}
                         className="mt-2 w-full h-8 inline-flex items-center justify-center gap-1 rounded-full bg-accent-bright text-ink border border-ink/10 font-condensed uppercase tracking-[0.18em] text-[11px] font-bold hover:bg-accent hover:text-paper-3 transition-colors"
                       >
                         <Copy k="tickets.buy" />
@@ -195,23 +196,23 @@ export function TicketsBuy() {
                       >
                         {m.popular && (
                           <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2 py-0 border border-ink/10 bg-brass text-ink font-condensed uppercase tracking-[0.18em] text-[8px] whitespace-nowrap font-bold rounded-full">
-                            ★ Best value
+                            <Copy k="tickets.bestValue" />
                           </span>
                         )}
                         <span className="font-display font-bold text-[15px] text-ink leading-none">{m.name}</span>
                         <span className="mt-1.5 font-condensed numeral text-2xl leading-none font-bold text-ink">{m.monthlyEntries}</span>
                         <span className="font-condensed uppercase tracking-[0.18em] text-[9px] text-ink-3 mt-0.5">
-                          entries / cycle
+                          <Copy k="tickets.entriesPerCycle" />
                         </span>
                         <span className="mt-1.5 flex items-baseline gap-1.5">
                           <s className="font-condensed numeral text-ink-3 text-[13px]" aria-label={`Normal price ${usd(listValue)}`}>
                             {usd(listValue)}
                           </s>
                           <span className="font-display font-bold text-lg text-ink leading-none">
-                            {usd(m.monthlyUSD)}<span className="text-ink-3 text-[11px] font-condensed">/mo</span>
+                            {usd(m.monthlyUSD)}<span className="text-ink-3 text-[11px] font-condensed"><Copy k="tickets.perMo" /></span>
                           </span>
                         </span>
-                        <span className="mt-1 dateline on-paper">Save {pctOff}%</span>
+                        <span className="mt-1 dateline on-paper"><Copy k="tickets.savePrefix" /> {pctOff}%</span>
                         <button
                           type="button"
                           onClick={() => onBuy(m.id, "monthly")}
@@ -228,9 +229,9 @@ export function TicketsBuy() {
 
             <div className="px-4 py-2.5">
               <div className="grid grid-cols-3 gap-1.5">
-                <Pillar icon={<Lock size={11} />} label="Secure" />
-                <Pillar icon={<ShieldCheck size={11} />} label="501(c)(3)" />
-                <Pillar icon={<HeartHandshake size={11} />} label="10% → charity" />
+                <Pillar icon={<Lock size={11} />} label={t("tickets.pillar.secure")} />
+                <Pillar icon={<ShieldCheck size={11} />} label={t("tickets.pillar.nonprofit")} />
+                <Pillar icon={<HeartHandshake size={11} />} label={t("tickets.pillar.charity")} />
               </div>
             </div>
           </div>
@@ -281,7 +282,7 @@ export function TicketsBuy() {
               href="/winners"
               className="inline-flex items-center gap-2 border border-ink/10 bg-paper-4 px-4 py-2 font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper rounded-full"
             >
-              Full archive <ArrowRight size={12} />
+              <Copy k="winners.fullArchive" /> <ArrowRight size={12} />
             </Link>
           </div>
 
@@ -304,10 +305,10 @@ export function TicketsBuy() {
                       </div>
                     </div>
                     <span className="absolute top-2 left-2 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[9px] px-2 py-0.5 border border-ink/10 rounded-md">
-                      Cycle №{String(w.drawCycle).padStart(2, "0")}
+                      <Copy k="winners.cardCycle" />{String(w.drawCycle).padStart(2, "0")}
                     </span>
                     <button aria-label="Watch reveal" className="absolute right-2 bottom-2 inline-flex items-center gap-1 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[9px] px-2 py-1 border border-ink/10 hover:bg-accent-bright rounded-full">
-                      <PlayCircle size={10} /> Reveal
+                      <PlayCircle size={10} /> <Copy k="winners.reveal" />
                     </button>
                   </div>
                   <div className="p-4">
@@ -328,9 +329,9 @@ export function TicketsBuy() {
         <span aria-hidden className="absolute -top-10 -right-10 display-mega text-paper-3/[0.08] select-none">10%</span>
         <div className="relative mx-auto max-w-[1400px] px-5 py-16 grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-7">
-            <p className="section-eyebrow on-dark section-eyebrow-rule">Giving back · this cycle&apos;s partner</p>
+            <p className="section-eyebrow on-dark section-eyebrow-rule">{t("tickets.charity.eyebrow")}</p>
             <h2 className="mt-4 hero-headline on-dark" style={{ fontSize: "clamp(2rem, 4vw, 3.5rem)" }}>
-              10% of cycle {activeDraw.cycle} goes to<br />
+              {t("tickets.charity.h").replace("{cycle}", String(activeDraw.cycle))}<br />
               <span className="accent-serif"><CharityName />.</span>
             </h2>
             <p className="mt-5 max-w-xl text-paper-3/90 font-serif text-lg">
@@ -341,41 +342,41 @@ export function TicketsBuy() {
               <CyclePartnerBadge dark />
             </div>
             <p className="mt-4 max-w-xl text-paper-3/80">
-              Paid first — before the car is bought, before payroll, before any expense. Receipt is wired within seven business days of the close and published on the blog.
+              {t("tickets.charity.body")}
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Link
                 href="/about#charity"
                 className="inline-flex h-12 items-center gap-2 bg-accent-bright text-ink px-5 border border-paper-3 font-condensed uppercase tracking-[0.22em] text-[12px] font-bold hover:bg-paper-3 btn-poly"
               >
-                How the funds flow <ArrowRight size={14} />
+                <Copy k="tickets.charity.cta1" /> <ArrowRight size={14} />
               </Link>
               <Link
                 href="/blog/cycle-12-corvette-charity-pick"
                 className="inline-flex h-12 items-center gap-2 border border-paper-3 px-5 text-paper-3 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper-3 hover:text-ink rounded-full"
               >
-                Why we picked them
+                <Copy k="tickets.charity.cta2" />
               </Link>
             </div>
           </div>
 
           <div className="lg:col-span-5 border border-paper-3 bg-ink-raised rounded-2xl overflow-hidden">
             <div className="border-b border-paper-3 px-5 py-3 flex items-baseline justify-between">
-              <p className="section-eyebrow on-dark">Lifetime · all cycles</p>
-              <p className="dateline on-dark">all 501(c)(3) cycles</p>
+              <p className="section-eyebrow on-dark"><Copy k="tickets.charity.statsEyebrow" /></p>
+              <p className="dateline on-dark"><Copy k="tickets.charity.statsNote" /></p>
             </div>
             <div className="p-6">
               <p className="font-condensed numeral font-bold leading-none text-accent-bright" style={{ fontSize: "4.5rem" }}>
                 {usd(lifetimeStats.totalDonatedUSD)}
               </p>
               <p className="mt-2 font-condensed uppercase tracking-[0.22em] text-[12px] text-paper-3">
-                Donated to partner charities
+                <Copy k="tickets.charity.donated" />
               </p>
               <div className="mt-6 grid grid-cols-2 gap-4 pt-5 border-t border-paper-3/30">
-                <KCharity label="Cycles run" v={String(lifetimeStats.cyclesRun)} />
-                <KCharity label="Charities funded" v={String(lifetimeStats.charitiesFunded)} />
-                <KCharity label="Cars given away" v={String(lifetimeStats.carsGivenAway)} />
-                <KCharity label="Entries verified" v={intl(lifetimeStats.ticketsCounted)} />
+                <KCharity label={t("tickets.charity.k.cycles")} v={String(lifetimeStats.cyclesRun)} />
+                <KCharity label={t("tickets.charity.k.charities")} v={String(lifetimeStats.charitiesFunded)} />
+                <KCharity label={t("tickets.charity.k.cars")} v={String(lifetimeStats.carsGivenAway)} />
+                <KCharity label={t("tickets.charity.k.entries")} v={intl(lifetimeStats.ticketsCounted)} />
               </div>
             </div>
           </div>
@@ -385,9 +386,9 @@ export function TicketsBuy() {
       {/* TRUST BAND */}
       <section className="bg-bg-dark text-fg border-b border-ink/10 relative overflow-hidden">
         <div className="mx-auto max-w-[1400px] px-5 py-12 grid gap-8 md:grid-cols-3 items-center">
-          <Trust icon={<Tv2 size={28} />} title="Drawn live" body="Facebook Live, archived to YouTube." />
-          <Trust icon={<Drum size={28} />} title="Real paper drum" body="Every entry is printed and drawn from a physical drum." />
-          <Trust icon={<HeartHandshake size={28} />} title="10% to charity" body={`Cycle ${activeDraw.cycle}: ${activeDraw.charity.name}.`} />
+          <Trust icon={<Tv2 size={28} />} title={t("tickets.trust1.title")} body={t("tickets.trust1.body")} />
+          <Trust icon={<Drum size={28} />} title={t("tickets.trust2.title")} body={t("tickets.trust2.body")} />
+          <Trust icon={<HeartHandshake size={28} />} title={t("tickets.trust3.title")} body={t("tickets.trust3.body").replace("{cycle}", String(activeDraw.cycle)).replace("{charity}", activeDraw.charity.name)} />
         </div>
       </section>
 
