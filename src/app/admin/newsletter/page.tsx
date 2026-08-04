@@ -1,24 +1,19 @@
 "use client";
 import { useEffect, useState } from "react";
 import { ChevronDown, Trash2 } from "lucide-react";
-import {
-  getEmailSubscribers, removeEmailSubscriber,
-  SUBSCRIBERS_EVENT, type EmailSubscriber,
-} from "@/lib/subscribers";
+import { adminGet, adminSend } from "@/lib/admin-api";
 import { CampaignDesk } from "@/components/campaign-desk";
 import { niceDate } from "@/lib/format";
 import { Label } from "@/components/sticker";
 
+type EmailSub = { id: string; email: string; status: string; source: string; created_at: string };
+
 export default function AdminNewsletterPage() {
-  const [subs, setSubs] = useState<EmailSubscriber[] | null>(null);
+  const [subs, setSubs] = useState<EmailSub[] | null>(null);
   const [showSubs, setShowSubs] = useState(false);
 
-  useEffect(() => {
-    const load = () => setSubs(getEmailSubscribers());
-    load();
-    window.addEventListener(SUBSCRIBERS_EVENT, load);
-    return () => window.removeEventListener(SUBSCRIBERS_EVENT, load);
-  }, []);
+  const load = () => adminGet<EmailSub[]>("/api/admin/subscribers?type=email").then(setSubs).catch(() => setSubs([]));
+  useEffect(() => { load(); }, []);
 
   if (!subs) return null;
 
@@ -55,11 +50,11 @@ export default function AdminNewsletterPage() {
               <li key={s.id} className="px-5 py-3 flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="font-semibold text-ink text-[14px]">{s.email}</p>
-                  <p className="dateline on-paper mt-0.5">Joined {niceDate(s.joinedISO)} · via {s.source}</p>
+                  <p className="dateline on-paper mt-0.5">Joined {niceDate(s.created_at)} · via {s.source} · {s.status}</p>
                 </div>
                 <button
                   type="button"
-                  onClick={() => removeEmailSubscriber(s.id)}
+                  onClick={() => adminSend(`/api/admin/subscribers?type=email&id=${s.id}`, "DELETE").then(load)}
                   aria-label={`Unsubscribe ${s.email}`}
                   className="inline-flex items-center gap-1.5 border border-ink/10 bg-paper-3 px-3 py-1.5 rounded-full dateline on-paper hover:bg-ink hover:text-paper transition-colors"
                 >

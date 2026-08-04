@@ -1,9 +1,11 @@
 // Server-side subscriber capture: DB-first, then provider. Never reports
 // "subscribed" on a half-write — if the provider call fails, the row stays
 // 'pending' for a later retry (docs/build/open-questions.md §C3).
-import { withClient } from "./db";
+import { withClient, query } from "./db";
 import { subscribeEmail as klaviyoSubscribe } from "./providers/klaviyo";
 import { addSmsSubscriber as postscriptAdd } from "./providers/postscript";
+import { klaviyoConfigured } from "./providers/klaviyo";
+import { postscriptConfigured } from "./providers/postscript";
 
 export type SubResult = {
   id: number;
@@ -59,4 +61,36 @@ export async function subscribeSms(phone: string, source = "Popup"): Promise<Sub
     }
     return { id: row.id, status: row.status, provider: prov };
   });
+}
+
+// ───────────────────────── admin: manage + broadcast ─────────────────────────
+export async function listEmailSubscribers() {
+  return (await query(`select id, email, status, source, created_at from email_subscribers order by created_at desc`)).rows;
+}
+export async function listSmsSubscribers() {
+  return (await query(`select id, phone, status, source, created_at from sms_subscribers order by created_at desc`)).rows;
+}
+export async function removeEmailSubscriber(id: number) {
+  await query(`delete from email_subscribers where id = $1`, [id]);
+}
+export async function removeSmsSubscriber(id: number) {
+  await query(`delete from sms_subscribers where id = $1`, [id]);
+}
+
+/** Compose + send a broadcast. Provider send is stubbed until keys/plan are live;
+ * we always return the real subscribed-recipient count. */
+export async function broadcast(channel: "email" | "sms", body: string, subject?: string) {
+  const table = channel === "email" ? "email_subscribers" : "sms_subscribers";
+  const recipients = (await query(`select count(*)::int n from ${table} where status = 'subscribed'`)).rows[0].n as number;
+  const providerLive = channel === "email" ? klaviyoConfigured() : postscriptConfigured();
+  return {
+    channel,
+    recipients,
+    subject: subject ?? null,
+    length: body.length,
+    sent: false,
+    note: providerLive
+      ? `provider configured — wire the campaign API to actually send to ${recipients} recipients`
+      : `provider not live — would send to ${recipients} recipients once ${channel === "email" ? "Klaviyo" : "Postscript"} is configured`,
+  };
 }
