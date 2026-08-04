@@ -36,24 +36,34 @@ Tracks in this sprint: **0 (Foundation)**, **A (Content)**, **B (Messaging)**, *
 
 ---
 
-## Track A — Content Management
+## Track A — Content Management *(Shopify Metaobjects — Kevin's account already exists)*
 
-Reuse the existing admin desk UIs; swap their `localStorage` calls for endpoints. The
-`<Copy k="…">` component and `CONTENT_FIELDS` registry stay — only the data source changes.
+Content lives in Shopify. Reuse the existing admin desk UIs; their calls proxy the Shopify
+Admin API through our server routes. The `<Copy k="…">` component and `CONTENT_FIELDS`
+registry stay — only the data source changes to metaobjects.
+
+**A.0 Shopify access**
+- Custom app in Kevin's Shopify admin → Admin API token (read/write `metaobjects`, `files`) + Storefront API token.
+- Envs: `SHOPIFY_STORE_DOMAIN`, `SHOPIFY_ADMIN_TOKEN`, `SHOPIFY_STOREFRONT_TOKEN`, `SHOPIFY_API_VERSION`.
+- Define metaobject definitions: `copy_block`, `article`, `winner`, `partner`, `cycle`.
 
 **A.1 Copy blocks (the `content.ts` CMS)**
-- `copy_blocks(key text pk, value text, updated_at)`; seed from `CONTENT_FIELDS` defaults.
-- `GET /api/content` (all overrides) + `PUT /api/content` (admin-only, upsert diffs vs default).
-- `getContent()` reads server data server-side; page uses ISR with tag revalidate on save.
-- Wire `/admin/content` desk to the endpoints; keep "reset to default" = delete overrides.
-- Acceptance: edit a headline in `/admin/content` → visible on `/` after revalidate.
+- `copy_block` metaobject keyed to `CONTENT_FIELDS` keys; seed defaults via a one-time script.
+- `GET /api/content` (Storefront read) + `PUT /api/content` (admin-only → Admin API upsert).
+- `getContent()` reads metaobjects server-side (ISR); revalidate on `metaobjects/update` webhook.
+- Wire `/admin/content` desk to the endpoints; "reset to default" restores the seed value.
+- Acceptance: edit a headline in `/admin/content` (or Shopify admin) → visible on `/` after revalidate.
 
 **A.2 Editorial CRUD (blog, winners, partners, cycles)**
-- Tables `articles` (markdown/html + SEO fields), `winners`, `partners`, `cycles` (content cols).
-- CRUD endpoints under `/api/admin/{articles,winners,partners,cycles}` (admin-guarded).
+- Metaobjects `article` (markdown/html + SEO fields), `winner`, `partner`, `cycle` (content fields).
+- CRUD endpoints under `/api/admin/{articles,winners,partners,cycles}` → Shopify Admin API (admin-guarded).
 - Wire the four admin desks + public reads (`/blog`, `/blog/[slug]`, `/winners`, `/partners`).
-- **Supabase Storage** buckets for partner logos, winner photos, car gallery; upload from desks.
+- Media (partner logos, winner photos, car gallery) → **Shopify Files** CDN; upload from desks.
 - Acceptance: publish a blog post + add a winner in admin → live on public pages.
+
+> Note: the raffle **sequence/state** for a cycle still lives in Supabase (`cycles` row +
+> `cycle_counters`); the cycle's *content* (car name, copy, images) is the Shopify `cycle`
+> metaobject. Link them by storing `shopify_gid` on the Supabase `cycles` row.
 
 > Admin guard for Sprint 1: a shared secret / allowlisted email via a lightweight check
 > (full Supabase Auth admin roles arrive in Sprint 2, Track D).
@@ -125,4 +135,5 @@ Supabase Auth OTP + account pages (Sprint 2, Track D). Promotions/attribution/pi
 
 ## Sprint-1 env checklist
 `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`, `DIRECT_URL`,
+`SHOPIFY_STORE_DOMAIN`, `SHOPIFY_ADMIN_TOKEN`, `SHOPIFY_STOREFRONT_TOKEN`, `SHOPIFY_API_VERSION`,
 `POSTSCRIPT_API_KEY`, `KLAVIYO_API_KEY`, `SENDGRID_API_KEY`, `INTERNAL_API_SECRET`, `ADMIN_ALLOWED_EMAILS`.

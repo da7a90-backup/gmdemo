@@ -10,10 +10,11 @@ Everything in the implementation guide that said "Neon/Postgres" means Supabase 
 get Postgres + Auth + Row Level Security + Storage + Realtime + auto-generated REST/JS
 client in one, which collapses several custom pieces (see per-track notes).
 
-**Content decision (recommended, flagged for Kevin):** editorial + copy content lives in
-**Supabase**, not Shopify Metaobjects. Rationale: it lets Content Management ship in
-Sprint 1 without standing up the Shopify store first, and keeps one system of record for
-non-money data. Shopify is still used for **checkout, payments, and subscriptions** only.
+**Content decision:** editorial + copy content lives in **Shopify Metaobjects** (Kevin
+already has the Shopify account and admin access). Content is read via the Storefront API and
+written via the Admin API — no Shopify store buildout is blocking, the account exists.
+Supabase is the system of record for the **raffle** only (tickets, subscribers, promos,
+attribution, users). Shopify owns content **and** checkout/payments/subscriptions.
 
 ---
 
@@ -66,12 +67,14 @@ conventions + session-cookie plumbing. No product feature ships without this.
 - **Depends on:** nothing. **Unblocks:** A, B, C, D, E.
 
 ### Track A — Content Management · **P0** · Sprint 1
-Turn all editable content into Supabase-backed, admin-editable data. Reuses existing admin
-desk UIs; swaps their localStorage calls for endpoints.
-- `copy_blocks` table (mirrors `CONTENT_FIELDS` keys) + `/api/content` read/write; `<Copy>` reads server data (ISR + revalidate on save).
-- `articles`, `winners`, `partners`, `cycles` tables + CRUD endpoints; wire `blog/winners/partners/cycles` admin desks.
-- Media (partner logos, winner photos, car gallery) → **Supabase Storage** buckets.
-- **Depends on:** Track 0. **Independent of** B and C.
+Turn all editable content into **Shopify Metaobjects**, read via the Storefront API. Kevin
+edits in Shopify admin; the existing `<Copy>` component and admin desks read/write through
+our endpoints, which proxy the Shopify Admin API.
+- Metaobject types: `copy_block` (mirrors `CONTENT_FIELDS` keys), `article`, `winner`, `partner`, `cycle` (content fields).
+- `<Copy>` and public pages read metaobjects via Storefront API at build (ISR); revalidate on the `metaobjects/update` webhook.
+- Admin desks (`content`, `blog`, `winners`, `partners`, `cycles`) write via `/api/admin/*` → Shopify Admin API (keys server-side only).
+- Media (partner logos, winner photos, car gallery) → **Shopify Files** CDN.
+- **Depends on:** Track 0 (envs + route conventions) + Shopify Admin/Storefront tokens. Uses Shopify, not Supabase. **Independent of** B and C.
 
 ### Track B — Messaging & Subscriptions · **P0** · Sprint 1
 The SMS + email capture and send mechanisms, live end-to-end.
