@@ -57,6 +57,13 @@ export async function seedContent() {
        JSON.stringify(v.images), JSON.stringify(v.headlineSpecs), JSON.stringify(v.specGroups)],
     );
 
+    // 5) lifetime stats — honest cycle-1 numbers (nothing drawn/donated yet)
+    await c.query(
+      `insert into site_settings (key, value) values ('lifetime_stats', $1)
+       on conflict (key) do update set value = excluded.value, updated_at = now()`,
+      [JSON.stringify({ totalDonatedUSD: 0, charitiesFunded: 1, cyclesRun: 1, carsGivenAway: 0, ticketsCounted: 0 })],
+    );
+
     return { partners: SEED_PARTNERS.length, articles: blogPosts.length, winners: 1, cycle: 1 };
   });
 }

@@ -3,8 +3,22 @@
 // mock activeDraw; countdowns and charity sections pick them up live.
 
 import { useEffect, useState } from "react";
-import { activeDraw, type Draw } from "@/lib/mock-data";
+import { activeDraw, lifetimeStats as mockStats, type Draw } from "@/lib/mock-data";
 import { getPartners, type Partner } from "@/lib/partners-store";
+
+/** Lifetime stats from Supabase (site_settings), with the mock as fallback. */
+export function useLifetimeStats(): typeof mockStats {
+  const [s, setS] = useState(mockStats);
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/admin/stats")
+      .then((r) => r.json())
+      .then((j) => { if (alive && j.ok && j.data) setS(j.data); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
+  return s;
+}
 
 /** The current cycle's prize as a `Draw`-shaped object (Supabase, with the mock
  * activeDraw as fallback). Drop-in for components that read `activeDraw`. */
@@ -36,7 +50,12 @@ export function usePrizeCycle(): Draw {
             headlineSpecs: v.headlineSpecs?.length ? v.headlineSpecs : activeDraw.vehicle.headlineSpecs,
             specGroups: v.specGroups?.length ? v.specGroups : activeDraw.vehicle.specGroups,
           },
-          charity: { ...activeDraw.charity, blurb: c.charityBlurb || activeDraw.charity.blurb },
+          charity: {
+            ...activeDraw.charity,
+            name: c.charity?.name || activeDraw.charity.name,
+            blurb: c.charity?.blurb || activeDraw.charity.blurb,
+            url: c.charity?.url || activeDraw.charity.url,
+          },
         });
       })
       .catch(() => {});

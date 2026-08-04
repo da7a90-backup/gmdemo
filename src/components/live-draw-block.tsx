@@ -1,4 +1,5 @@
-import { activeDraw } from "@/lib/mock-data";
+"use client";
+import { usePrizeCycle } from "@/lib/cycle-store";
 import { niceDateTime } from "@/lib/format";
 import Link from "next/link";
 import { Tv2, Radio, Drum, ArrowRight } from "lucide-react";
@@ -6,6 +7,7 @@ import { Label } from "@/components/sticker";
 import { Copy } from "@/components/copy";
 
 export function LiveDrawBlock() {
+  const activeDraw = usePrizeCycle();
   return (
     <section className="mx-auto max-w-[1400px] px-5 py-24">
       <div className="relative border border-ink/10 bg-bg-dark text-fg rounded-2xl overflow-hidden grain grain-dark shadow-soft">

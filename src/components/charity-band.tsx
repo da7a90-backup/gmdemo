@@ -1,5 +1,6 @@
+"use client";
 import { AnimatedCounter } from "@/components/animated-counter";
-import { activeDraw, lifetimeStats } from "@/lib/mock-data";
+import { usePrizeCycle, useLifetimeStats } from "@/lib/cycle-store";
 import { ArrowRight, FileText } from "lucide-react";
 import Link from "next/link";
 import { Label } from "@/components/sticker";
@@ -7,6 +8,8 @@ import { Copy } from "@/components/copy";
 import { CharityName, CharityBlurb, CyclePartnerBadge } from "@/components/cycle-partner";
 
 export function CharityBand() {
+  const activeDraw = usePrizeCycle();
+  const lifetimeStats = useLifetimeStats();
   return (
     <section className="relative overflow-hidden border-y border-ink/10 bg-ink text-paper-3 grain grain-dark">
       <span aria-hidden className="absolute -top-12 -left-12 text-paper-3/[0.08] display-mega select-none">10%</span>

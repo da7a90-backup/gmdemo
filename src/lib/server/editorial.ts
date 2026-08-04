@@ -101,6 +101,7 @@ export type CycleFull = {
   id: string; cycle: number; code: string;
   vehicleLabel: string; drawDateISO: string;
   charityPartnerId?: string; charityBlurb?: string;
+  charity: { name: string; blurb: string; url: string };
   vehicle: {
     year: number; make: string; model: string; trim: string; valueUSD: number;
     images: string[]; image: string; headlineSpecs: Spec[]; specGroups: SpecGroup[];
@@ -115,6 +116,10 @@ const toCycle = (r: Row): CycleFull => {
     drawDateISO: r.draw_date ? new Date(r.draw_date as string).toISOString() : "",
     charityPartnerId: r.charity_partner_id != null ? String(r.charity_partner_id) : undefined,
     charityBlurb: (r.charity_blurb as string) ?? undefined,
+    charity: {
+      name: (r.charity_name as string) ?? "", blurb: (r.charity_blurb as string) ?? "",
+      url: (r.charity_url as string) ?? "",
+    },
     vehicle: {
       year: (r.vehicle_year as number) ?? 0, make: (r.vehicle_make as string) ?? "",
       model: (r.vehicle_model as string) ?? "", trim: (r.vehicle_trim as string) ?? "",
@@ -131,7 +136,11 @@ export type CycleUpdate = Partial<{
   images: string[]; headlineSpecs: Spec[]; specGroups: SpecGroup[];
 }>;
 export async function getCurrentCycle(): Promise<CycleFull | null> {
-  const r = await query(`select * from cycles where status = 'open' order by id limit 1`);
+  const r = await query(
+    `select c.*, p.name as charity_name, p.url as charity_url
+     from cycles c left join partners p on p.id = c.charity_partner_id
+     where c.status = 'open' order by c.id limit 1`,
+  );
   return r.rows[0] ? toCycle(r.rows[0]) : null;
 }
 export async function updateCurrentCycle(c: CycleUpdate): Promise<CycleFull | null> {
@@ -153,5 +162,25 @@ export async function updateCurrentCycle(c: CycleUpdate): Promise<CycleFull | nu
      c.headlineSpecs ? JSON.stringify(c.headlineSpecs) : null,
      c.specGroups ? JSON.stringify(c.specGroups) : null],
   );
-  return r.rows[0] ? toCycle(r.rows[0]) : null;
+  return r.rows[0] ? getCurrentCycle() : null; // re-read with the partner join
+}
+
+// ───────────────────────────── site settings ─────────────────────────────
+export type LifetimeStats = {
+  totalDonatedUSD: number; charitiesFunded: number; cyclesRun: number;
+  carsGivenAway: number; ticketsCounted: number;
+};
+export async function getLifetimeStats(): Promise<LifetimeStats | null> {
+  const r = await query(`select value from site_settings where key = 'lifetime_stats'`);
+  return r.rows[0] ? (r.rows[0].value as LifetimeStats) : null;
+}
+export async function updateLifetimeStats(s: Partial<LifetimeStats>): Promise<LifetimeStats> {
+  const cur = (await getLifetimeStats()) ?? { totalDonatedUSD: 0, charitiesFunded: 0, cyclesRun: 0, carsGivenAway: 0, ticketsCounted: 0 };
+  const next = { ...cur, ...s };
+  await query(
+    `insert into site_settings (key, value) values ('lifetime_stats', $1)
+     on conflict (key) do update set value = excluded.value, updated_at = now()`,
+    [JSON.stringify(next)],
+  );
+  return next;
 }

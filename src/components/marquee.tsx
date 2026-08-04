@@ -1,8 +1,11 @@
-import { activeDraw, lifetimeStats } from "@/lib/mock-data";
+"use client";
+import { usePrizeCycle, useLifetimeStats } from "@/lib/cycle-store";
 import { usd, intl } from "@/lib/format";
 
 /** Top status strip — teal band, ink text, GM-style brand color band */
 export function TopAnnounce() {
+  const activeDraw = usePrizeCycle();
+  const lifetimeStats = useLifetimeStats();
   const items = [
     `Cycle ${activeDraw.cycle} now selling`,
     `Drawn live Sat Jul 12 · Facebook + YouTube`,

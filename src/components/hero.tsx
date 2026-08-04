@@ -1,11 +1,13 @@
+"use client";
 import Link from "next/link";
 import { Countdown } from "@/components/countdown";
-import { activeDraw } from "@/lib/mock-data";
+import { usePrizeCycle } from "@/lib/cycle-store";
 import { ArrowRight } from "lucide-react";
 import { PrizePlate } from "@/components/prize-plate";
 import { Copy } from "@/components/copy";
 
 export function Hero() {
+  const activeDraw = usePrizeCycle();
   const v = activeDraw.vehicle;
 
   return (
