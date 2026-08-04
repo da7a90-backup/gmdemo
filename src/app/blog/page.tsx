@@ -5,8 +5,10 @@ import { niceDate } from "@/lib/format";
 import { ArrowRight } from "lucide-react";
 import { Announce } from "@/components/marquee";
 import { Label } from "@/components/sticker";
+import { Copy, useCopy } from "@/components/copy";
 
 export default function BlogPage() {
+  const t = useCopy();
   const posts = useMergedPosts();
   const [featured, ...rest] = posts;
 
@@ -15,22 +17,22 @@ export default function BlogPage() {
       <section className="relative border-b border-ink/10 overflow-hidden grain">
         <div className="mx-auto max-w-[1400px] px-5 py-20 grid lg:grid-cols-12 gap-10 items-end">
           <div className="lg:col-span-8 relative">
-            <p className="section-eyebrow section-eyebrow-rule">Field notes · since 2024</p>
+            <p className="section-eyebrow section-eyebrow-rule"><Copy k="blog.eyebrow" /></p>
             <h1 className="mt-4 hero-headline">
-              How the drum gets loaded. <span className="accent-serif">In our own words.</span>
+              <Copy k="blog.h.lead" /> <span className="accent-serif"><Copy k="blog.h.accent" /></span>
             </h1>
           </div>
           <div className="lg:col-span-4 flex flex-wrap items-end justify-end gap-2">
-            <Label tone="brass" variant="outline">Issue №12</Label>
-            <Label tone="ink" variant="outline">Updated weekly</Label>
+            <Label tone="brass" variant="outline"><Copy k="blog.badge1" /></Label>
+            <Label tone="ink" variant="outline"><Copy k="blog.badge2" /></Label>
           </div>
         </div>
       </section>
 
       <Announce
-        label="Sections"
+        label={t("blog.sections.label")}
         tone="paper"
-        items={["Behind the draw", "Partner spotlight", "Cycle update", "Winner stories"]}
+        items={[t("blog.sections.i1"), t("blog.sections.i2"), t("blog.sections.i3"), t("blog.sections.i4")]}
       />
 
       <section className="mx-auto max-w-[1400px] px-5 py-16">
@@ -52,12 +54,12 @@ export default function BlogPage() {
           </div>
           <div className="lg:col-span-5 flex flex-col justify-center">
             <p className="dateline">
-              {niceDate(featured.date)} · by {featured.author}
+              {niceDate(featured.date)} · <Copy k="blog.by" /> {featured.author}
             </p>
             <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl text-ink leading-tight">{featured.title}</h2>
             <p className="mt-4 text-ink-2 font-serif italic text-lg">{featured.excerpt}</p>
             <span className="mt-7 inline-flex items-center gap-2 text-accent font-condensed uppercase tracking-[0.22em] text-[12px]">
-              Read the post <ArrowRight size={14} className="group-hover:translate-x-1 transition" />
+              <Copy k="blog.readPost" /> <ArrowRight size={14} className="group-hover:translate-x-1 transition" />
             </span>
           </div>
         </Link>
@@ -81,7 +83,7 @@ export default function BlogPage() {
                   </span>
                 </div>
                 <div className="p-5">
-                  <p className="dateline">{niceDate(p.date)} · by {p.author}</p>
+                  <p className="dateline">{niceDate(p.date)} · <Copy k="blog.by" /> {p.author}</p>
                   <h3 className="mt-2 font-display font-bold text-xl text-ink leading-tight">{p.title}</h3>
                   <p className="mt-2 text-[14px] text-ink-2 italic font-serif">{p.excerpt}</p>
                 </div>
