@@ -74,7 +74,7 @@ export default function AdminCyclesPage() {
             Cycle <span className="accent-serif">desk.</span>
           </h1>
           <p className="mt-3 max-w-2xl text-[15px] text-ink-2 font-serif">
-            Set the current cycle&apos;s draw date, entry cap, and charity partner — countdowns and the
+            Set the current cycle&apos;s draw date and charity partner — countdowns and the
             charity sections across the site pick it up live. Manage the partner registry below.
           </p>
         </div>
@@ -116,10 +116,6 @@ export default function AdminCyclesPage() {
             <input type="datetime-local" value={toLocalInput(config.drawDateISO)}
               onChange={(e) => e.target.value && setConfig((c) => ({ ...c!, drawDateISO: new Date(e.target.value).toISOString() }))}
               className={input} /></label>
-          <label className="block"><span className="dateline on-paper">Entry cap</span>
-            <input type="number" min={100} step={100} value={config.ticketsCap}
-              onChange={(e) => setConfig((c) => ({ ...c!, ticketsCap: Number(e.target.value) || c!.ticketsCap }))}
-              className={`${input} numeral`} /></label>
           <label className="block sm:col-span-2"><span className="dateline on-paper">Charity partner (10% of every cycle)</span>
             <select value={config.charityPartnerId}
               onChange={(e) => setConfig((c) => ({ ...c!, charityPartnerId: e.target.value }))}

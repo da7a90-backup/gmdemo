@@ -86,9 +86,9 @@ export default function RulesPage() {
             needed, the general funds of Generous Motors Foundation, Inc. All federal, state, and
             local taxes are the winner&apos;s sole responsibility; an IRS Form 1099 will be issued.
           </Rule>
-          <Rule n={6} title="Odds & entry cap">
-            Odds of winning depend on the total number of entries received. Entries for cycle
-            {" "}{activeDraw.cycle} are capped at {activeDraw.ticketsCap.toLocaleString("en-US")}.
+          <Rule n={6} title="Odds of winning">
+            Odds of winning depend on the total number of entries received for cycle
+            {" "}{activeDraw.cycle}.
           </Rule>
           <Rule n={7} title="Winner notification & claim">
             The winner is announced on the live stream and contacted by phone and email within 24

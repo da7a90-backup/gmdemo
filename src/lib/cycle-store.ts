@@ -10,7 +10,6 @@ export type CycleConfig = {
   cycle: number;
   vehicleLabel: string;
   drawDateISO: string;
-  ticketsCap: number;
   /** Partner id from the partner registry. */
   charityPartnerId: string;
   charityBlurb: string;
@@ -20,7 +19,6 @@ export const DEFAULT_CYCLE: CycleConfig = {
   cycle: activeDraw.cycle,
   vehicleLabel: `${activeDraw.vehicle.year} ${activeDraw.vehicle.make} ${activeDraw.vehicle.model}`,
   drawDateISO: activeDraw.drawDateISO,
-  ticketsCap: activeDraw.ticketsCap,
   charityPartnerId: "p-habitat",
   charityBlurb: activeDraw.charity.blurb,
 };

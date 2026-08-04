@@ -5,7 +5,6 @@ import { usd, intl } from "@/lib/format";
 export function TopAnnounce() {
   const items = [
     `Cycle ${activeDraw.cycle} now selling`,
-    `${intl(activeDraw.ticketsCap - activeDraw.ticketsSold)} tickets left`,
     `Drawn live Sat Jul 12 · Facebook + YouTube`,
     `10% to ${activeDraw.charity.name}`,
     `${intl(lifetimeStats.carsGivenAway)} cars given · ${usd(lifetimeStats.totalDonatedUSD)} donated`,

@@ -29,7 +29,6 @@ export type Draw = {
   };
   drawDateISO: string;
   ticketsSold: number;
-  ticketsCap: number;
   pricePerTicketUSD: number;
 };
 
@@ -100,7 +99,6 @@ export const draws: Draw[] = [
     },
     drawDateISO: "2026-07-18T19:00:00-04:00",
     ticketsSold: 3247,
-    ticketsCap: 5000,
     pricePerTicketUSD: 10,
   },
 ];
