@@ -3,7 +3,8 @@ import { useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { Logo } from "@/components/logo";
-import { activeDraw, ticketTiers, membershipTiers } from "@/lib/mock-data";
+import { ticketTiers, membershipTiers } from "@/lib/mock-data";
+import { usePrizeCycle } from "@/lib/cycle-store";
 import { usdc } from "@/lib/format";
 
 /**
@@ -52,6 +53,7 @@ const MOCK = {
 };
 
 export function CheckoutClient() {
+  const activeDraw = usePrizeCycle();
   const sp = useSearchParams();
   const router = useRouter();
   const tierId = sp.get("tier") ?? "t-10";

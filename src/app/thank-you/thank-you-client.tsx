@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { AnimatedCounter } from "@/components/animated-counter";
 import { activeDraw } from "@/lib/mock-data";
+import { usePrizeCycle } from "@/lib/cycle-store";
 import { niceDateTime, usdc, usd } from "@/lib/format";
 import { buildTicketsPdf, downloadPdf } from "@/lib/pdf";
 import { generateTicketIDs } from "@/lib/ticket-gen";
@@ -63,6 +64,7 @@ const FALLBACK: Order = {
 };
 
 export function ThankYouClient() {
+  const activeDraw = usePrizeCycle();
   const [order, setOrder] = useState<Order>(FALLBACK);
   const [busy, setBusy] = useState(false);
 
