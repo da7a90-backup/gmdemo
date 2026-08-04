@@ -2,11 +2,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Eye, Code, Trash2, PenLine, Plus, ExternalLink, Search } from "lucide-react";
-import {
-  getArticles, upsertArticle, deleteArticle, slugify,
-  BLOG_EVENT, type Article, type ArticleTag,
-} from "@/lib/blog-store";
-import { blogPosts } from "@/lib/mock-data";
+import { slugify, type Article, type ArticleTag } from "@/lib/blog-store";
+import { adminGet, adminSend } from "@/lib/admin-api";
 import { renderMarkdown } from "@/lib/markdown";
 import { niceDate } from "@/lib/format";
 import { Label } from "@/components/sticker";
@@ -37,41 +34,48 @@ export default function AdminBlogPage() {
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [preview, setPreview] = useState(false);
   const [slugTouched, setSlugTouched] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
 
-  useEffect(() => {
-    const load = () => setArticles(getArticles());
-    load();
-    window.addEventListener(BLOG_EVENT, load);
-    return () => window.removeEventListener(BLOG_EVENT, load);
-  }, []);
+  const load = () => adminGet<Article[]>("/api/admin/articles").then(setArticles).catch((e) => setErr(String(e.message)));
+  useEffect(() => { load(); }, []);
 
   if (!articles) return null;
 
   const set = <K extends keyof Draft>(k: K) => (v: Draft[K]) =>
     setDraft((d) => ({ ...d, [k]: v }));
 
-  const save = (published: boolean) => {
+  const save = async (published: boolean) => {
     if (!draft.title.trim() || !draft.body.trim()) return;
-    upsertArticle({
-      id: draft.id,
-      slug: draft.slug || slugify(draft.title),
-      title: draft.title.trim(),
-      author: draft.author.trim() || "Generous Motors",
-      tag: draft.tag,
-      excerpt: draft.excerpt.trim(),
-      body: draft.body,
-      format: draft.format,
-      published,
-      dateISO: new Date().toISOString(),
-      seo: {
-        title: draft.seoTitle.trim() || undefined,
-        description: draft.seoDescription.trim() || undefined,
-        ogImage: draft.ogImage.trim() || undefined,
-      },
-    });
-    setDraft(EMPTY);
-    setSlugTouched(false);
-    setPreview(false);
+    setErr(null);
+    try {
+      await adminSend("/api/admin/articles", "POST", {
+        id: draft.id,
+        slug: draft.slug || slugify(draft.title),
+        title: draft.title.trim(),
+        author: draft.author.trim() || "Generous Motors",
+        tag: draft.tag,
+        excerpt: draft.excerpt.trim(),
+        body: draft.body,
+        format: draft.format,
+        published,
+        dateISO: new Date().toISOString(),
+        seo: {
+          title: draft.seoTitle.trim() || undefined,
+          description: draft.seoDescription.trim() || undefined,
+          ogImage: draft.ogImage.trim() || undefined,
+        },
+      });
+      setDraft(EMPTY);
+      setSlugTouched(false);
+      setPreview(false);
+      load();
+    } catch (e) { setErr(String((e as Error).message)); }
+  };
+
+  const remove = async (id: string) => {
+    setErr(null);
+    try { await adminSend(`/api/admin/articles?id=${id}`, "DELETE"); load(); }
+    catch (e) { setErr(String((e as Error).message)); }
   };
 
   const edit = (a: Article) => {
@@ -95,8 +99,9 @@ export default function AdminBlogPage() {
       </h1>
       <p className="mt-3 max-w-2xl text-[15px] text-ink-2 font-serif">
         Write in Markdown or raw HTML, set the SEO fields, and publish — articles appear on the public
-        blog immediately. Production: same form, stored as Shopify metaobjects.
+        blog immediately. Stored in Supabase; full admin control.
       </p>
+      {err && <p className="mt-4 text-[13px] text-red-600 font-condensed">⚠ {err}</p>}
 
       {/* Editor */}
       <div className="mt-7 border border-ink/10 bg-paper-4 rounded-2xl shadow-soft overflow-hidden">
@@ -245,7 +250,7 @@ export default function AdminBlogPage() {
                   className="inline-flex items-center gap-1.5 border border-ink/10 bg-paper-3 px-3 py-1.5 rounded-full dateline on-paper hover:bg-ink hover:text-paper transition-colors">
                   <PenLine size={11} /> Edit
                 </button>
-                <button type="button" onClick={() => deleteArticle(a.id)} aria-label={`Delete ${a.title}`}
+                <button type="button" onClick={() => remove(a.id)} aria-label={`Delete ${a.title}`}
                   className="inline-flex items-center gap-1.5 border border-ink/10 bg-paper-3 px-3 py-1.5 rounded-full dateline on-paper hover:bg-ink hover:text-paper transition-colors">
                   <Trash2 size={11} />
                 </button>
@@ -255,22 +260,6 @@ export default function AdminBlogPage() {
           {articles.length === 0 && (
             <li className="px-5 py-8 text-center text-ink-3 font-serif italic">No articles yet — write the first one above.</li>
           )}
-        </ul>
-      </div>
-
-      {/* Built-in posts */}
-      <div className="mt-8">
-        <div className="flex items-center justify-between">
-          <p className="section-eyebrow on-paper section-eyebrow-rule">Built-in field notes</p>
-          <Label tone="ink" variant="outline" size="sm">{blogPosts.length} posts</Label>
-        </div>
-        <ul className="mt-3 border border-ink/10 bg-paper-4 rounded-xl overflow-hidden divide-y divide-ink/10">
-          {blogPosts.slice(0, 4).map((p) => (
-            <li key={p.slug} className="px-5 py-3 text-[14px] text-ink">
-              <strong>{p.title}</strong>
-              <span className="text-ink-3"> · /blog/{p.slug}</span>
-            </li>
-          ))}
         </ul>
       </div>
     </main>

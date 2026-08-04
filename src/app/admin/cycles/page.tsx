@@ -1,15 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Save, RotateCcw, Check, Plus, Trash2, HeartHandshake } from "lucide-react";
-import {
-  getCycleConfig, saveCycleConfig, resetCycleConfig, CYCLE_EVENT, type CycleConfig,
-} from "@/lib/cycle-store";
-import {
-  getPartners, addPartner, removePartner, isCustomPartner,
-  PARTNERS_EVENT, type Partner,
-} from "@/lib/partners-store";
+import { Save, Check, Plus, Trash2, HeartHandshake } from "lucide-react";
+import { type Partner } from "@/lib/partners-store";
+import { adminGet, adminSend } from "@/lib/admin-api";
 import { PartnerMark } from "@/components/partner-mark";
 import { Label } from "@/components/sticker";
+
+type CycleContent = {
+  id: string; cycle: string; vehicleLabel: string; drawDateISO: string;
+  charityPartnerId?: string; charityBlurb?: string;
+};
 
 function toLocalInput(iso: string): string {
   const d = new Date(iso);
@@ -21,47 +21,57 @@ function toLocalInput(iso: string): string {
 const EMPTY_PARTNER = { name: "", kind: "charity" as Partner["kind"], logoUrl: "", url: "", blurb: "" };
 
 export default function AdminCyclesPage() {
-  const [config, setConfig] = useState<CycleConfig | null>(null);
+  const [config, setConfig] = useState<CycleContent | null>(null);
   const [partners, setPartners] = useState<Partner[]>([]);
   const [saved, setSaved] = useState(false);
   const [form, setForm] = useState(EMPTY_PARTNER);
+  const [err, setErr] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadConfig = () => setConfig(getCycleConfig());
-    const loadPartners = () => setPartners(getPartners());
-    loadConfig();
-    loadPartners();
-    window.addEventListener(CYCLE_EVENT, loadConfig);
-    window.addEventListener(PARTNERS_EVENT, loadPartners);
-    return () => {
-      window.removeEventListener(CYCLE_EVENT, loadConfig);
-      window.removeEventListener(PARTNERS_EVENT, loadPartners);
-    };
-  }, []);
+  const loadConfig = () => adminGet<CycleContent>("/api/admin/cycle").then(setConfig).catch((e) => setErr(String(e.message)));
+  const loadPartners = () => adminGet<Partner[]>("/api/admin/partners").then(setPartners).catch((e) => setErr(String(e.message)));
+  useEffect(() => { loadConfig(); loadPartners(); }, []);
 
   if (!config) return null;
 
   const charities = partners.filter((p) => p.kind === "charity");
   const currentPartner = partners.find((p) => p.id === config.charityPartnerId);
 
-  const onSave = () => {
-    saveCycleConfig(config);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+  const onSave = async () => {
+    setErr(null);
+    try {
+      await adminSend("/api/admin/cycle", "PUT", {
+        vehicleLabel: config.vehicleLabel,
+        drawDateISO: config.drawDateISO,
+        charityPartnerId: config.charityPartnerId ?? null,
+        charityBlurb: config.charityBlurb,
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch (e) { setErr(String((e as Error).message)); }
   };
 
-  const onAddPartner = (e: React.FormEvent) => {
+  const onAddPartner = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim()) return;
-    const p = addPartner({
-      name: form.name.trim(),
-      kind: form.kind,
-      logoUrl: form.logoUrl.trim() || undefined,
-      url: form.url.trim() || undefined,
-      blurb: form.blurb.trim() || undefined,
-    });
-    if (form.kind === "charity") setConfig((c) => ({ ...c!, charityPartnerId: p.id }));
-    setForm(EMPTY_PARTNER);
+    setErr(null);
+    try {
+      const p = await adminSend<Partner>("/api/admin/partners", "POST", {
+        name: form.name.trim(),
+        kind: form.kind,
+        logoUrl: form.logoUrl.trim() || undefined,
+        url: form.url.trim() || undefined,
+        blurb: form.blurb.trim() || undefined,
+      });
+      if (form.kind === "charity") setConfig((c) => (c ? { ...c, charityPartnerId: p.id } : c));
+      setForm(EMPTY_PARTNER);
+      loadPartners();
+    } catch (e) { setErr(String((e as Error).message)); }
+  };
+
+  const removePartner = async (id: string) => {
+    setErr(null);
+    try { await adminSend(`/api/admin/partners?id=${id}`, "DELETE"); loadPartners(); }
+    catch (e) { setErr(String((e as Error).message)); }
   };
 
   const input = "mt-1.5 w-full h-11 border border-ink/10 bg-paper-3 rounded-lg px-3 text-[15px] text-ink outline-none focus:border-accent";
@@ -78,24 +88,17 @@ export default function AdminCyclesPage() {
             charity sections across the site pick it up live. Manage the partner registry below.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => { resetCycleConfig(); setConfig(getCycleConfig()); }}
-            className="inline-flex items-center gap-2 border border-ink/10 bg-paper-3 px-4 py-2.5 rounded-full font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper transition-colors"
-          >
-            <RotateCcw size={13} /> Reset
-          </button>
-          <button
-            type="button"
-            onClick={onSave}
-            className="inline-flex items-center gap-2 bg-accent-bright text-ink border border-ink/10 px-5 py-2.5 rounded-full font-condensed uppercase tracking-[0.22em] text-[11px] font-bold hover:bg-accent hover:text-paper-3 transition-colors"
-          >
-            {saved ? <Check size={13} /> : <Save size={13} />}
-            {saved ? "Saved" : "Save cycle"}
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={onSave}
+          className="inline-flex items-center gap-2 bg-accent-bright text-ink border border-ink/10 px-5 py-2.5 rounded-full font-condensed uppercase tracking-[0.22em] text-[11px] font-bold hover:bg-accent hover:text-paper-3 transition-colors"
+        >
+          {saved ? <Check size={13} /> : <Save size={13} />}
+          {saved ? "Saved" : "Save cycle"}
+        </button>
       </div>
+
+      {err && <p className="mt-4 text-[13px] text-red-600 font-condensed">⚠ {err}</p>}
 
       {/* Current cycle */}
       <div className="mt-7 border border-ink/10 bg-paper-4 rounded-2xl shadow-soft overflow-hidden">
@@ -105,9 +108,7 @@ export default function AdminCyclesPage() {
         </div>
         <div className="p-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <label className="block"><span className="dateline on-paper">Cycle number</span>
-            <input type="number" min={1} value={config.cycle}
-              onChange={(e) => setConfig((c) => ({ ...c!, cycle: Number(e.target.value) || c!.cycle }))}
-              className={`${input} numeral`} /></label>
+            <input type="text" value={config.cycle} readOnly className={`${input} numeral opacity-70`} /></label>
           <label className="block"><span className="dateline on-paper">Vehicle label</span>
             <input type="text" value={config.vehicleLabel}
               onChange={(e) => setConfig((c) => ({ ...c!, vehicleLabel: e.target.value }))}
@@ -117,20 +118,21 @@ export default function AdminCyclesPage() {
               onChange={(e) => e.target.value && setConfig((c) => ({ ...c!, drawDateISO: new Date(e.target.value).toISOString() }))}
               className={input} /></label>
           <label className="block sm:col-span-2"><span className="dateline on-paper">Charity partner (10% of every cycle)</span>
-            <select value={config.charityPartnerId}
+            <select value={config.charityPartnerId ?? ""}
               onChange={(e) => setConfig((c) => ({ ...c!, charityPartnerId: e.target.value }))}
               className={input}>
+              <option value="">— none —</option>
               {charities.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select></label>
           <label className="block sm:col-span-2"><span className="dateline on-paper">Charity blurb (shown in the charity sections)</span>
-            <input type="text" value={config.charityBlurb}
+            <input type="text" value={config.charityBlurb ?? ""}
               onChange={(e) => setConfig((c) => ({ ...c!, charityBlurb: e.target.value }))}
               className={input} /></label>
         </div>
         <p className="px-5 pb-4 dateline on-paper">
-          Vehicle photos and spec data stay in the giveaway product — in production they live on the Shopify product/metaobject.
+          Vehicle photos and spec data live on the Shopify product/metaobject (static content + media).
         </p>
       </div>
 
@@ -165,19 +167,19 @@ export default function AdminCyclesPage() {
           </div>
         </form>
 
-        <ul className="mt-4 border border-ink/10 bg-paper-4 rounded-xl overflow-hidden divide-y divide-ink/10">
-          {partners.map((p) => (
-            <li key={p.id} className="px-5 py-3.5 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <PartnerMark partner={p} size="sm" />
-                <Label tone={p.kind === "charity" ? "charity" : "ink"} variant="outline" size="sm">
-                  {p.kind}
-                </Label>
-                {p.id === config.charityPartnerId && (
-                  <Label tone="brass" variant="solid" size="sm">Current cycle</Label>
-                )}
-              </div>
-              {isCustomPartner(p.id) && (
+        {partners.length > 0 && (
+          <ul className="mt-4 border border-ink/10 bg-paper-4 rounded-xl overflow-hidden divide-y divide-ink/10">
+            {partners.map((p) => (
+              <li key={p.id} className="px-5 py-3.5 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <PartnerMark partner={p} size="sm" />
+                  <Label tone={p.kind === "charity" ? "charity" : "ink"} variant="outline" size="sm">
+                    {p.kind}
+                  </Label>
+                  {p.id === config.charityPartnerId && (
+                    <Label tone="brass" variant="solid" size="sm">Current cycle</Label>
+                  )}
+                </div>
                 <button
                   type="button"
                   onClick={() => removePartner(p.id)}
@@ -186,10 +188,10 @@ export default function AdminCyclesPage() {
                 >
                   <Trash2 size={11} /> Remove
                 </button>
-              )}
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </main>
   );

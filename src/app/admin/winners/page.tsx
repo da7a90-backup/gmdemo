@@ -1,10 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Trophy, Trash2, Plus } from "lucide-react";
-import { getCustomWinners, addWinner, removeWinner, WINNERS_EVENT } from "@/lib/winners-store";
-import { winners as baseWinners, type Winner } from "@/lib/mock-data";
+import { type Winner } from "@/lib/mock-data";
+import { adminGet, adminSend } from "@/lib/admin-api";
 import { niceDate } from "@/lib/format";
-import { Label } from "@/components/sticker";
 
 const EMPTY = {
   firstName: "",
@@ -19,35 +18,42 @@ const EMPTY = {
 };
 
 export default function AdminWinnersPage() {
-  const [custom, setCustom] = useState<Winner[] | null>(null);
+  const [list, setList] = useState<Winner[] | null>(null);
   const [form, setForm] = useState(EMPTY);
+  const [err, setErr] = useState<string | null>(null);
 
-  useEffect(() => {
-    const load = () => setCustom(getCustomWinners());
-    load();
-    window.addEventListener(WINNERS_EVENT, load);
-    return () => window.removeEventListener(WINNERS_EVENT, load);
-  }, []);
+  const load = () => adminGet<Winner[]>("/api/admin/winners").then(setList).catch((e) => setErr(String(e.message)));
+  useEffect(() => { load(); }, []);
 
-  if (!custom) return null;
+  if (!list) return null;
 
   const set = (k: keyof typeof EMPTY) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [k]: k === "drawCycle" ? Number(e.target.value) : e.target.value }));
 
-  const onAdd = (e: React.FormEvent) => {
+  const onAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    addWinner({
-      firstName: form.firstName.trim(),
-      lastInitial: form.lastInitial.trim().replace(/\.$/, "").toUpperCase(),
-      city: form.city.trim(),
-      state: form.state.trim().toUpperCase(),
-      vehicle: form.vehicle.trim(),
-      drawCycle: form.drawCycle,
-      charity: form.charity.trim(),
-      quote: form.quote.trim(),
-      drawDateISO: new Date(`${form.drawDateISO}T19:00:00-04:00`).toISOString(),
-    });
-    setForm(EMPTY);
+    setErr(null);
+    try {
+      await adminSend("/api/admin/winners", "POST", {
+        firstName: form.firstName.trim(),
+        lastInitial: form.lastInitial.trim().replace(/\.$/, "").toUpperCase(),
+        city: form.city.trim(),
+        state: form.state.trim().toUpperCase(),
+        vehicle: form.vehicle.trim(),
+        drawCycle: form.drawCycle,
+        charity: form.charity.trim(),
+        quote: form.quote.trim(),
+        drawDateISO: new Date(`${form.drawDateISO}T19:00:00-04:00`).toISOString(),
+      });
+      setForm(EMPTY);
+      load();
+    } catch (e) { setErr(String((e as Error).message)); }
+  };
+
+  const remove = async (id: string) => {
+    setErr(null);
+    try { await adminSend(`/api/admin/winners?id=${id}`, "DELETE"); load(); }
+    catch (e) { setErr(String((e as Error).message)); }
   };
 
   const input = "mt-1.5 w-full h-11 border border-ink/10 bg-paper-3 rounded-lg px-3 text-[15px] text-ink outline-none focus:border-accent";
@@ -99,24 +105,28 @@ export default function AdminWinnersPage() {
         </div>
       </form>
 
-      {/* Custom winners */}
-      {custom.length > 0 && (
-        <div className="mt-8">
-          <p className="section-eyebrow on-paper section-eyebrow-rule">Added from this desk</p>
+      {err && <p className="mt-4 text-[13px] text-red-600 font-condensed">⚠ {err}</p>}
+
+      {/* Winners (Supabase) */}
+      <div className="mt-8">
+        <p className="section-eyebrow on-paper section-eyebrow-rule">Published winners · {list.length}</p>
+        {list.length === 0 ? (
+          <p className="mt-3 text-[14px] text-ink-3 font-serif italic">No winners yet — add one above.</p>
+        ) : (
           <ul className="mt-3 border border-ink/10 bg-paper-4 rounded-xl overflow-hidden divide-y divide-ink/10">
-            {custom.map((w) => (
+            {list.map((w) => (
               <li key={w.id} className="px-5 py-4 flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="font-display font-bold text-ink leading-tight">
                     {w.firstName} {w.lastInitial}. <span className="font-normal text-ink-2">— {w.vehicle}</span>
                   </p>
                   <p className="dateline on-paper mt-0.5">
-                    {w.city}, {w.state} · Cycle №{String(w.drawCycle).padStart(2, "0")} · {niceDate(w.drawDateISO)} · → {w.charity}
+                    {w.city}, {w.state} · Cycle №{String(w.drawCycle).padStart(2, "0")} · {w.drawDateISO ? niceDate(w.drawDateISO) : "—"} · → {w.charity}
                   </p>
                 </div>
                 <button
                   type="button"
-                  onClick={() => removeWinner(w.id)}
+                  onClick={() => remove(w.id)}
                   aria-label={`Remove ${w.firstName}`}
                   className="inline-flex items-center gap-1.5 border border-ink/10 bg-paper-3 px-3 py-1.5 rounded-full dateline on-paper hover:bg-ink hover:text-paper transition-colors"
                 >
@@ -125,25 +135,7 @@ export default function AdminWinnersPage() {
               </li>
             ))}
           </ul>
-        </div>
-      )}
-
-      {/* Built-in archive preview */}
-      <div className="mt-8">
-        <div className="flex items-center justify-between">
-          <p className="section-eyebrow on-paper section-eyebrow-rule">Built-in archive</p>
-          <Label tone="ink" variant="outline" size="sm">{baseWinners.length} winners</Label>
-        </div>
-        <ul className="mt-3 border border-ink/10 bg-paper-4 rounded-xl overflow-hidden divide-y divide-ink/10">
-          {baseWinners.slice(0, 4).map((w) => (
-            <li key={w.id} className="px-5 py-3">
-              <p className="text-[14px] text-ink">
-                <strong>{w.firstName} {w.lastInitial}.</strong> — {w.vehicle}
-                <span className="text-ink-3"> · Cycle №{String(w.drawCycle).padStart(2, "0")} · {niceDate(w.drawDateISO)}</span>
-              </p>
-            </li>
-          ))}
-        </ul>
+        )}
       </div>
     </main>
   );
