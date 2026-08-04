@@ -109,9 +109,62 @@ export const CONTENT_FIELDS: ContentField[] = [
     def: "Generous Motors is a registered 501(c)(3) nonprofit organization. No purchase necessary to enter or win. A purchase does not increase your chances of winning. Open to legal residents of the United States, 18 years of age or older. Void where prohibited. Charitable contribution: 10% per cycle donated to featured nonprofit partner.",
   },
   { key: "footer.address", page: "Footer", group: "Fine print", label: "Address line", def: "Generous Motors · 120 Cedar Ave · Brooklyn, NY 11215" },
+
+  { key: "footer.badge1", page: "Footer", group: "Masthead", label: "Badge 1", def: "501(c)(3) nonprofit" },
+  { key: "footer.badge2", page: "Footer", group: "Masthead", label: "Badge 2", def: "10% to charity" },
+  { key: "footer.badge3", page: "Footer", group: "Masthead", label: "Badge 3", def: "Drawn live" },
+  { key: "footer.alertsCta", page: "Footer", group: "Masthead", label: "Drawing-alerts button", def: "Get drawing alerts" },
+  { key: "newsletter.subscribe", page: "Footer", group: "Newsletter signup", label: "Subscribe button", def: "Subscribe" },
+  { key: "newsletter.placeholder", page: "Footer", group: "Newsletter signup", label: "Email placeholder", def: "you@example.com" },
+  { key: "newsletter.success", page: "Footer", group: "Newsletter signup", label: "Success message", long: true, def: "You're on the list — your 2X kicks in with the next cycle's email." },
+  { key: "footer.col.draws.title", page: "Footer", group: "Nav — Draws", label: "Column title", def: "Draws" },
+  { key: "footer.col.draws.l1", page: "Footer", group: "Nav — Draws", label: "Link 1", def: "Current draw" },
+  { key: "footer.col.draws.l2", page: "Footer", group: "Nav — Draws", label: "Link 2", def: "Past winners" },
+  { key: "footer.col.draws.l3", page: "Footer", group: "Nav — Draws", label: "Link 3", def: "My entries" },
+  { key: "footer.col.trust.title", page: "Footer", group: "Nav — Trust", label: "Column title", def: "Trust" },
+  { key: "footer.col.trust.l1", page: "Footer", group: "Nav — Trust", label: "Link 1", def: "How the draw works" },
+  { key: "footer.col.trust.l2", page: "Footer", group: "Nav — Trust", label: "Link 2", def: "Our partners" },
+  { key: "footer.col.trust.l3", page: "Footer", group: "Nav — Trust", label: "Link 3", def: "Field notes" },
+  { key: "footer.col.trust.l4", page: "Footer", group: "Nav — Trust", label: "Link 4", def: "Official rules" },
+  { key: "footer.col.help.title", page: "Footer", group: "Nav — Help", label: "Column title", def: "Help" },
+  { key: "footer.col.help.l1", page: "Footer", group: "Nav — Help", label: "Link 1", def: "Contact us" },
+  { key: "footer.col.help.l2", page: "Footer", group: "Nav — Help", label: "Link 2", def: "Privacy" },
+  { key: "footer.col.help.l3", page: "Footer", group: "Nav — Help", label: "Link 3", def: "Terms" },
+  { key: "footer.col.help.l4", page: "Footer", group: "Nav — Help", label: "Link 4", def: "Responsible play" },
+  { key: "footer.col.help.l5", page: "Footer", group: "Nav — Help", label: "Link 5", def: "Accessibility" },
+
+  /* ------------------------------- Header ------------------------------- */
+  { key: "nav.tickets", page: "Header", group: "Nav", label: "Nav — Tickets", def: "Tickets" },
+  { key: "nav.winners", page: "Header", group: "Nav", label: "Nav — Winners", def: "Winners" },
+  { key: "nav.live", page: "Header", group: "Nav", label: "Nav — Live draw", def: "Live draw" },
+  { key: "nav.partners", page: "Header", group: "Nav", label: "Nav — Partners", def: "Partners" },
+  { key: "nav.about", page: "Header", group: "Nav", label: "Nav — About", def: "About" },
+  { key: "nav.blog", page: "Header", group: "Nav", label: "Nav — Blog", def: "Field Notes" },
+  { key: "nav.lookup", page: "Header", group: "Nav", label: "Nav — My Entries", def: "My Entries" },
+  { key: "header.account", page: "Header", group: "Actions", label: "Account button (signed in)", def: "Account" },
+  { key: "header.signin", page: "Header", group: "Actions", label: "Account button (signed out)", def: "Sign in" },
+  { key: "header.buy", page: "Header", group: "Actions", label: "Buy-tickets button", def: "Buy tickets · $10" },
+
+  /* ------------------------------ Countdown ----------------------------- */
+  { key: "countdown.compactLabel", page: "Countdown", group: "Header pill", label: "Header countdown label", def: "Live Drawing in:" },
+  { key: "countdown.days", page: "Countdown", group: "Unit labels", label: "Days", def: "days" },
+  { key: "countdown.hours", page: "Countdown", group: "Unit labels", label: "Hours", def: "hours" },
+  { key: "countdown.minutes", page: "Countdown", group: "Unit labels", label: "Minutes", def: "minutes" },
+  { key: "countdown.seconds", page: "Countdown", group: "Unit labels", label: "Seconds", def: "seconds" },
+
+  /* ------------------------------- Marquee ------------------------------ */
+  { key: "marquee.selling", page: "Marquee", group: "Top strip", label: "“…now selling” (after cycle no.)", def: "now selling" },
+  { key: "marquee.drawnLive", page: "Marquee", group: "Top strip", label: "“Drawn live” (before date)", def: "Drawn live" },
+  { key: "marquee.stream", page: "Marquee", group: "Top strip", label: "Stream channels (after date)", def: "Facebook + YouTube" },
+  { key: "marquee.charity", page: "Marquee", group: "Top strip", label: "“10% to” (before charity)", def: "10% to" },
+  { key: "marquee.statsCars", page: "Marquee", group: "Top strip", label: "“cars given” label", def: "cars given" },
+  { key: "marquee.statsDonated", page: "Marquee", group: "Top strip", label: "“donated” label", def: "donated" },
 ];
 
 const DEFAULTS: Record<string, string> = Object.fromEntries(CONTENT_FIELDS.map((f) => [f.key, f.def]));
+
+/** All code defaults as a key→value map (used by the useCopy() string hook). */
+export const CONTENT_DEFAULTS: Record<string, string> = DEFAULTS;
 
 const STORAGE_KEY = "gm:content-v1";
 export const CONTENT_EVENT = "gm:content-updated";

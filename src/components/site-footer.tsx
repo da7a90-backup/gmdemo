@@ -4,10 +4,11 @@ import Link from "next/link";
 import { Facebook, Instagram, Youtube, Mail, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Label } from "@/components/sticker";
-import { Copy } from "@/components/copy";
+import { Copy, useCopy } from "@/components/copy";
 import { addEmailSubscriber } from "@/lib/subscribers";
 
 function NewsletterSignup() {
+  const t = useCopy();
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
 
@@ -46,7 +47,7 @@ function NewsletterSignup() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
+            placeholder={t("newsletter.placeholder")}
             aria-label="Email address"
             className="flex-1 min-w-0 h-12 bg-transparent px-3 text-[15px] text-fg placeholder:text-fg-3 outline-none"
           />
@@ -54,14 +55,14 @@ function NewsletterSignup() {
             type="submit"
             className="shrink-0 h-12 inline-flex items-center gap-2 bg-accent-bright text-ink px-5 font-condensed uppercase tracking-[0.18em] text-[12px] font-bold hover:bg-brass transition-colors"
           >
-            Subscribe <ArrowRight size={14} strokeWidth={2.5} />
+            <Copy k="newsletter.subscribe" /> <ArrowRight size={14} strokeWidth={2.5} />
           </button>
         </form>
       ) : (
         <div className="flex w-full max-w-md md:justify-self-end items-center gap-3 border border-accent-bright/50 bg-bg-dark-2 rounded-full px-5 py-3">
           <CheckCircle2 size={18} className="text-accent-bright shrink-0" />
           <p className="text-[14px] text-fg">
-            You&apos;re on the list — your 2X kicks in with the next cycle&apos;s email.
+            <Copy k="newsletter.success" />
           </p>
         </div>
       )}
@@ -83,9 +84,9 @@ export function SiteFooter() {
             />
           </Link>
           <div className="flex flex-wrap items-center gap-2">
-            <Label tone="paper" variant="outline">501(c)(3) nonprofit</Label>
-            <Label tone="paper" variant="outline">10% to charity</Label>
-            <Label tone="paper" variant="outline">Drawn live</Label>
+            <Label tone="paper" variant="outline"><Copy k="footer.badge1" /></Label>
+            <Label tone="paper" variant="outline"><Copy k="footer.badge2" /></Label>
+            <Label tone="paper" variant="outline"><Copy k="footer.badge3" /></Label>
           </div>
         </div>
 
@@ -102,7 +103,7 @@ export function SiteFooter() {
               onClick={() => { if (typeof window !== "undefined") window.dispatchEvent(new Event("gm:open-popup")); }}
               className="mt-5 inline-flex items-center gap-2 bg-accent-bright text-ink px-4 py-2.5 border border-paper font-condensed uppercase tracking-[0.22em] text-[11px] font-bold hover:bg-paper hover:text-ink btn-poly"
             >
-              <Mail size={14} /> Get drawing alerts
+              <Mail size={14} /> <Copy k="footer.alertsCta" />
             </button>
             <div className="mt-5 flex gap-1.5">
               {[Youtube, Facebook, Instagram].map((I, i) => (
@@ -113,23 +114,23 @@ export function SiteFooter() {
             </div>
           </div>
 
-          <FooterCol title="Draws" links={[
-            ["/tickets", "Current draw"],
-            ["/winners", "Past winners"],
-            ["/lookup", "My entries"],
+          <FooterCol titleKey="footer.col.draws.title" links={[
+            ["/tickets", "footer.col.draws.l1"],
+            ["/winners", "footer.col.draws.l2"],
+            ["/lookup", "footer.col.draws.l3"],
           ]} />
-          <FooterCol title="Trust" links={[
-            ["/about", "How the draw works"],
-            ["/partners", "Our partners"],
-            ["/blog", "Field notes"],
-            ["/rules", "Official rules"],
+          <FooterCol titleKey="footer.col.trust.title" links={[
+            ["/about", "footer.col.trust.l1"],
+            ["/partners", "footer.col.trust.l2"],
+            ["/blog", "footer.col.trust.l3"],
+            ["/rules", "footer.col.trust.l4"],
           ]} />
-          <FooterCol title="Help" links={[
-            ["/contact", "Contact us"],
-            ["/legal/privacy", "Privacy"],
-            ["/legal/terms", "Terms"],
-            ["/legal/play", "Responsible play"],
-            ["/legal/accessibility", "Accessibility"],
+          <FooterCol titleKey="footer.col.help.title" links={[
+            ["/contact", "footer.col.help.l1"],
+            ["/legal/privacy", "footer.col.help.l2"],
+            ["/legal/terms", "footer.col.help.l3"],
+            ["/legal/play", "footer.col.help.l4"],
+            ["/legal/accessibility", "footer.col.help.l5"],
           ]} />
         </div>
 
@@ -146,13 +147,13 @@ export function SiteFooter() {
   );
 }
 
-function FooterCol({ title, links }: { title: string; links: [string, string][] }) {
+function FooterCol({ titleKey, links }: { titleKey: string; links: [string, string][] }) {
   return (
     <div>
-      <h3 className="font-condensed uppercase tracking-[0.22em] text-[11px] text-accent-bright border-b border-fg/15 pb-2 mb-3">{title}</h3>
+      <h3 className="font-condensed uppercase tracking-[0.22em] text-[11px] text-accent-bright border-b border-fg/15 pb-2 mb-3"><Copy k={titleKey} /></h3>
       <ul className="space-y-2 text-[15px]">
-        {links.map(([href, label]) => (
-          <li key={href}><Link className="text-fg hover:text-accent-bright" href={href}>{label}</Link></li>
+        {links.map(([href, k]) => (
+          <li key={href}><Link className="text-fg hover:text-accent-bright" href={href}><Copy k={k} /></Link></li>
         ))}
       </ul>
     </div>

@@ -5,16 +5,17 @@ import { useEffect, useState } from "react";
 import { getUser, SESSION_EVENT } from "@/lib/session";
 import { Logo } from "@/components/logo";
 import { CountdownCompact } from "@/components/countdown";
+import { Copy } from "@/components/copy";
 import { usePrizeCycle } from "@/lib/cycle-store";
 
 const NAV = [
-  { href: "/tickets", label: "Tickets" },
-  { href: "/winners", label: "Winners" },
-  { href: "/live", label: "Live draw" },
-  { href: "/partners", label: "Partners" },
-  { href: "/about", label: "About" },
-  { href: "/blog", label: "Field Notes" },
-  { href: "/lookup", label: "My Entries" },
+  { href: "/tickets", k: "nav.tickets" },
+  { href: "/winners", k: "nav.winners" },
+  { href: "/live", k: "nav.live" },
+  { href: "/partners", k: "nav.partners" },
+  { href: "/about", k: "nav.about" },
+  { href: "/blog", k: "nav.blog" },
+  { href: "/lookup", k: "nav.lookup" },
 ];
 
 export function SiteHeader() {
@@ -48,7 +49,7 @@ export function SiteHeader() {
               href={n.href}
               className="font-condensed uppercase tracking-[0.22em] text-[11px] px-4 py-2 text-ink hover:text-accent transition-colors"
             >
-              {n.label}
+              <Copy k={n.k} />
             </Link>
           ))}
         </nav>
@@ -66,13 +67,13 @@ export function SiteHeader() {
             className="inline-flex h-11 items-center gap-2 px-3.5 border border-ink/10 bg-paper text-ink rounded-full hover:bg-ink hover:text-paper transition-colors font-condensed uppercase tracking-[0.18em] text-[11px] font-semibold"
           >
             <CircleUserRound size={18} />
-            <span suppressHydrationWarning>{signedIn ? "Account" : "Sign in"}</span>
+            <span suppressHydrationWarning>{signedIn ? <Copy k="header.account" /> : <Copy k="header.signin" />}</span>
           </Link>
           <Link
             href="/tickets"
             className="hidden md:inline-flex items-center gap-2 bg-accent-bright text-ink px-6 py-2.5 font-condensed uppercase tracking-[0.24em] text-[12px] font-bold border border-ink/10 btn-poly hover:bg-accent hover:text-paper-3 transition-colors"
           >
-            Buy tickets · $10
+            <Copy k="header.buy" />
             <span aria-hidden>→</span>
           </Link>
           <button
@@ -92,11 +93,11 @@ export function SiteHeader() {
           <nav aria-label="Mobile" className="mx-auto max-w-7xl px-5 py-3 flex flex-col divide-y divide-rule-soft">
             {NAV.map((n) => (
               <Link key={n.href} href={n.href} onClick={() => setOpen(false)} className="py-3 font-condensed uppercase tracking-[0.22em] text-[13px] text-ink">
-                {n.label}
+                <Copy k={n.k} />
               </Link>
             ))}
             <Link href="/tickets" onClick={() => setOpen(false)} className="mt-2 inline-flex items-center justify-center bg-accent-bright px-5 py-3 border border-ink/10 text-ink font-condensed uppercase tracking-[0.24em] text-[12px] font-bold btn-poly">
-              Buy tickets · $10
+              <Copy k="header.buy" />
             </Link>
           </nav>
         </div>

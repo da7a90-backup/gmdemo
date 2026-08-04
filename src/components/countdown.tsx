@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { timeUntil } from "@/lib/format";
 import { useCycleDrawDate } from "@/lib/cycle-store";
+import { Copy } from "@/components/copy";
 
 /** Slim one-line countdown pill for the site header — ticks every second. */
 export function CountdownCompact({ targetISO }: { targetISO: string }) {
@@ -22,7 +23,7 @@ export function CountdownCompact({ targetISO }: { targetISO: string }) {
       className="inline-flex items-center gap-2 border border-ink/10 bg-paper-3 px-3 py-1.5 rounded-full whitespace-nowrap"
     >
       <span className="h-1.5 w-1.5 rounded-full bg-brass animate-pulse" aria-hidden />
-      <span className="dateline on-paper hidden sm:inline">Live Drawing in:</span>
+      <span className="dateline on-paper hidden sm:inline"><Copy k="countdown.compactLabel" /></span>
       <span className="font-condensed numeral font-bold text-[13px] text-ink tracking-[0.06em]">
         {p(t.days)}d : {p(t.hours)}h : {p(t.minutes)}m : {p(t.seconds)}s
       </span>
@@ -68,7 +69,7 @@ export function Countdown({ targetISO }: { targetISO: string }) {
     return () => clearInterval(id);
   }, [target]);
 
-  const Cell = ({ n, label }: { n: number; label: string }) => (
+  const Cell = ({ n, label, k }: { n: number; label: string; k: string }) => (
     <div className="flex flex-col items-center min-w-[42px]">
       <span
         className="font-condensed numeral text-2xl font-bold text-ink leading-none"
@@ -77,7 +78,7 @@ export function Countdown({ targetISO }: { targetISO: string }) {
         {String(n).padStart(2, "0")}
       </span>
       <span className="text-[9px] font-condensed uppercase tracking-[0.22em] text-ink-3 mt-1">
-        {label}
+        <Copy k={k} />
       </span>
     </div>
   );
@@ -88,13 +89,13 @@ export function Countdown({ targetISO }: { targetISO: string }) {
       suppressHydrationWarning
       className="inline-flex items-end gap-2 border border-ink/10 bg-paper px-3 py-2 rounded-md"
     >
-      <Cell n={t.days} label="days" />
+      <Cell n={t.days} label="days" k="countdown.days" />
       <span className="font-condensed text-xl text-ink-3 mb-3">:</span>
-      <Cell n={t.hours} label="hours" />
+      <Cell n={t.hours} label="hours" k="countdown.hours" />
       <span className="font-condensed text-xl text-ink-3 mb-3">:</span>
-      <Cell n={t.minutes} label="minutes" />
+      <Cell n={t.minutes} label="minutes" k="countdown.minutes" />
       <span className="font-condensed text-xl text-ink-3 mb-3">:</span>
-      <Cell n={t.seconds} label="seconds" />
+      <Cell n={t.seconds} label="seconds" k="countdown.seconds" />
     </div>
   );
 }

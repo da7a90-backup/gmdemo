@@ -1,16 +1,22 @@
 "use client";
 import { usePrizeCycle, useLifetimeStats } from "@/lib/cycle-store";
 import { usd, intl } from "@/lib/format";
+import { useCopy } from "@/components/copy";
 
 /** Top status strip — teal band, ink text, GM-style brand color band */
 export function TopAnnounce() {
+  const t = useCopy();
   const activeDraw = usePrizeCycle();
   const lifetimeStats = useLifetimeStats();
+  // Derived from the live cycle's draw date (was a hardcoded "Sat Jul 12").
+  const shortDate = new Date(activeDraw.drawDateISO).toLocaleDateString("en-US", {
+    weekday: "short", month: "short", day: "numeric", timeZone: "America/New_York",
+  });
   const items = [
-    `Cycle ${activeDraw.cycle} now selling`,
-    `Drawn live Sat Jul 12 · Facebook + YouTube`,
-    `10% to ${activeDraw.charity.name}`,
-    `${intl(lifetimeStats.carsGivenAway)} cars given · ${usd(lifetimeStats.totalDonatedUSD)} donated`,
+    `Cycle ${activeDraw.cycle} ${t("marquee.selling")}`,
+    `${t("marquee.drawnLive")} ${shortDate} · ${t("marquee.stream")}`,
+    `${t("marquee.charity")} ${activeDraw.charity.name}`,
+    `${intl(lifetimeStats.carsGivenAway)} ${t("marquee.statsCars")} · ${usd(lifetimeStats.totalDonatedUSD)} ${t("marquee.statsDonated")}`,
   ];
   const row = [...items, ...items];
   return (
