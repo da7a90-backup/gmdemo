@@ -3,10 +3,20 @@ import { lifetimeStats } from "@/lib/mock-data";
 import { Drum, Tv2, HeartHandshake, ShieldCheck, FileText, ArrowRight } from "lucide-react";
 import { Announce } from "@/components/marquee";
 import { Label } from "@/components/sticker";
+import { listAboutSteps } from "@/lib/server/content-lists";
+import { DEFAULT_ABOUT_STEPS } from "@/lib/about-data";
 
 export const metadata = { title: "About — Generous Motors" };
 
-export default function AboutPage() {
+// Rendered per-request so Kevin's Shopify edits to the process steps show up.
+export const dynamic = "force-dynamic";
+
+// Icons are structural (not editable copy), matched to the steps by position.
+const STEP_ICONS = [<Drum key="0" />, <Tv2 key="1" />, <HeartHandshake key="2" />];
+
+export default async function AboutPage() {
+  const fetched = await listAboutSteps();
+  const steps = fetched.length ? fetched : DEFAULT_ABOUT_STEPS;
   return (
     <div className="bg-paper-3 text-ink">
       <section className="relative border-b border-ink/10 overflow-hidden grain">
@@ -65,15 +75,11 @@ export default function AboutPage() {
         </div>
 
         <div className="mt-12 grid rounded-2xl overflow-hidden border border-ink/10 bg-paper-3 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-ink/10">
-          <Card icon={<Drum />} title="Printed and dropped" index={1}>
-            Every entry is printed onto a paper ticket and dropped into the drum before the draw. Each ticket has a unique GM-cycle-buyer ID.
-          </Card>
-          <Card icon={<Tv2 />} title="Pulled on camera" index={2}>
-            The grand-prize drawing is fully livestreamed in front of thousands of viewers. One ticket is pulled. The ID is read aloud and into the chat. The full clip stays in the archive.
-          </Card>
-          <Card icon={<HeartHandshake />} title="Winner announced live" index={3}>
-            The winner is announced in real time, on stream. Win or not, every ticket bought helps fund the cycle&apos;s charity partner.
-          </Card>
+          {steps.map((s, i) => (
+            <Card key={i} icon={STEP_ICONS[i] ?? STEP_ICONS[STEP_ICONS.length - 1]} title={s.title} index={i + 1}>
+              {s.body}
+            </Card>
+          ))}
         </div>
       </section>
 

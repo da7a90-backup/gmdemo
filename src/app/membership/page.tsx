@@ -4,10 +4,17 @@ import { usd } from "@/lib/format";
 import { Check, ArrowRight } from "lucide-react";
 import { Announce } from "@/components/marquee";
 import { Label } from "@/components/sticker";
+import { listMembershipPerks } from "@/lib/server/content-lists";
+import { DEFAULT_MEMBERSHIP_PERKS, MEMBERSHIP_BASE_ENTRIES } from "@/lib/membership-data";
 
 export const metadata = { title: "Membership — Generous Motors" };
 
-export default function MembershipPage() {
+// Rendered per-request so Kevin's Shopify edits to the loyalty ladder show up.
+export const dynamic = "force-dynamic";
+
+export default async function MembershipPage() {
+  const fetchedPerks = await listMembershipPerks();
+  const perks = fetchedPerks.length ? fetchedPerks : DEFAULT_MEMBERSHIP_PERKS;
   return (
     <div className="bg-paper-3 text-ink">
       <section className="relative border-b border-ink/10 overflow-hidden grain">
@@ -94,18 +101,16 @@ export default function MembershipPage() {
         </div>
 
         <ol className="max-w-3xl mx-auto px-5 grid grid-cols-2 sm:grid-cols-4 gap-0 rounded-xl overflow-hidden border-x border-ink/10 mt-0 divide-x divide-ink/10">
-          {[
-            { mo: 1, mult: 1.05 },
-            { mo: 12, mult: 1.16 },
-            { mo: 24, mult: 1.28 },
-            { mo: 50, mult: 1.5 },
-          ].map((step) => (
-            <li key={step.mo} className="bg-paper-3 p-5 border-b border-ink/10">
-              <p className="font-condensed uppercase tracking-[0.22em] text-[11px] text-ink-3">Month {step.mo}</p>
-              <p className="mt-2 font-condensed numeral font-semibold text-5xl text-charity leading-[0.9]">{step.mult.toFixed(2)}×</p>
-              <p className="mt-2 dateline">{Math.round(60 * step.mult)} entries / cycle</p>
-            </li>
-          ))}
+          {perks.map((step, i) => {
+            const mult = Number(step.multiplier) || 0;
+            return (
+              <li key={i} className="bg-paper-3 p-5 border-b border-ink/10">
+                <p className="font-condensed uppercase tracking-[0.22em] text-[11px] text-ink-3">Month {step.month}</p>
+                <p className="mt-2 font-condensed numeral font-semibold text-5xl text-charity leading-[0.9]">{mult.toFixed(2)}×</p>
+                <p className="mt-2 dateline">{Math.round(MEMBERSHIP_BASE_ENTRIES * mult)} entries / cycle</p>
+              </li>
+            );
+          })}
         </ol>
       </section>
     </div>

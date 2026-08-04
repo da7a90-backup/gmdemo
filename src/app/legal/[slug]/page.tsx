@@ -2,28 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Label } from "@/components/sticker";
 import { ArrowRight } from "lucide-react";
+import { DEFAULT_LEGAL, legalBySlug } from "@/lib/legal-data";
+import { getLegalDoc } from "@/lib/server/content-lists";
 
-const PAGES: Record<string, { title: string; body: string }> = {
-  privacy: {
-    title: "Privacy Policy",
-    body: "We collect only what running a charitable drawing requires: your contact details, entries, and payment confirmations (payments themselves are processed by Shopify — we never see card numbers). We do not sell personal data. SMS and email lists are opt-in with one-step removal.",
-  },
-  terms: {
-    title: "Terms of Service",
-    body: "Use of this site and participation in any drawing is governed by the cycle's Official Rules, Florida law (Fla. Stat. § 849.0935), and these terms. Entries are non-transferable. Chargebacks on completed entries void those entries.",
-  },
-  play: {
-    title: "Responsible Play",
-    body: "Our draws are entertainment that funds charity — not a way to make money. Set a budget and keep it. Free mail-in entry is always available with identical odds (see the Official Rules). If play stops being fun, take a break: help is available at 1-800-GAMBLER.",
-  },
-  accessibility: {
-    title: "Accessibility",
-    body: "We aim for WCAG 2.1 AA across the site: semantic markup, keyboard operability, visible focus, and contrast-checked palettes. Found a barrier? Tell us via the contact page and we will fix it in the next release.",
-  },
-};
+// Rendered per-request so Kevin's Shopify edits to the legal docs show up.
+export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
-  return Object.keys(PAGES).map((slug) => ({ slug }));
+  return DEFAULT_LEGAL.map((d) => ({ slug: d.slug }));
 }
 
 export default async function LegalPage({
@@ -32,7 +18,8 @@ export default async function LegalPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const page = PAGES[slug];
+  // Shopify first, code default as fallback; unknown slug → 404.
+  const page = (await getLegalDoc(slug)) ?? legalBySlug(slug);
   if (!page) return notFound();
 
   return (

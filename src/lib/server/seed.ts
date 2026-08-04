@@ -6,6 +6,13 @@ import { activeDraw, winners as mockWinners, blogPosts } from "@/lib/mock-data";
 import { upsertArticle, ensureArticleDefinition } from "./blog-shopify";
 import { seedFaq } from "./faq";
 import { DEFAULT_FAQ } from "@/lib/faq-data";
+import {
+  seedRuleSections, seedLegalDocs, seedAboutSteps, seedMembershipPerks,
+} from "./content-lists";
+import { DEFAULT_RULES } from "@/lib/rules-data";
+import { DEFAULT_LEGAL } from "@/lib/legal-data";
+import { DEFAULT_ABOUT_STEPS } from "@/lib/about-data";
+import { DEFAULT_MEMBERSHIP_PERKS } from "@/lib/membership-data";
 
 // One real partner for the current cycle (the rest were placeholder/fake).
 const SEED_PARTNERS: { name: string; kind: "charity" | "sponsor"; logoUrl?: string; url?: string; blurb?: string }[] = [
@@ -70,6 +77,16 @@ export async function seedContent() {
     // 6) FAQ → Shopify metaobjects (type "faq_item")
     await seedFaq(DEFAULT_FAQ);
 
-    return { partners: SEED_PARTNERS.length, articles: blogPosts.length, winners: 1, cycle: 1, faq: DEFAULT_FAQ.length };
+    // 7) repeatable editorial lists → their own Shopify metaobject types
+    await seedRuleSections(DEFAULT_RULES);
+    await seedLegalDocs(DEFAULT_LEGAL);
+    await seedAboutSteps(DEFAULT_ABOUT_STEPS);
+    await seedMembershipPerks(DEFAULT_MEMBERSHIP_PERKS);
+
+    return {
+      partners: SEED_PARTNERS.length, articles: blogPosts.length, winners: 1, cycle: 1,
+      faq: DEFAULT_FAQ.length, rules: DEFAULT_RULES.length, legal: DEFAULT_LEGAL.length,
+      aboutSteps: DEFAULT_ABOUT_STEPS.length, membershipPerks: DEFAULT_MEMBERSHIP_PERKS.length,
+    };
   });
 }
