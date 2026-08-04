@@ -93,6 +93,8 @@ create table users (
   created_at   timestamptz not null default now()
 );
 
+-- NOTE: superseded by docs/build/data-model.md §2 — production uses `orders` +
+-- `entry_blocks` (order-based numbers, no `cycle_counters`). Kept here for narrative only.
 -- The money-critical table. One row per ticket number, globally.
 create table tickets (
   id                 bigint generated always as identity primary key,
@@ -144,14 +146,16 @@ create table attribution_events (
 
 ---
 
-## 3. Ticket numbering — collision-proof public code
+## 3. Ticket numbering — order-based, ≤ 12 chars
 
-The demo's `ticket-gen.ts` already produces the display format we keep:
-`GM-{cycle:0>3}-{userHash}-{ticket:0>4}` (FNV-1a of the user id → Crockford base32).
-In production the **authoritative** number is the integer `ticket_no` (gapless per cycle,
-from `cycle_counters`); `public_code` is a derived, human-friendly label printed on the
-A3 PDF. Keep both: the integer guarantees no gaps/dupes for the draw; the code is what a
-buyer reads back over the phone.
+> **Superseded by `docs/build/data-model.md` §0** — that doc is authoritative for the ticket
+> schema. Summary: the number is three parts, `GM-<order4>-<seq>` (e.g. `GM-1A2B-05`,
+> 10–12 chars). Part 2 is a 4-char base36 token **derived from the Shopify order number**
+> (`base36(order_number mod 36^4)`) shared by every ticket in the order; part 3 is the
+> per-order sequence. Numbers are **valid only within their cycle** and retained afterward
+> for history. This replaces the demo's contact-hashed `GM-{cycle}-{userHash}-{ticket}` and
+> **removes the gapless `cycle_counters` table** — see §0.4 there for why "no missing" means
+> completeness, not contiguous integers.
 
 ---
 
@@ -209,11 +213,12 @@ export async function POST(req: Request) {
 }
 ```
 
-**Why gapless holds:** `update … set last_ticket = last_ticket + 1 … returning` takes a
-row lock on that cycle's counter, so concurrent orders serialize on it — no two tickets
-get the same number and no number is skipped. It's a single hot row per open cycle;
-throughput is plenty for a weekly raffle. (If volume ever demanded it, shard the counter —
-but do not until measured.)
+**⚠️ This counter loop is superseded** by the order-based design in
+`docs/build/data-model.md` §3.3, which needs **no shared counter**: the order token is
+derived from the Shopify order number and the sequence is per-order, so concurrent orders
+contend on no row at all. Idempotency + completeness (Kevin's "no missing") are still
+guaranteed by `processed_webhooks` + `unique(shopify_line_id)` + `on conflict do nothing`.
+The snippet above is kept only to show the three-guard shape; use the data-model version.
 
 ### Reconciliation cron (belt and suspenders)
 A webhook can be lost entirely (endpoint down past Shopify's retry window). A daily
@@ -290,12 +295,13 @@ server-side via a Route Handler; never expose provider keys to the client.
 
 ## 8. Auth — email/phone OTP
 
-The demo's `session.ts` (`gm:session-v1`) becomes: request code → SendGrid (email) or
-Postscript (SMS) sends a 6-digit code → verify server-side → issue an httpOnly, signed
-session cookie. Store codes hashed with a short TTL and an attempt cap (rate-limit by
-IP + identifier). On success, upsert `users` and link `shopify_customer_gid` so the
-account's order/ticket history joins cleanly. Members get their 4× tickets page; the
-multiplier is read from `promotions`, never trusted from the client.
+**Use Supabase Auth** (built-in email/phone OTP) rather than hand-rolling code storage,
+TTL, and rate-limiting — it issues the session and manages the code lifecycle. The demo's
+`session.ts` (`gm:session-v1`) is replaced by the Supabase client session. On sign-in,
+upsert our `users` row keyed to the auth uid and link `shopify_customer_gid` so order/ticket
+history joins cleanly. Members get their 4× tickets page; the multiplier is read from
+`promotions` server-side, never trusted from the client. (Supabase's transactional OTP email
+can be routed through SendGrid for brand/deliverability if desired.)
 
 ---
 
