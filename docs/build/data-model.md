@@ -303,9 +303,19 @@ Ticket numbers are composed at read/print time: for a block, `GM-{order_token}-{
 for each `seq in [seq_start, seq_end]`. The `order_token` is assigned once (idempotently
 reused on replay), and `seq` is computed from the order's own (sorted) line list, so the whole
 thing is **deterministic and replay-stable** — a retried webhook reproduces identical numbers
-and the unique constraints make a double-insert a no-op. The only cross-order serialization is
-the single `UPDATE cycle_counters` per order (one lock, one statement) — trivial at raffle
-volumes.
+and the unique constraints make a double-insert a no-op.
+
+**Can two simultaneous orders both get `0001`? No.** The number is NOT read from the counter
+in app code (that would race). It comes from a single atomic
+`UPDATE cycle_counters SET last_order_no = last_order_no + 1 … RETURNING last_order_no`, which
+takes a **row lock** on the one counter row. Concurrent orders serialize on that lock: the
+first gets `1` and holds the lock until commit; the second **blocks**, then proceeds against
+the committed value and gets `2`. There is no instant where both read the same number — the
+increment happens inside the database, under the lock, not in a read-then-write. The entry
+count is irrelevant (the counter is bumped once **per order**, whatever its size). Backstop:
+`unique(cycle_id, order_token)` makes a same-number duplicate physically impossible to persist.
+The only pattern that *would* collide — `SELECT last_order_no` then a computed `UPDATE` — is
+exactly what we avoid.
 
 ### 3.4 The draw
 - **Physical drum (primary):** the A3 PDF expands every non-void block into individual paper
