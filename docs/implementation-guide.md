@@ -149,13 +149,14 @@ create table attribution_events (
 ## 3. Ticket numbering — order-based, ≤ 12 chars
 
 > **Superseded by `docs/build/data-model.md` §0** — that doc is authoritative for the ticket
-> schema. Summary: three parts, `GM-0001-0001` (12 chars). Part 2 is a **per-cycle order
-> counter** (`0001`, `0002`, …) shared by every ticket in the order — guaranteed unique within
-> the cycle; part 3 is the per-order ticket sequence (`0001`–`9999`). Numbers are **valid only
-> within their cycle** and retained afterward for history. This replaces the demo's
-> contact-hashed `GM-{cycle}-{userHash}-{ticket}`. The old per-**ticket** gapless counter is
-> shrunk to a per-**order** counter — see §0.4 there for why "no missing" means completeness,
-> not contiguous integers.
+> schema. Summary: three parts, `GM12-0001-0001` (~14 chars) — `GM` + 2-digit **cycle**, then a
+> **per-cycle order counter** (`0001`, `0002`, …) shared by every ticket in the order and
+> guaranteed unique within the cycle, then the per-order ticket sequence (`0001`–`9999`).
+> Numbers are **valid only within their cycle** and retained afterward for history. This
+> replaces the demo's contact-hashed `GM-{cycle}-{userHash}-{ticket}`. The old per-**ticket**
+> gapless counter is shrunk to a per-**order** counter, allocated collision-safely (§0.5:
+> single fused `UPDATE … RETURNING`, primary-only, `unique(cycle_id, order_token)` + retry) —
+> and see §0.4 for why "no missing" means completeness, not contiguous integers.
 
 ---
 

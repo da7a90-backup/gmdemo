@@ -17,24 +17,29 @@
 
 ## 0. Ticket numbers — the format and what it lets us delete
 
-### 0.1 The format (12 chars, three parts)
+### 0.1 The format (three parts, cycle-scoped)
 ```
-   GM  -  0001  -  0001
-   │       │        │
-   │       │        └── part 3: per-ORDER ticket sequence, 0001–9999
-   │       └─────────── part 2: per-CYCLE order number, 0001–9999 (unique within the cycle)
-   └─────────────────── part 1: fixed prefix we set ("GM"; configurable)
+   GM12  -  0001  -  0001
+   │ │       │        │
+   │ │       │        └── part 3: per-ORDER ticket sequence, 0001–9999
+   │ │       └─────────── part 2: per-CYCLE order number, 0001–9999 (unique within the cycle)
+   │ └─────────────────── current cycle number, 2 digits
+   └───────────────────── fixed prefix we set ("GM"; configurable)
 ```
-- **Part 1 — prefix.** Constant `GM` (env `TICKET_PREFIX`). 2 chars.
+- **Part 1 — prefix + cycle.** `GM` + 2-digit cycle number (`GM12`). Putting the cycle *in* the
+  number means a ticket names its own cycle and numbers are **globally unique across cycles** —
+  which reinforces the "valid only within its cycle" rule (§0.3).
 - **Part 2 — order number.** A **per-cycle order counter**: the first order of a cycle is
   `0001`, the next `0002`, … Every ticket in the same order shares it — that's what ties a
-  multi-ticket order together. **Guaranteed unique within the cycle** because it's a counter
-  (the one hard requirement). 4 digits.
+  multi-ticket order together. **Guaranteed unique within the cycle** (see §0.5 for exactly how,
+  and how production systems get this wrong). 4 digits.
 - **Part 3 — sequence.** The ticket's index within its own order, `0001`…`9999` (so one order
   holds up to 9,999 entries). Starts at `0001`. 4 digits.
 
-**Total: `GM-0001-0001` = 12 chars.** A no-dash variant (`GM00010001`, 10 chars) exists if
-Kevin wants ≤ 10 hard; default keeps the dashes for readability.
+**Total: `GM12-0001-0001` = 14 chars.** Adding the cycle costs 2 chars over the earlier ≤12
+target. Options: **accept 14** (recommended — still short and readable), or drop dashes for
+`GM1200010001` (12 chars, harder to read). **Flag:** cycle > 99 needs 3 digits (`GM100-…`, 15
+chars) — fine to switch when we approach it.
 
 ### 0.2 Why a per-cycle counter, not a hash of the Shopify order id
 The hard requirement (Kevin, point 1): **no two orders in the same cycle may share the middle
@@ -73,7 +78,39 @@ a digital "pick integer K" draw. The order-based number shrinks that dramaticall
 ever left without a ticket* (completeness + idempotency), **not** that the integers are
 contiguous. A physical drum draws paper; gaps are irrelevant to it. The one small serialized
 step that remains is a **per-order** counter (the middle part), which even at draw-night peak
-is trivial — it's bumped at orders/second, not tickets/second. See `open-questions.md`.
+is trivial — it's bumped at orders/second, not tickets/second.
+
+### 0.5 How order-number collisions actually happen in production — and how we prevent each
+Atomic-counter designs *do* collide in the wild. Every documented case traces to one of these
+anti-patterns ([Cybertec: sequences vs invoice numbers](https://www.cybertec-postgresql.com/en/postgresql-sequences-vs-invoice-numbers/),
+[Postgres transaction-isolation docs](https://www.postgresql.org/docs/current/transaction-iso.html),
+[Vlad Mihalcea: lost updates](https://vladmihalcea.com/a-beginners-guide-to-database-locking-and-the-lost-update-phenomena/)).
+**None of them is a correctly-written single-statement increment** — but they're easy to write
+by accident, so they are BANNED here:
+
+| ✗ Banned pattern (causes real collisions) | Why it collides |
+|---|---|
+| ORM read-modify-write: `order.n += 1; save()` | `SELECT` then a separate `UPDATE`; a bare SELECT takes **no lock** at Read Committed, so two requests both read `4`, both write `5` — the classic lost update. **The #1 real-world cause.** |
+| `SELECT MAX(order_no)+1` then INSERT | both transactions read before either writes |
+| `SELECT last_order_no` then separate `UPDATE` (no `FOR UPDATE`) | same lost-update trap |
+| read the counter from a **read replica**, write to primary | replica is stale → two orders read the same value |
+| bump the counter in a **different transaction** than the insert | reserved number leaks / gets reused |
+
+**How we allocate the order number (safe by construction):**
+1. **One fused statement** — `UPDATE cycle_counters SET last_order_no = last_order_no + 1 WHERE
+   cycle_id = :c RETURNING last_order_no`. The read and write are the *same* statement; Postgres
+   re-reads the row under the write's row lock, so it's correct even at the default Read
+   Committed. **Never** an ORM increment. (Equivalent, even lower-contention option: a per-cycle
+   Postgres `SEQUENCE` — `nextval` is lock-free and collision-proof *by design*; gaps are fine.)
+2. **Primary only** — the allocation never runs against a read replica.
+3. **Counter row pre-created when the cycle opens** (or `INSERT … ON CONFLICT DO UPDATE …
+   RETURNING`), so two orders never race to *create* the counter row.
+4. **Increment + order insert in the same transaction.**
+5. **The actual guarantee, independent of 1–4:** `UNIQUE (cycle_id, order_token)` **+ retry on
+   unique-violation.** Even if a replica were misread or an ORM slipped in, the duplicate insert
+   *cannot persist* — it raises a unique-violation and the handler retries with the next number.
+   This is what turns "should be safe" into "a duplicate is physically unstorable." The retry
+   loop (bounded, e.g. 5 attempts) is mandatory around the mint transaction.
 
 ---
 
@@ -271,8 +308,9 @@ abandoned carts leave no dangling tickets. No reservation/hold system needed.
 2. **Delivery dedupe**: `processed_webhooks(webhook_id)` PK — duplicate deliveries ack + stop.
 3. **Row-level**: `unique(shopify_line_id)` on `entry_blocks` + `on conflict do nothing`.
 
-### 3.3 The mint transaction (no shared counter, no lock)
+### 3.3 The mint transaction (per-order counter + unique-violation retry)
 ```
+RETRY up to 5× on unique_violation:                               -- guard 5 (see §0.5)
 BEGIN
   insert processed_webhooks(webhook_id) on conflict do nothing;   -- guard 2
   if no row inserted: COMMIT, return 200                          -- already handled
@@ -299,23 +337,19 @@ BEGIN
 COMMIT
 return 200                                                        -- always 2xx once stored
 ```
-Ticket numbers are composed at read/print time: for a block, `GM-{order_token}-{lpad(seq,4)}`
-for each `seq in [seq_start, seq_end]`. The `order_token` is assigned once (idempotently
+Ticket numbers are composed at read/print time: for a block,
+`GM{cycle:2}-{order_token}-{lpad(seq,4)}` (e.g. `GM12-0001-0007`) for each
+`seq in [seq_start, seq_end]`. The `order_token` is assigned once (idempotently
 reused on replay), and `seq` is computed from the order's own (sorted) line list, so the whole
 thing is **deterministic and replay-stable** — a retried webhook reproduces identical numbers
 and the unique constraints make a double-insert a no-op.
 
-**Can two simultaneous orders both get `0001`? No.** The number is NOT read from the counter
-in app code (that would race). It comes from a single atomic
-`UPDATE cycle_counters SET last_order_no = last_order_no + 1 … RETURNING last_order_no`, which
-takes a **row lock** on the one counter row. Concurrent orders serialize on that lock: the
-first gets `1` and holds the lock until commit; the second **blocks**, then proceeds against
-the committed value and gets `2`. There is no instant where both read the same number — the
-increment happens inside the database, under the lock, not in a read-then-write. The entry
-count is irrelevant (the counter is bumped once **per order**, whatever its size). Backstop:
-`unique(cycle_id, order_token)` makes a same-number duplicate physically impossible to persist.
-The only pattern that *would* collide — `SELECT last_order_no` then a computed `UPDATE` — is
-exactly what we avoid.
+**Can two simultaneous orders both get `0001`? No — see §0.5** for the full treatment
+(the single fused `UPDATE … RETURNING`, primary-only allocation, and the
+`unique(cycle_id, order_token)` + retry backstop that makes a duplicate physically unstorable
+even if something upstream misbehaves). The whole mint transaction runs inside a **bounded
+retry loop** (≈5 attempts): on a unique-violation it re-reads the counter and tries the next
+number, so an unforeseen race degrades to a retry, never a persisted collision.
 
 ### 3.4 The draw
 - **Physical drum (primary):** the A3 PDF expands every non-void block into individual paper
