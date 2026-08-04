@@ -290,13 +290,16 @@ export function downloadPdf(bytes: Uint8Array, filename: string) {
 /* Admin cycle sheets — black & white A3 grids for barrel printing.    */
 /* ------------------------------------------------------------------ */
 
-export type AdminTicketPurchase = {
-  orderId: string;
-  fullName: string;
+// A contiguous range of real entries for one order line (from Supabase entry_blocks).
+// The A3 sheet expands [seqStart..seqEnd] into individual tickets numbered
+// GM{cycle:02}-{orderToken}-{seq:04} — the exact number stored in the database.
+export type AdminTicketBlock = {
+  orderToken: string;   // '0001' — the middle part
+  drawCycle: number;    // 1
+  fullName: string;     // holder name (falls back to email)
   phone: string;
-  email: string;
-  drawCycle: number;
-  ticketCount: number;
+  seqStart: number;
+  seqEnd: number;
 };
 
 const BLACK = rgb(0, 0, 0);
@@ -328,14 +331,15 @@ function drawMonoTicket(opts: {
   y: number;
   w: number;
   h: number;
-  id: TicketID;
-  purchase: AdminTicketPurchase;
+  ticketNumber: string;
+  subLabel: string;
+  purchase: AdminTicketBlock;
   drawDateLabel: string;
   fontSans: PDFFont;
   fontSansBold: PDFFont;
   fontSerif: PDFFont;
 }) {
-  const { page, x, y, w, h, id, purchase, drawDateLabel, fontSans, fontSansBold, fontSerif } = opts;
+  const { page, x, y, w, h, ticketNumber, subLabel, purchase, drawDateLabel, fontSans, fontSansBold, fontSerif } = opts;
 
   page.drawRectangle({ x, y, width: w, height: h, color: WHITE, borderColor: BLACK, borderWidth: 1 });
 
@@ -354,7 +358,7 @@ function drawMonoTicket(opts: {
 
   // Ticket number
   page.drawText("TICKET No.", { x: x + 12, y: y + h - 52, size: 5.5, font: fontSansBold, color: GREY });
-  page.drawText(id.full, { x: x + 12, y: y + h - 68, size: 14, font: fontSerif, color: BLACK });
+  page.drawText(ticketNumber, { x: x + 12, y: y + h - 68, size: 14, font: fontSerif, color: BLACK });
 
   // Holder — name + phone
   page.drawText("HOLDER", { x: x + 12, y: y + 44, size: 5.5, font: fontSansBold, color: GREY });
@@ -367,8 +371,8 @@ function drawMonoTicket(opts: {
     thickness: 0.5, color: LIGHT,
   });
   page.drawText(`DRAW ${drawDateLabel.toUpperCase()}`, { x: x + 12, y: y + 9, size: 6, font: fontSans, color: GREY });
-  page.drawText(purchase.orderId, {
-    x: x + w - 62 - fontSans.widthOfTextAtSize(purchase.orderId, 6), y: y + 9, size: 6, font: fontSans, color: GREY,
+  page.drawText(purchase.orderToken, {
+    x: x + w - 62 - fontSans.widthOfTextAtSize(purchase.orderToken, 6), y: y + 9, size: 6, font: fontSans, color: GREY,
   });
 
   // Stub — dashed tear line + short id, rotated
@@ -380,7 +384,7 @@ function drawMonoTicket(opts: {
   page.drawText("STUB", {
     x: stubX + 14, y: y + 12, size: 7, font: fontSansBold, color: BLACK, rotate: degrees(90),
   });
-  page.drawText(`${id.userHash}-${String(id.index).padStart(4, "0")}`, {
+  page.drawText(subLabel, {
     x: stubX + 26, y: y + 12, size: 7, font: fontSans, color: GREY, rotate: degrees(90),
   });
 }
@@ -407,17 +411,16 @@ export async function buildCycleSheetsPdf(opts: {
   cycleLabel: string;
   drawDateLabel: string;
   rangeLabel: string;
-  purchases: AdminTicketPurchase[];
+  blocks: AdminTicketBlock[];
   fonts?: SheetFonts;
 }): Promise<Uint8Array> {
-  const jobs: { id: TicketID; purchase: AdminTicketPurchase }[] = [];
-  for (const p of opts.purchases) {
-    const ids = generateTicketIDs({
-      drawCycle: p.drawCycle,
-      contact: { email: p.email, phone: p.phone },
-      count: p.ticketCount,
-    });
-    for (const id of ids) jobs.push({ id, purchase: p });
+  const jobs: { number: string; sub: string; block: AdminTicketBlock }[] = [];
+  for (const b of opts.blocks) {
+    const cyc = String(b.drawCycle).padStart(2, "0");
+    for (let seq = b.seqStart; seq <= b.seqEnd; seq++) {
+      const seqPad = String(seq).padStart(4, "0");
+      jobs.push({ number: `GM${cyc}-${b.orderToken}-${seqPad}`, sub: `${b.orderToken}-${seqPad}`, block: b });
+    }
   }
 
   const pdf = await PDFDocument.create();
@@ -444,8 +447,9 @@ export async function buildCycleSheetsPdf(opts: {
       y: A3_H - PAGE_MARGIN - (row + 1) * cellH - row * GUTTER,
       w: cellW,
       h: cellH,
-      id: jobs[i].id,
-      purchase: jobs[i].purchase,
+      ticketNumber: jobs[i].number,
+      subLabel: jobs[i].sub,
+      purchase: jobs[i].block,
       drawDateLabel: opts.drawDateLabel,
       fontSans, fontSansBold, fontSerif,
     });

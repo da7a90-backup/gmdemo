@@ -229,3 +229,51 @@ export async function auditAll() {
     c.release();
   }
 }
+
+// ───────────────────── admin: A3 ticket sheets (real entries) ─────────────────────
+export type AdminTicketBlock = {
+  orderToken: string; drawCycle: number; fullName: string; phone: string; seqStart: number; seqEnd: number;
+};
+
+/** Real entry blocks for a cycle (+ optional purchase date range), for the A3 PDF. */
+export async function getCycleTicketBlocks(cycleCode: string, from?: string, to?: string): Promise<AdminTicketBlock[]> {
+  const rows = (await pool.query(
+    `select o.order_token, cy.code as cycle_code,
+            coalesce(o.full_name, u.email::text, '—') as full_name,
+            coalesce(u.phone, '') as phone,
+            eb.seq_start, eb.seq_end
+     from entry_blocks eb
+     join orders o on o.id = eb.order_id
+     join cycles cy on cy.id = eb.cycle_id
+     join users u on u.id = eb.user_id
+     where cy.code = $1 and not eb.voided
+       and ($2::timestamptz is null or o.created_at >= $2::timestamptz)
+       and ($3::timestamptz is null or o.created_at <= $3::timestamptz)
+     order by o.order_token::int, eb.seq_start`,
+    [cycleCode, from || null, to || null],
+  )).rows;
+  return rows.map((r) => ({
+    orderToken: r.order_token as string, drawCycle: Number(r.cycle_code) || 0,
+    fullName: r.full_name as string, phone: r.phone as string,
+    seqStart: r.seq_start as number, seqEnd: r.seq_end as number,
+  }));
+}
+
+/** All cycles with their non-void ticket + order counts, for the desk dropdown. */
+export async function listCycleTicketSummaries() {
+  const rows = (await pool.query(
+    `select cy.code, cy.status, cy.vehicle_label, cy.draw_date,
+            coalesce(sum(eb.ticket_count) filter (where not eb.voided), 0)::int as tickets,
+            count(distinct o.id)::int as orders
+     from cycles cy
+     left join entry_blocks eb on eb.cycle_id = cy.id
+     left join orders o on o.id = eb.order_id
+     group by cy.id
+     order by cy.code::int desc`,
+  )).rows;
+  return rows.map((r) => ({
+    code: r.code as string, status: r.status as string, vehicleLabel: (r.vehicle_label as string) ?? "",
+    drawDateISO: r.draw_date ? new Date(r.draw_date as string).toISOString() : "",
+    tickets: r.tickets as number, orders: r.orders as number,
+  }));
+}
