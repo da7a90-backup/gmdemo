@@ -46,10 +46,12 @@ import { useEffect, useState } from "react";
 export function useWinners(): Winner[] {
   const [list, setList] = useState<Winner[]>(baseWinners);
   useEffect(() => {
-    const load = () => setList(getAllWinners());
-    load();
-    window.addEventListener(WINNERS_EVENT, load);
-    return () => window.removeEventListener(WINNERS_EVENT, load);
+    let alive = true;
+    fetch("/api/admin/winners")
+      .then((r) => r.json())
+      .then((j) => { if (alive && j.ok && (j.data as Winner[]).length) setList(j.data as Winner[]); })
+      .catch(() => {});
+    return () => { alive = false; };
   }, []);
   return list;
 }

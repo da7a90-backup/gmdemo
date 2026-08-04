@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from "react";
 import { activeDraw } from "@/lib/mock-data";
-import { getPartners, PARTNERS_EVENT, type Partner } from "@/lib/partners-store";
+import { getPartners, type Partner } from "@/lib/partners-store";
 
 export type CycleConfig = {
   cycle: number;
@@ -53,10 +53,19 @@ export function getCyclePartner(config = getCycleConfig()): Partner | undefined 
 export function useCycleConfig(): CycleConfig {
   const [c, setC] = useState<CycleConfig>(DEFAULT_CYCLE);
   useEffect(() => {
-    const load = () => setC(getCycleConfig());
-    load();
-    window.addEventListener(CYCLE_EVENT, load);
-    return () => window.removeEventListener(CYCLE_EVENT, load);
+    let alive = true;
+    fetch("/api/admin/cycle").then((r) => r.json()).then((j) => {
+      if (!alive || !j.ok || !j.data) return;
+      const d = j.data as { cycle: string; vehicleLabel: string; drawDateISO: string; charityPartnerId?: string; charityBlurb?: string };
+      setC({
+        cycle: Number(d.cycle) || DEFAULT_CYCLE.cycle,
+        vehicleLabel: d.vehicleLabel || DEFAULT_CYCLE.vehicleLabel,
+        drawDateISO: d.drawDateISO || DEFAULT_CYCLE.drawDateISO,
+        charityPartnerId: d.charityPartnerId || DEFAULT_CYCLE.charityPartnerId,
+        charityBlurb: d.charityBlurb || DEFAULT_CYCLE.charityBlurb,
+      });
+    }).catch(() => {});
+    return () => { alive = false; };
   }, []);
   return c;
 }
@@ -65,11 +74,13 @@ export function useCyclePartner(): Partner | undefined {
   const config = useCycleConfig();
   const [partner, setPartner] = useState<Partner | undefined>(undefined);
   useEffect(() => {
-    const load = () => setPartner(getCyclePartner(config));
-    load();
-    window.addEventListener(PARTNERS_EVENT, load);
-    return () => window.removeEventListener(PARTNERS_EVENT, load);
-  }, [config]);
+    if (!config.charityPartnerId) return;
+    let alive = true;
+    fetch("/api/admin/partners").then((r) => r.json()).then((j) => {
+      if (alive && j.ok) setPartner((j.data as Partner[]).find((p) => p.id === config.charityPartnerId));
+    }).catch(() => {});
+    return () => { alive = false; };
+  }, [config.charityPartnerId]);
   return partner;
 }
 

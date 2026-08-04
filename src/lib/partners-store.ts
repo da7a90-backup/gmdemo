@@ -66,10 +66,12 @@ export function isCustomPartner(id: string): boolean {
 export function usePartners(): Partner[] {
   const [list, setList] = useState<Partner[]>(SEED_PARTNERS);
   useEffect(() => {
-    const load = () => setList(getPartners());
-    load();
-    window.addEventListener(PARTNERS_EVENT, load);
-    return () => window.removeEventListener(PARTNERS_EVENT, load);
+    let alive = true;
+    fetch("/api/admin/partners")
+      .then((r) => r.json())
+      .then((j) => { if (alive && j.ok && (j.data as Partner[]).length) setList(j.data as Partner[]); })
+      .catch(() => {});
+    return () => { alive = false; };
   }, []);
   return list;
 }

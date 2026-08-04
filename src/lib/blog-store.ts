@@ -85,10 +85,20 @@ export function getMergedPosts(): MergedPost[] {
 export function useMergedPosts(): MergedPost[] {
   const [list, setList] = useState<MergedPost[]>(blogPosts);
   useEffect(() => {
-    const load = () => setList(getMergedPosts());
-    load();
-    window.addEventListener(BLOG_EVENT, load);
-    return () => window.removeEventListener(BLOG_EVENT, load);
+    let alive = true;
+    fetch("/api/admin/articles?published=1")
+      .then((r) => r.json())
+      .then((j) => {
+        if (!alive || !j.ok) return;
+        const arts = j.data as Article[];
+        if (!arts.length) return;
+        setList(arts.map((a) => ({
+          slug: a.slug, title: a.title, date: a.dateISO.slice(0, 10), author: a.author,
+          excerpt: a.excerpt, body: a.body, tag: a.tag as BlogPost["tag"], custom: a,
+        })));
+      })
+      .catch(() => {});
+    return () => { alive = false; };
   }, []);
   return list;
 }
