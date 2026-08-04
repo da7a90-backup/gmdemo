@@ -94,27 +94,64 @@ export async function deleteArticle(id: number) {
   await query(`delete from articles where id = $1`, [id]);
 }
 
-// ───────────────────────────── cycle content ─────────────────────────────
-export type CycleContent = {
-  id: string; cycle: string; vehicleLabel: string; drawDateISO: string;
+// ───────────────────────── cycle + prize content ─────────────────────────
+export type Spec = { label: string; value: number; suffix: string; decimals?: number };
+export type SpecGroup = { title: string; rows: { k: string; v: string }[] };
+export type CycleFull = {
+  id: string; cycle: number; code: string;
+  vehicleLabel: string; drawDateISO: string;
   charityPartnerId?: string; charityBlurb?: string;
+  vehicle: {
+    year: number; make: string; model: string; trim: string; valueUSD: number;
+    images: string[]; image: string; headlineSpecs: Spec[]; specGroups: SpecGroup[];
+  };
+  ticketsSold: number; pricePerTicketUSD: number;
 };
-const toCycle = (r: Row): CycleContent => ({
-  id: String(r.id), cycle: r.code as string, vehicleLabel: (r.vehicle_label as string) ?? "",
-  drawDateISO: r.draw_date ? new Date(r.draw_date as string).toISOString() : "",
-  charityPartnerId: r.charity_partner_id != null ? String(r.charity_partner_id) : undefined,
-  charityBlurb: (r.charity_blurb as string) ?? undefined,
-});
-export async function getCurrentCycle(): Promise<CycleContent | null> {
+const toCycle = (r: Row): CycleFull => {
+  const images = (r.images as string[]) ?? [];
+  return {
+    id: String(r.id), cycle: Number(r.code) || 0, code: r.code as string,
+    vehicleLabel: (r.vehicle_label as string) ?? "",
+    drawDateISO: r.draw_date ? new Date(r.draw_date as string).toISOString() : "",
+    charityPartnerId: r.charity_partner_id != null ? String(r.charity_partner_id) : undefined,
+    charityBlurb: (r.charity_blurb as string) ?? undefined,
+    vehicle: {
+      year: (r.vehicle_year as number) ?? 0, make: (r.vehicle_make as string) ?? "",
+      model: (r.vehicle_model as string) ?? "", trim: (r.vehicle_trim as string) ?? "",
+      valueUSD: (r.value_usd as number) ?? 0, images, image: images[0] ?? "",
+      headlineSpecs: (r.headline_specs as Spec[]) ?? [], specGroups: (r.spec_groups as SpecGroup[]) ?? [],
+    },
+    ticketsSold: (r.tickets_sold as number) ?? 0, pricePerTicketUSD: (r.price_per_ticket_usd as number) ?? 0,
+  };
+};
+export type CycleUpdate = Partial<{
+  vehicleLabel: string; drawDateISO: string; charityPartnerId: string | null; charityBlurb: string;
+  vehicleYear: number; vehicleMake: string; vehicleModel: string; vehicleTrim: string;
+  valueUSD: number; pricePerTicketUSD: number; ticketsSold: number;
+  images: string[]; headlineSpecs: Spec[]; specGroups: SpecGroup[];
+}>;
+export async function getCurrentCycle(): Promise<CycleFull | null> {
   const r = await query(`select * from cycles where status = 'open' order by id limit 1`);
   return r.rows[0] ? toCycle(r.rows[0]) : null;
 }
-export async function updateCurrentCycle(c: Partial<CycleContent>): Promise<CycleContent | null> {
+export async function updateCurrentCycle(c: CycleUpdate): Promise<CycleFull | null> {
   const r = await query(
-    `update cycles set vehicle_label = coalesce($1, vehicle_label), draw_date = coalesce($2, draw_date),
-       charity_partner_id = $3, charity_blurb = coalesce($4, charity_blurb)
+    `update cycles set
+       vehicle_label = coalesce($1, vehicle_label), draw_date = coalesce($2, draw_date),
+       charity_partner_id = coalesce($3, charity_partner_id), charity_blurb = coalesce($4, charity_blurb),
+       vehicle_year = coalesce($5, vehicle_year), vehicle_make = coalesce($6, vehicle_make),
+       vehicle_model = coalesce($7, vehicle_model), vehicle_trim = coalesce($8, vehicle_trim),
+       value_usd = coalesce($9, value_usd), price_per_ticket_usd = coalesce($10, price_per_ticket_usd),
+       tickets_sold = coalesce($11, tickets_sold), images = coalesce($12, images),
+       headline_specs = coalesce($13, headline_specs), spec_groups = coalesce($14, spec_groups)
      where id = (select id from cycles where status='open' order by id limit 1) returning *`,
-    [c.vehicleLabel ?? null, c.drawDateISO ?? null, c.charityPartnerId ? Number(c.charityPartnerId) : null, c.charityBlurb ?? null],
+    [c.vehicleLabel ?? null, c.drawDateISO ?? null,
+     c.charityPartnerId ? Number(c.charityPartnerId) : null, c.charityBlurb ?? null,
+     c.vehicleYear ?? null, c.vehicleMake ?? null, c.vehicleModel ?? null, c.vehicleTrim ?? null,
+     c.valueUSD ?? null, c.pricePerTicketUSD ?? null, c.ticketsSold ?? null,
+     c.images ? JSON.stringify(c.images) : null,
+     c.headlineSpecs ? JSON.stringify(c.headlineSpecs) : null,
+     c.specGroups ? JSON.stringify(c.specGroups) : null],
   );
   return r.rows[0] ? toCycle(r.rows[0]) : null;
 }

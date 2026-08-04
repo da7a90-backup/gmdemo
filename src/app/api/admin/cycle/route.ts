@@ -1,5 +1,5 @@
 import { ok, fail, readJson, requireAdmin, errMsg } from "@/lib/server/http";
-import { getCurrentCycle, updateCurrentCycle, type CycleContent } from "@/lib/server/editorial";
+import { getCurrentCycle, updateCurrentCycle, type CycleUpdate } from "@/lib/server/editorial";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -9,7 +9,7 @@ export async function GET() {
 }
 export async function PUT(req: Request) {
   const g = requireAdmin(req); if (g) return g;
-  const b = await readJson<Partial<CycleContent>>(req);
+  const b = await readJson<CycleUpdate>(req);
   if (!b) return fail("body required");
   try {
     const c = await updateCurrentCycle(b);
