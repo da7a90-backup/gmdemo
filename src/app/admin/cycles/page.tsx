@@ -7,8 +7,10 @@ import { PartnerMark } from "@/components/partner-mark";
 import { Label } from "@/components/sticker";
 
 type CycleContent = {
-  id: string; cycle: string; vehicleLabel: string; drawDateISO: string;
+  id: string; cycle: number; vehicleLabel: string; drawDateISO: string;
   charityPartnerId?: string; charityBlurb?: string;
+  vehicle: { year: number; make: string; model: string; trim: string; valueUSD: number; images: string[] };
+  pricePerTicketUSD: number; ticketsSold: number;
 };
 
 function toLocalInput(iso: string): string {
@@ -44,6 +46,13 @@ export default function AdminCyclesPage() {
         drawDateISO: config.drawDateISO,
         charityPartnerId: config.charityPartnerId ?? null,
         charityBlurb: config.charityBlurb,
+        vehicleYear: config.vehicle.year,
+        vehicleMake: config.vehicle.make,
+        vehicleModel: config.vehicle.model,
+        vehicleTrim: config.vehicle.trim,
+        valueUSD: config.vehicle.valueUSD,
+        pricePerTicketUSD: config.pricePerTicketUSD,
+        images: config.vehicle.images,
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
@@ -131,9 +140,44 @@ export default function AdminCyclesPage() {
               onChange={(e) => setConfig((c) => ({ ...c!, charityBlurb: e.target.value }))}
               className={input} /></label>
         </div>
-        <p className="px-5 pb-4 dateline on-paper">
-          Vehicle photos and spec data live on the Shopify product/metaobject (static content + media).
-        </p>
+      </div>
+
+      {/* Prize (vehicle) — editable */}
+      <div className="mt-6 border border-ink/10 bg-paper-4 rounded-2xl shadow-soft overflow-hidden">
+        <div className="px-5 py-3 bg-paper-3 border-b border-ink/10">
+          <p className="font-display font-bold text-ink">The prize</p>
+        </div>
+        <div className="p-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <label className="block"><span className="dateline on-paper">Year</span>
+            <input type="number" value={config.vehicle.year}
+              onChange={(e) => setConfig((c) => ({ ...c!, vehicle: { ...c!.vehicle, year: Number(e.target.value) || 0 } }))}
+              className={`${input} numeral`} /></label>
+          <label className="block"><span className="dateline on-paper">Make</span>
+            <input value={config.vehicle.make}
+              onChange={(e) => setConfig((c) => ({ ...c!, vehicle: { ...c!.vehicle, make: e.target.value } }))}
+              className={input} /></label>
+          <label className="block"><span className="dateline on-paper">Model</span>
+            <input value={config.vehicle.model}
+              onChange={(e) => setConfig((c) => ({ ...c!, vehicle: { ...c!.vehicle, model: e.target.value } }))}
+              className={input} /></label>
+          <label className="block"><span className="dateline on-paper">Trim</span>
+            <input value={config.vehicle.trim}
+              onChange={(e) => setConfig((c) => ({ ...c!, vehicle: { ...c!.vehicle, trim: e.target.value } }))}
+              className={input} /></label>
+          <label className="block"><span className="dateline on-paper">Value (USD)</span>
+            <input type="number" value={config.vehicle.valueUSD}
+              onChange={(e) => setConfig((c) => ({ ...c!, vehicle: { ...c!.vehicle, valueUSD: Number(e.target.value) || 0 } }))}
+              className={`${input} numeral`} /></label>
+          <label className="block"><span className="dateline on-paper">Price per ticket (USD)</span>
+            <input type="number" value={config.pricePerTicketUSD}
+              onChange={(e) => setConfig((c) => ({ ...c!, pricePerTicketUSD: Number(e.target.value) || 0 }))}
+              className={`${input} numeral`} /></label>
+          <label className="block sm:col-span-2 lg:col-span-4"><span className="dateline on-paper">Gallery image URLs (one per line — Shopify Files CDN)</span>
+            <textarea rows={3} value={config.vehicle.images.join("\n")}
+              onChange={(e) => setConfig((c) => ({ ...c!, vehicle: { ...c!.vehicle, images: e.target.value.split("\n").map((s) => s.trim()).filter(Boolean) } }))}
+              className="mt-1.5 w-full border border-ink/10 bg-paper-3 rounded-lg px-3 py-2.5 text-[14px] text-ink outline-none focus:border-accent font-mono" /></label>
+        </div>
+        <p className="px-5 pb-4 dateline on-paper">Spec-sheet rows are seeded from the current data; image URLs point at Shopify Files CDN.</p>
       </div>
 
       {/* Partner registry */}

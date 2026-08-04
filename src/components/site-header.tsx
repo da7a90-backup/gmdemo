@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { getUser, SESSION_EVENT } from "@/lib/session";
 import { Logo } from "@/components/logo";
 import { CountdownCompact } from "@/components/countdown";
-import { activeDraw } from "@/lib/mock-data";
+import { usePrizeCycle } from "@/lib/cycle-store";
 
 const NAV = [
   { href: "/tickets", label: "Tickets" },
@@ -18,6 +18,7 @@ const NAV = [
 ];
 
 export function SiteHeader() {
+  const activeDraw = usePrizeCycle();
   const [open, setOpen] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
 

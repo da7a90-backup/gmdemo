@@ -5,7 +5,8 @@ import Link from "next/link";
 import {
   ShieldCheck, Tv2, HeartHandshake, Lock, Drum, ArrowRight, PlayCircle,
 } from "lucide-react";
-import { activeDraw, ticketTiers, membershipTiers, lifetimeStats } from "@/lib/mock-data";
+import { ticketTiers, membershipTiers, lifetimeStats } from "@/lib/mock-data";
+import { usePrizeCycle } from "@/lib/cycle-store";
 import { useWinners } from "@/lib/winners-store";
 import { usdc, intl, niceWeekday, niceDate, usd } from "@/lib/format";
 import { Label } from "@/components/sticker";
@@ -23,6 +24,7 @@ import { getUser, SESSION_EVENT } from "@/lib/session";
 
 export function TicketsBuy() {
   const router = useRouter();
+  const activeDraw = usePrizeCycle();
   const v = activeDraw.vehicle;
   const [redirecting, setRedirecting] = useState(false);
   const [mode, setMode] = useState<"once" | "monthly">("once");

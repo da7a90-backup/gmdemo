@@ -1,7 +1,7 @@
 "use client";
 import { useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { activeDraw } from "@/lib/mock-data";
+import { usePrizeCycle } from "@/lib/cycle-store";
 
 /**
  * Prize image gallery — shared by the public tickets page and the member
@@ -9,6 +9,7 @@ import { activeDraw } from "@/lib/mock-data";
  * chevrons, no thumbs.
  */
 export function VehicleGallery() {
+  const activeDraw = usePrizeCycle();
   const v = activeDraw.vehicle;
   const [activeImage, setActiveImage] = useState(0);
   const touchStart = useRef<{ x: number; y: number } | null>(null);

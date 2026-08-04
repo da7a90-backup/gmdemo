@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { activeDraw } from "@/lib/mock-data";
+import { usePrizeCycle } from "@/lib/cycle-store";
 
 /**
  * Home-page prize plate.
@@ -17,6 +17,7 @@ export function PrizePlate({
   /** Tailwind aspect classes for the plate. */
   aspect?: string;
 }) {
+  const activeDraw = usePrizeCycle();
   const v = activeDraw.vehicle;
   const primary = v.images[0];
   const alt = v.images[1] ?? v.images[0];

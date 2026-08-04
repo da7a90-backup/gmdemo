@@ -3,8 +3,47 @@
 // mock activeDraw; countdowns and charity sections pick them up live.
 
 import { useEffect, useState } from "react";
-import { activeDraw } from "@/lib/mock-data";
+import { activeDraw, type Draw } from "@/lib/mock-data";
 import { getPartners, type Partner } from "@/lib/partners-store";
+
+/** The current cycle's prize as a `Draw`-shaped object (Supabase, with the mock
+ * activeDraw as fallback). Drop-in for components that read `activeDraw`. */
+export function usePrizeCycle(): Draw {
+  const [d, setD] = useState<Draw>(activeDraw);
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/admin/cycle")
+      .then((r) => r.json())
+      .then((j) => {
+        if (!alive || !j.ok || !j.data) return;
+        const c = j.data;
+        const v = c.vehicle ?? {};
+        setD({
+          ...activeDraw,
+          cycle: c.cycle || activeDraw.cycle,
+          drawDateISO: c.drawDateISO || activeDraw.drawDateISO,
+          ticketsSold: c.ticketsSold ?? activeDraw.ticketsSold,
+          pricePerTicketUSD: c.pricePerTicketUSD || activeDraw.pricePerTicketUSD,
+          vehicle: {
+            ...activeDraw.vehicle,
+            year: v.year || activeDraw.vehicle.year,
+            make: v.make || activeDraw.vehicle.make,
+            model: v.model || activeDraw.vehicle.model,
+            trim: v.trim || activeDraw.vehicle.trim,
+            valueUSD: v.valueUSD || activeDraw.vehicle.valueUSD,
+            images: v.images?.length ? v.images : activeDraw.vehicle.images,
+            image: v.image || activeDraw.vehicle.image,
+            headlineSpecs: v.headlineSpecs?.length ? v.headlineSpecs : activeDraw.vehicle.headlineSpecs,
+            specGroups: v.specGroups?.length ? v.specGroups : activeDraw.vehicle.specGroups,
+          },
+          charity: { ...activeDraw.charity, blurb: c.charityBlurb || activeDraw.charity.blurb },
+        });
+      })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
+  return d;
+}
 
 export type CycleConfig = {
   cycle: number;
