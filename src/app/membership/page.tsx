@@ -6,6 +6,7 @@ import { Announce } from "@/components/marquee";
 import { Label } from "@/components/sticker";
 import { listMembershipPerks } from "@/lib/server/content-lists";
 import { DEFAULT_MEMBERSHIP_PERKS, MEMBERSHIP_BASE_ENTRIES } from "@/lib/membership-data";
+import { getContentServer } from "@/lib/server/copy";
 
 export const metadata = { title: "Membership — Generous Motors" };
 
@@ -13,34 +14,34 @@ export const metadata = { title: "Membership — Generous Motors" };
 export const dynamic = "force-dynamic";
 
 export default async function MembershipPage() {
-  const fetchedPerks = await listMembershipPerks();
+  const [fetchedPerks, copy] = await Promise.all([listMembershipPerks(), getContentServer()]);
   const perks = fetchedPerks.length ? fetchedPerks : DEFAULT_MEMBERSHIP_PERKS;
   return (
     <div className="bg-paper-3 text-ink">
       <section className="relative border-b border-ink/10 overflow-hidden grain">
         <div className="mx-auto max-w-3xl px-5 py-20 text-center relative border-b border-rule-soft pb-14">
-          <p className="section-eyebrow">Membership · the Club</p>
+          <p className="section-eyebrow">{copy["mem.eyebrow"]}</p>
           <h1 className="mt-4 hero-headline">
-            Never miss a draw. <span className="accent-serif">Save 67%.</span>
+            {copy["mem.h.lead"]} <span className="accent-serif">{copy["mem.h.accent"]}</span>
           </h1>
           <p className="mt-7 text-ink-2 text-lg max-w-xl mx-auto font-serif">
-            Members auto-enter every cycle. They also get early access to bonus ticket offers, flash-sale alerts, and drawing reminders straight to their inbox.
+            {copy["mem.intro"]}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-2">
-            <Label tone="charity" variant="outline">1-click cancel</Label>
-            <Label tone="brass" variant="outline">Early access · bonus offers</Label>
+            <Label tone="charity" variant="outline">{copy["mem.badge1"]}</Label>
+            <Label tone="brass" variant="outline">{copy["mem.badge2"]}</Label>
           </div>
         </div>
       </section>
 
       <Announce
-        label="The math"
+        label={copy["mem.math.label"]}
         tone="ink"
         items={[
-          "Premium saves 67% vs one-off",
-          "Loyalty grows +1% per month",
-          "Capped at 1.5×",
-          "Drawing alerts to your inbox",
+          copy["mem.math.i1"],
+          copy["mem.math.i2"],
+          copy["mem.math.i3"],
+          copy["mem.math.i4"],
         ]}
       />
 
@@ -54,16 +55,16 @@ export default async function MembershipPage() {
               }`}
             >
               <div className="flex items-center justify-between mb-2">
-                <p className={`section-eyebrow ${m.popular ? "!text-paper-3/70" : ""}`}>Tier №{String(i + 1).padStart(2, "0")}</p>
-                {m.popular && <Label tone="brass">Best value</Label>}
+                <p className={`section-eyebrow ${m.popular ? "!text-paper-3/70" : ""}`}>{copy["mem.tierPrefix"]}{String(i + 1).padStart(2, "0")}</p>
+                {m.popular && <Label tone="brass">{copy["mem.bestValue"]}</Label>}
               </div>
               <h2 className="font-display font-bold text-3xl">{m.name}</h2>
               <div className="mt-5 flex items-baseline gap-2">
                 <span className="font-condensed numeral text-6xl leading-none font-semibold">{usd(m.monthlyUSD)}</span>
-                <span className={`${m.popular ? "text-paper-3/70" : "text-ink-3"} text-sm`}>/ month</span>
+                <span className={`${m.popular ? "text-paper-3/70" : "text-ink-3"} text-sm`}>{copy["mem.perMonth"]}</span>
               </div>
               <p className={`mt-3 font-condensed uppercase tracking-[0.22em] text-[12px]`}>
-                <span className="numeral text-base">{m.monthlyEntries}</span> entries · every draw · start {m.multiplierStart.toFixed(2)}×
+                <span className="numeral text-base">{m.monthlyEntries}</span> {copy["mem.entriesMeta"]} {m.multiplierStart.toFixed(2)}×
               </p>
               <ul className="mt-7 space-y-3">
                 {m.perks.map((p) => (
@@ -79,10 +80,10 @@ export default async function MembershipPage() {
                   m.popular ? "bg-brass text-ink border-brass hover:bg-paper-3 hover:border-paper-3" : "bg-ink text-paper-3 border-ink/10 hover:bg-charity hover:border-charity"
                 } transition-colors`}
               >
-                Join {m.name} <ArrowRight size={14} className="ml-2" />
+                {copy["mem.join"]} {m.name} <ArrowRight size={14} className="ml-2" />
               </Link>
               <p className={`mt-3 text-center text-[13px] font-serif italic ${m.popular ? "text-paper-3/70" : "text-ink-3"}`}>
-                Pause or cancel any time.
+                {copy["mem.cancel"]}
               </p>
             </article>
           ))}
@@ -91,12 +92,12 @@ export default async function MembershipPage() {
 
       <section className="bg-paper-2 border-y border-ink/10">
         <div className="mx-auto max-w-3xl px-5 py-20 text-center border-b border-rule-soft">
-          <p className="section-eyebrow section-eyebrow-rule">Loyalty stacks</p>
+          <p className="section-eyebrow section-eyebrow-rule">{copy["mem.loyalty.eyebrow"]}</p>
           <h2 className="mt-4 hero-headline" style={{ fontSize: "clamp(2rem,4vw,3.25rem)" }}>
-            Stay longer. <span className="accent-serif">Get more entries.</span>
+            {copy["mem.loyalty.h.lead"]} <span className="accent-serif">{copy["mem.loyalty.h.accent"]}</span>
           </h2>
           <p className="mt-6 text-ink-2 font-serif">
-            Every month you remain a Premium or VIP member, your loyalty multiplier grows by 1% — up to a 1.5× cap. Premium starts at 60 monthly entries and reaches 90 by month 30.
+            {copy["mem.loyalty.body"]}
           </p>
         </div>
 
@@ -105,9 +106,9 @@ export default async function MembershipPage() {
             const mult = Number(step.multiplier) || 0;
             return (
               <li key={i} className="bg-paper-3 p-5 border-b border-ink/10">
-                <p className="font-condensed uppercase tracking-[0.22em] text-[11px] text-ink-3">Month {step.month}</p>
+                <p className="font-condensed uppercase tracking-[0.22em] text-[11px] text-ink-3">{copy["mem.loyalty.monthPrefix"]} {step.month}</p>
                 <p className="mt-2 font-condensed numeral font-semibold text-5xl text-charity leading-[0.9]">{mult.toFixed(2)}×</p>
-                <p className="mt-2 dateline">{Math.round(MEMBERSHIP_BASE_ENTRIES * mult)} entries / cycle</p>
+                <p className="mt-2 dateline">{Math.round(MEMBERSHIP_BASE_ENTRIES * mult)} {copy["mem.loyalty.entriesSuffix"]}</p>
               </li>
             );
           })}

@@ -5,6 +5,7 @@ import { Announce } from "@/components/marquee";
 import { Label } from "@/components/sticker";
 import { listAboutSteps } from "@/lib/server/content-lists";
 import { DEFAULT_ABOUT_STEPS } from "@/lib/about-data";
+import { getContentServer } from "@/lib/server/copy";
 
 export const metadata = { title: "About — Generous Motors" };
 
@@ -15,7 +16,7 @@ export const dynamic = "force-dynamic";
 const STEP_ICONS = [<Drum key="0" />, <Tv2 key="1" />, <HeartHandshake key="2" />];
 
 export default async function AboutPage() {
-  const fetched = await listAboutSteps();
+  const [fetched, copy] = await Promise.all([listAboutSteps(), getContentServer()]);
   const steps = fetched.length ? fetched : DEFAULT_ABOUT_STEPS;
   return (
     <div className="bg-paper-3 text-ink">
@@ -29,33 +30,33 @@ export default async function AboutPage() {
           }}
         />
         <div className="mx-auto max-w-3xl px-5 py-12 relative">
-          <p className="section-eyebrow section-eyebrow-rule">About · Generosity in Motion</p>
+          <p className="section-eyebrow section-eyebrow-rule">{copy["about.eyebrow"]}</p>
           <h1 className="mt-3 hero-headline" style={{ fontSize: "clamp(2rem,4.5vw,3.75rem)" }}>
-            We give cars away <span className="accent-serif">on camera.</span>
+            {copy["about.h.lead"]} <span className="accent-serif">{copy["about.h.accent"]}</span>
           </h1>
           <p className="mt-5 text-[16px] text-ink-2 font-serif leading-relaxed dropcap">
-            Generous Motors was founded on a simple belief: good things happen when good people come together. We make giving exciting, transparent, and rewarding.
+            {copy["about.p1"]}
           </p>
           <p className="mt-3 text-[16px] text-ink-2 font-serif leading-relaxed">
-            Each 60-day cycle partners with a new nonprofit. Ten percent of every cycle goes directly to that cycle&apos;s nonprofit partner.
+            {copy["about.p2"]}
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
-            <Label tone="charity" variant="outline">Registered 501(c)(3)</Label>
-            <Label tone="brass" variant="outline">Drawn live, every cycle</Label>
-            <Label tone="ink" variant="outline">10% to charity</Label>
+            <Label tone="charity" variant="outline">{copy["about.badge1"]}</Label>
+            <Label tone="brass" variant="outline">{copy["about.badge2"]}</Label>
+            <Label tone="ink" variant="outline">{copy["about.badge3"]}</Label>
           </div>
         </div>
       </section>
 
       <Announce
-        label="The whole process"
+        label={copy["about.process.label"]}
         tone="ink"
         items={[
-          "Printed in a drum",
-          "On camera",
-          "Fully transparent",
-          "Streamed, archived",
-          "10% paid first",
+          copy["about.process.i1"],
+          copy["about.process.i2"],
+          copy["about.process.i3"],
+          copy["about.process.i4"],
+          copy["about.process.i5"],
         ]}
       />
 
@@ -63,14 +64,14 @@ export default async function AboutPage() {
       <section className="mx-auto max-w-[1400px] px-5 py-24" id="draw">
         <div className="grid lg:grid-cols-12 gap-8 items-end border-b border-rule-soft pb-12">
           <div className="lg:col-span-8">
-            <p className="section-eyebrow section-eyebrow-rule">How the draw works</p>
+            <p className="section-eyebrow section-eyebrow-rule">{copy["about.draw.eyebrow"]}</p>
             <h2 className="mt-4 hero-headline" style={{ fontSize: "clamp(2rem,4.5vw,3.5rem)" }}>
-              Software-fair. <span className="accent-serif">Live-streamed.</span><br />
-              Fully transparent.
+              {copy["about.draw.h.l1"]} <span className="accent-serif">{copy["about.draw.h.accent"]}</span><br />
+              {copy["about.draw.h.l2"]}
             </h2>
           </div>
           <p className="lg:col-span-4 text-ink-2 text-[17px] font-serif leading-[1.55] lg:text-right">
-            Every drawing is conducted live via livestream — transparent, real-time, and verifiable.
+            {copy["about.draw.side"]}
           </p>
         </div>
 
@@ -88,26 +89,26 @@ export default async function AboutPage() {
         <span aria-hidden className="absolute -top-6 -left-6 display-mega text-paper-3/[0.07] select-none">10%</span>
         <div className="relative mx-auto max-w-[1400px] px-5 py-24 grid gap-12 lg:grid-cols-12 border-b border-paper-3/15">
           <div className="lg:col-span-5">
-            <p className="section-eyebrow !text-paper-3/70 section-eyebrow-rule">Charity flow</p>
+            <p className="section-eyebrow !text-paper-3/70 section-eyebrow-rule">{copy["about.flow.eyebrow"]}</p>
             <h2 className="mt-4 hero-headline">
-              Ten percent. <span className="accent-serif">Paid first.</span>
+              {copy["about.flow.h.lead"]} <span className="accent-serif">{copy["about.flow.h.accent"]}</span>
             </h2>
             <p className="mt-7 text-paper-3/85 text-lg font-serif">
-              We pay the charity first — before the car is bought, before payroll, before any expense. It is a number we can defend.
+              {copy["about.flow.body"]}
             </p>
             <Link
               href="/blog/cycle-12-corvette-charity-pick"
               className="mt-9 inline-flex items-center gap-2 rounded-full bg-brass text-ink border border-brass px-5 py-3 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper-3 hover:border-paper-3 transition"
             >
-              How cycle 12&apos;s charity was picked <ArrowRight size={14} />
+              {copy["about.flow.cta"]} <ArrowRight size={14} />
             </Link>
           </div>
 
           <ul className="lg:col-span-7 grid gap-0 rounded-2xl overflow-hidden border border-paper-3 divide-y divide-paper-3/20 self-start">
-            <Flow step="01" head="Cycle ends" body="Ticket sales close. Gross is locked. Numbers are published." />
-            <Flow step="02" head="10% goes to the partner" body="The partner charity receives the donation directly." />
-            <Flow step="03" head="Receipt produced" body="Each cycle produces a receipt for the charity&apos;s records." />
-            <Flow step="04" head="Next cycle" body="A new cycle starts immediately with a new vehicle and a new nonprofit partner." />
+            <Flow step="01" head={copy["about.flow.s1.head"]} body={copy["about.flow.s1.body"]} />
+            <Flow step="02" head={copy["about.flow.s2.head"]} body={copy["about.flow.s2.body"]} />
+            <Flow step="03" head={copy["about.flow.s3.head"]} body={copy["about.flow.s3.body"]} />
+            <Flow step="04" head={copy["about.flow.s4.head"]} body={copy["about.flow.s4.body"]} />
           </ul>
         </div>
       </section>
@@ -115,9 +116,9 @@ export default async function AboutPage() {
       {/* GUARANTEES */}
       <section className="mx-auto max-w-[1400px] px-5 py-24">
         <div className="grid rounded-2xl overflow-hidden border border-ink/10 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-ink/10 bg-paper-3">
-          <Stat label="Lifetime payout (USD)" big={`$${(lifetimeStats.lifetimePayoutUSD / 1000).toFixed(0)}k`} />
-          <Stat label="Donated to charity (USD)" big={`$${(lifetimeStats.totalDonatedUSD / 1000).toFixed(0)}k`} tone="charity" />
-          <Stat label="Cars given away" big={String(lifetimeStats.carsGivenAway)} />
+          <Stat label={copy["about.stat.payout"]} big={`$${(lifetimeStats.lifetimePayoutUSD / 1000).toFixed(0)}k`} />
+          <Stat label={copy["about.stat.donated"]} big={`$${(lifetimeStats.totalDonatedUSD / 1000).toFixed(0)}k`} tone="charity" />
+          <Stat label={copy["about.stat.cars"]} big={String(lifetimeStats.carsGivenAway)} />
         </div>
 
         <div className="mt-10 rounded-2xl border border-ink/10 bg-paper-3 p-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -126,9 +127,9 @@ export default async function AboutPage() {
               <ShieldCheck size={20} />
             </span>
             <div>
-              <p className="font-display font-bold text-xl text-ink">Transparent by design.</p>
+              <p className="font-display font-bold text-xl text-ink">{copy["about.guarantee.title"]}</p>
               <p className="text-[15px] text-ink-2 font-serif">
-                Every drawing is livestreamed in front of thousands. Every cycle has a receipt for the partner charity.
+                {copy["about.guarantee.body"]}
               </p>
             </div>
           </div>
@@ -136,7 +137,7 @@ export default async function AboutPage() {
             href="/blog"
             className="inline-flex items-center gap-2 rounded-full border border-ink/10 bg-paper-3 px-5 py-3 font-condensed uppercase tracking-[0.22em] text-[12px] text-ink hover:bg-ink hover:text-paper-3 transition"
           >
-            <FileText size={14} /> Read the receipts
+            <FileText size={14} /> {copy["about.guarantee.cta"]}
           </Link>
         </div>
       </section>
