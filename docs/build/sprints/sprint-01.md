@@ -56,10 +56,16 @@ Content lives in Shopify. Reuse the existing admin desk UIs; their calls proxy t
 Admin API through our server routes. The `<Copy k="…">` component and `CONTENT_FIELDS`
 registry stay — only the data source changes to metaobjects.
 
-**A.0 Shopify access**
-- Custom app in Kevin's Shopify admin → Admin API token (read/write `metaobjects`, `files`) + Storefront API token.
-- Envs: `SHOPIFY_STORE_DOMAIN`, `SHOPIFY_ADMIN_TOKEN`, `SHOPIFY_STOREFRONT_TOKEN`, `SHOPIFY_API_VERSION`.
-- Define metaobject definitions: **per-page** `copy_block` (typed text fields, one per string — NOT a JSON blob), `article`, `winner`, `partner`, `cycle`. Media handled by `file` fields (§A.2).
+**A.0 Shopify access** ✅ done + verified (`scripts/shopify-check.mjs`)
+- Admin auth = **client credentials grant** (not a static token): the app exchanges
+  `client_id` + `client_secret` at `/admin/oauth/access_token` for a 24h token carrying the
+  app's scopes, cached + auto-refreshed in `src/lib/server/shopify.ts`. Storefront reads use
+  the Storefront token.
+- Envs: `SHOPIFY_STORE_DOMAIN` (`generous-motors.myshopify.com`), `SHOPIFY_API_KEY` (client_id),
+  `SHOPIFY_API_SECRET` (client_secret), `SHOPIFY_STOREFRONT_TOKEN`, `SHOPIFY_API_VERSION`.
+- Verified: mint token → create definition → write entry → read via Admin **and** Storefront → delete.
+- Next: define metaobjects — **per-page** `copy_block` (typed text fields, one per string — NOT a
+  JSON blob), `article`, `winner`, `partner`, `cycle`. Media handled by `file` fields (§A.2).
 
 **A.1 Copy blocks (the `content.ts` CMS)**
 - One `copy_block` metaobject **per page** (`homepage`, `tickets`, `popup`, `footer`, …), each
