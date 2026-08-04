@@ -12,6 +12,16 @@ export async function readJson<T>(req: Request): Promise<T | null> {
   }
 }
 
+export const errMsg = (e: unknown) => String((e as Error)?.message ?? e);
+
+/** Sprint-1 admin guard: if ADMIN_API_SECRET is set, require a matching
+ * x-admin-secret header; otherwise (dev) allow. Returns a fail response, or null if OK. */
+export function requireAdmin(req: Request) {
+  const secret = process.env.ADMIN_API_SECRET;
+  if (!secret) return null;
+  return req.headers.get("x-admin-secret") === secret ? null : fail("unauthorized", 401);
+}
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const isEmail = (v: unknown): v is string => typeof v === "string" && EMAIL_RE.test(v.trim());
 
