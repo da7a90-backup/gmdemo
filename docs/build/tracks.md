@@ -68,13 +68,17 @@ conventions + session-cookie plumbing. No product feature ships without this.
 - **Depends on:** nothing. **Unblocks:** A, B, C, D, E.
 
 ### Track A — Content Management · **P0** · Sprint 1
-Turn all editable content into **Shopify Metaobjects**, read via the Storefront API. Kevin
-edits in Shopify admin; the existing `<Copy>` component and admin desks read/write through
-our endpoints, which proxy the Shopify Admin API.
-- Metaobject types: per-page `copy_block` (typed text fields, not JSON), `article`, `winner`, `partner`, `cycle` (content fields).
-- `<Copy>` and public pages read metaobjects via Storefront API at build (ISR); revalidate on the `metaobjects/update` webhook.
-- Admin desks (`content`, `blog`, `winners`, `partners`, `cycles`) write via `/api/admin/*` → Shopify Admin API (keys server-side only).
-- **Media (images, video, PDF)** via metaobject `file` fields → **Shopify Files** CDN (logos, photos, galleries, hosted/YouTube video, PDF docs). Non-technical-friendly + evidence it stays fast — see `open-questions.md` §B.
+**Split by who controls it** (decided):
+- **Admin-managed editorial → Supabase** (full CRUD control from our admin desks): `winners`,
+  `articles` (blog), `partners`, and the current `cycle` content. ✅ built + verified — tables
+  (`db/migrations/0003_editorial.sql`), `src/lib/server/editorial.ts`, `/api/admin/{partners,
+  winners,articles,cycle}`. *(Remaining: wire the admin desks + public pages to these endpoints.)*
+- **Static page copy + media → Shopify Metaobjects + Files.** Per-page `copy_block` (typed text
+  fields, not JSON) that Kevin edits in Shopify's native admin; the `<Copy>` component reads via
+  the Storefront API (ISR-cached). Media (images/video/PDF) live in **Shopify Files** (CDN); the
+  Supabase editorial rows store the resulting CDN URLs (`photo_url`, `logo_url`, `og_image`).
+  Shopify client (client-credentials grant) is built + verified (`src/lib/server/shopify.ts`).
+- Non-technical-friendliness + performance evidence in `open-questions.md` §B.
 - **Depends on:** Track 0 (envs + route conventions) + Shopify Admin/Storefront tokens. Uses Shopify, not Supabase. **Independent of** B and C.
 
 ### Track B — Messaging & Subscriptions · **P0** · Sprint 1
