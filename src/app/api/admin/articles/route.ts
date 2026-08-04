@@ -1,5 +1,5 @@
 import { ok, fail, readJson, requireAdmin, errMsg } from "@/lib/server/http";
-import { listArticles, getArticleBySlug, upsertArticle, deleteArticle, type Article } from "@/lib/server/editorial";
+import { listArticles, getArticleBySlug, upsertArticle, deleteArticle, type Article } from "@/lib/server/blog-shopify";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 }
 export async function DELETE(req: Request) {
   const g = requireAdmin(req); if (g) return g;
-  const id = Number(new URL(req.url).searchParams.get("id"));
+  const id = new URL(req.url).searchParams.get("id"); // Shopify metaobject gid
   if (!id) return fail("id required");
   try { await deleteArticle(id); return ok({ deleted: id }); } catch (e) { return fail(errMsg(e), 500); }
 }

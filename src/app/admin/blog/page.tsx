@@ -99,7 +99,7 @@ export default function AdminBlogPage() {
       </h1>
       <p className="mt-3 max-w-2xl text-[15px] text-ink-2 font-serif">
         Write in Markdown or raw HTML, set the SEO fields, and publish — articles appear on the public
-        blog immediately. Stored in Supabase; full admin control.
+        blog immediately. Stored in Shopify metaobjects (type &ldquo;article&rdquo;) — editable here or in Shopify admin.
       </p>
       {err && <p className="mt-4 text-[13px] text-red-600 font-condensed">⚠ {err}</p>}
 

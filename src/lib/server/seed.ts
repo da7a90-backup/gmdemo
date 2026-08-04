@@ -3,6 +3,7 @@
 // local asset paths for now; swap for Shopify Files CDN urls later.
 import { withClient } from "./db";
 import { activeDraw, winners as mockWinners, blogPosts } from "@/lib/mock-data";
+import { upsertArticle, ensureArticleDefinition } from "./blog-shopify";
 
 // One real partner for the current cycle (the rest were placeholder/fake).
 const SEED_PARTNERS: { name: string; kind: "charity" | "sponsor"; logoUrl?: string; url?: string; blurb?: string }[] = [
@@ -25,14 +26,14 @@ export async function seedContent() {
       partnerIdByName.set(p.name, row.id as number);
     }
 
-    // 2) blog articles (published)
-    await c.query(`delete from articles`);
+    // 2) blog articles → Shopify metaobjects (type "article")
+    await ensureArticleDefinition();
     for (const b of blogPosts) {
-      await c.query(
-        `insert into articles (slug, title, author, tag, excerpt, body, format, published, published_at)
-         values ($1,$2,$3,$4,$5,$6,'markdown',true,$7) on conflict (slug) do nothing`,
-        [b.slug, b.title, b.author, b.tag, b.excerpt, b.body, new Date(b.date).toISOString()],
-      );
+      await upsertArticle({
+        slug: b.slug, title: b.title, author: b.author, tag: b.tag,
+        excerpt: b.excerpt, body: b.body, format: "markdown", published: true,
+        dateISO: new Date(b.date).toISOString(), seo: {},
+      }).catch(() => {});
     }
 
     // 3) one winner
