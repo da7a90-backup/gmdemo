@@ -1,7 +1,8 @@
 # Generous Motors — Productionization Tracks
 
-> Companion to `docs/implementation-guide.md`. That doc is the architecture; this doc is
-> **the plan of work**: what the demo actually does today, and how the work splits into
+> Companion to `docs/implementation-guide.md` (architecture) and `docs/build/data-model.md`
+> (the exhaustive DB/data-model deep dive — tickets, entry numbers, subscriptions, the
+> promotions engine + UX, and UTM/GA4/Meta tracking). This doc is **the plan of work**: what the demo actually does today, and how the work splits into
 > **tracks** that different people can build in parallel. Interlinked work is folded into a
 > single track. Sprints are in `docs/build/sprints/`.
 
