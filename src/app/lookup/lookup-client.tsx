@@ -6,8 +6,10 @@ import { Search, Mail, Phone, Ticket, ArrowRight, CircleCheckBig, CircleX } from
 import { entryDB, type EntryRecord, type Entry } from "@/lib/mock-data";
 import { niceDate, niceDateTime, intl } from "@/lib/format";
 import { Label } from "@/components/sticker";
+import { Copy, useCopy } from "@/components/copy";
 
 export function LookupClient() {
+  const t = useCopy();
   const [mode, setMode] = useState<"email" | "phone">("email");
   const [value, setValue] = useState("");
   const [record, setRecord] = useState<EntryRecord | null>(null);
@@ -35,12 +37,12 @@ export function LookupClient() {
     <div className="bg-paper-3 text-ink">
       <section className="relative border-b border-ink/10 overflow-hidden grain">
         <div className="mx-auto max-w-3xl px-5 py-20 text-center relative border-b border-rule-soft pb-14">
-          <p className="section-eyebrow section-eyebrow-rule">My entries · ticket lookup</p>
+          <p className="section-eyebrow section-eyebrow-rule"><Copy k="lookup.eyebrow" /></p>
           <h1 className="mt-4 hero-headline">
-            Find <span className="accent-serif">your</span> tickets.
+            <Copy k="lookup.h.pre" /> <span className="accent-serif"><Copy k="lookup.h.accent" /></span> <Copy k="lookup.h.post" />
           </h1>
           <p className="mt-6 text-ink-2 text-lg max-w-xl mx-auto font-serif">
-            Enter the email or phone you used at checkout. We&apos;ll pull your active entries and every past cycle you joined.
+            <Copy k="lookup.intro" />
           </p>
 
           <form onSubmit={onSubmit} className="mt-10 mx-auto max-w-xl">
@@ -53,7 +55,7 @@ export function LookupClient() {
                   mode === "email" ? "bg-ink text-paper-3" : "text-ink"
                 }`}
               >
-                <Mail size={12} /> Email
+                <Mail size={12} /> <Copy k="lookup.tab.email" />
               </button>
               <button
                 type="button"
@@ -63,7 +65,7 @@ export function LookupClient() {
                   mode === "phone" ? "bg-ink text-paper-3" : "text-ink"
                 }`}
               >
-                <Phone size={12} /> Phone
+                <Phone size={12} /> <Copy k="lookup.tab.phone" />
               </button>
             </div>
             <label className="flex h-14 w-full items-center border border-ink/10 bg-paper-3 pl-5 pr-2 rounded-lg">
@@ -72,7 +74,7 @@ export function LookupClient() {
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
                 type={mode === "email" ? "email" : "tel"}
-                placeholder={mode === "email" ? "you@example.com" : "(555) 010-1234"}
+                placeholder={mode === "email" ? t("lookup.ph.email") : t("lookup.ph.phone")}
                 className="ml-3 w-full bg-transparent text-base text-ink placeholder:text-ink-3 outline-none"
                 aria-label={mode === "email" ? "Email" : "Phone"}
                 required
@@ -81,7 +83,7 @@ export function LookupClient() {
                 type="submit"
                 className="h-11 bg-accent text-paper-3 border border-accent font-condensed uppercase tracking-[0.22em] text-[11px] px-5 hover:bg-ink hover:border-ink/10 rounded-full"
               >
-                Find
+                <Copy k="lookup.find" />
               </button>
             </label>
             <button
@@ -89,7 +91,7 @@ export function LookupClient() {
               onClick={onDemo}
               className="mt-4 font-serif italic text-base text-ink-3 hover:text-accent underline underline-offset-4"
             >
-              try the demo account
+              <Copy k="lookup.tryDemo" />
             </button>
           </form>
         </div>
@@ -100,22 +102,22 @@ export function LookupClient() {
           <div className="border border-ink/10 bg-paper-3 p-10 text-center rounded-xl">
             <Ticket className="mx-auto text-ink-2" size={28} />
             <p className="mt-3 text-ink-2 font-serif">
-              Search above to see your entries. The demo account has 2 active draws + 3 past cycles.
+              <Copy k="lookup.empty" />
             </p>
           </div>
         )}
 
         {searched && !record && (
           <div className="border border-ink/10 bg-paper-3 p-12 text-center rounded-xl">
-            <p className="font-display font-bold text-2xl text-ink">No tickets found.</p>
+            <p className="font-display font-bold text-2xl text-ink"><Copy k="lookup.noneTitle" /></p>
             <p className="mt-3 text-ink-2 font-serif">
-              Double-check the spelling. If you used a different email or phone, try that one.
+              <Copy k="lookup.noneBody" />
             </p>
             <button
               onClick={onDemo}
               className="mt-6 inline-flex items-center gap-2 border border-ink/10 bg-paper-2 px-5 py-2.5 font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper-3 rounded-full"
             >
-              Try the demo account
+              <Copy k="lookup.tryDemoBtn" />
             </button>
           </div>
         )}
@@ -128,25 +130,25 @@ export function LookupClient() {
               className="border border-ink/10 bg-brass p-6 flex items-center justify-between gap-4 flex-wrap rounded-xl"
             >
               <div>
-                <p className="section-eyebrow">Welcome back</p>
+                <p className="section-eyebrow"><Copy k="lookup.welcome" /></p>
                 <p className="mt-1 font-display font-bold text-2xl text-ink">{record.fullName}</p>
                 <p className="dateline">{record.email} · {formatPhone(record.phone)}</p>
               </div>
               <div className="flex items-center gap-6 text-[14px]">
-                <Stat label="Active" v={record.active.length} />
-                <Stat label="Past" v={record.past.length} />
-                <Stat label="Tickets" v={[...record.active, ...record.past].reduce((s, e) => s + e.ticketCount, 0)} />
+                <Stat label={t("lookup.stat.active")} v={record.active.length} />
+                <Stat label={t("lookup.stat.past")} v={record.past.length} />
+                <Stat label={t("lookup.stat.tickets")} v={[...record.active, ...record.past].reduce((s, e) => s + e.ticketCount, 0)} />
               </div>
             </motion.div>
 
             <div>
               <div className="flex items-end justify-between gap-3 flex-wrap border-b border-rule-soft pb-6">
-                <h2 className="font-display font-bold text-3xl text-ink">Active in current draws</h2>
-                <Label tone="charity" variant="outline">In the drum on draw day</Label>
+                <h2 className="font-display font-bold text-3xl text-ink"><Copy k="lookup.active.h" /></h2>
+                <Label tone="charity" variant="outline"><Copy k="lookup.active.badge" /></Label>
               </div>
-              <p className="mt-3 dateline">Your tickets are printed and loaded into the drum on draw day.</p>
+              <p className="mt-3 dateline"><Copy k="lookup.active.note" /></p>
               {record.active.length === 0 ? (
-                <p className="mt-6 text-ink-2 font-serif">No active entries.</p>
+                <p className="mt-6 text-ink-2 font-serif"><Copy k="lookup.active.none" /></p>
               ) : (
                 <ul className="mt-6 grid border border-ink/10 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-ink/10 rounded-xl overflow-hidden">
                   {record.active.map((e) => (
@@ -160,17 +162,17 @@ export function LookupClient() {
 
             <div>
               <div className="border-b border-rule-soft pb-6">
-                <h2 className="font-display font-bold text-3xl text-ink">Past entries</h2>
+                <h2 className="font-display font-bold text-3xl text-ink"><Copy k="lookup.past.h" /></h2>
               </div>
               <div className="mt-6 overflow-x-auto border border-ink/10 bg-paper-3 rounded-xl">
                 <table className="w-full text-left text-[15px]">
                   <thead className="bg-ink text-paper-3 font-condensed uppercase tracking-[0.22em] text-[11px]">
                     <tr>
-                      <th className="px-5 py-3">Cycle</th>
-                      <th className="px-5 py-3">Vehicle</th>
-                      <th className="px-5 py-3 text-right">Tickets</th>
-                      <th className="px-5 py-3">Drawn</th>
-                      <th className="px-5 py-3">Outcome</th>
+                      <th className="px-5 py-3"><Copy k="lookup.th.cycle" /></th>
+                      <th className="px-5 py-3"><Copy k="lookup.th.vehicle" /></th>
+                      <th className="px-5 py-3 text-right"><Copy k="lookup.th.tickets" /></th>
+                      <th className="px-5 py-3"><Copy k="lookup.th.drawn" /></th>
+                      <th className="px-5 py-3"><Copy k="lookup.th.outcome" /></th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-rule-soft">
@@ -192,14 +194,14 @@ export function LookupClient() {
 
             <div className="border border-ink/10 bg-paper-2 p-6 flex items-center justify-between gap-4 flex-wrap rounded-xl">
               <div>
-                <p className="font-display font-bold text-xl text-ink">Want to enter the next cycle?</p>
-                <p className="dateline">Cycle 13 just opened — 1969 Mustang Fastback</p>
+                <p className="font-display font-bold text-xl text-ink"><Copy k="lookup.cta.title" /></p>
+                <p className="dateline"><Copy k="lookup.cta.sub" /></p>
               </div>
               <Link
                 href="/tickets"
                 className="inline-flex h-11 items-center gap-2 bg-accent text-paper-3 border border-accent px-5 font-condensed uppercase tracking-[0.22em] text-[11px] hover:bg-ink hover:border-ink/10 rounded-full"
               >
-                Buy tickets <ArrowRight size={14} />
+                <Copy k="winners.cta.button" /> <ArrowRight size={14} />
               </Link>
             </div>
           </div>
@@ -218,17 +220,17 @@ function ActiveCard({ entry }: { entry: Entry }) {
       />
       <div className="p-5">
         <div className="flex items-center justify-between">
-          <p className="section-eyebrow">Cycle №{String(entry.drawCycle).padStart(2, "0")}</p>
-          <Label tone="accent" variant="outline" size="sm">Active</Label>
+          <p className="section-eyebrow"><Copy k="winners.cardCycle" />{String(entry.drawCycle).padStart(2, "0")}</p>
+          <Label tone="accent" variant="outline" size="sm"><Copy k="lookup.card.active" /></Label>
         </div>
         <p className="mt-1 font-display font-bold text-xl text-ink">{entry.vehicle}</p>
         <div className="mt-5 grid grid-cols-2 gap-4 text-[14px]">
           <div>
-            <p className="dateline">Tickets</p>
+            <p className="dateline"><Copy k="lookup.card.tickets" /></p>
             <p className="font-condensed numeral font-semibold text-4xl text-ink leading-[0.9]">{entry.ticketCount}</p>
           </div>
           <div>
-            <p className="dateline">Draw</p>
+            <p className="dateline"><Copy k="lookup.card.draw" /></p>
             <p className="text-ink mt-1 font-serif">{niceDateTime(entry.drawDateISO)}</p>
           </div>
         </div>
@@ -241,18 +243,18 @@ function OutcomeBadge({ status }: { status: Entry["status"] }) {
   if (status === "won")
     return (
       <span className="inline-flex items-center gap-1 bg-charity-soft text-charity border border-charity px-2.5 py-1 font-condensed uppercase tracking-[0.22em] text-[10px] rounded-full">
-        <CircleCheckBig size={12} /> Won
+        <CircleCheckBig size={12} /> <Copy k="lookup.outcome.won" />
       </span>
     );
   if (status === "did-not-win")
     return (
       <span className="inline-flex items-center gap-1 bg-paper-2 text-ink-2 border border-rule-soft px-2.5 py-1 font-condensed uppercase tracking-[0.22em] text-[10px] rounded-full">
-        <CircleX size={12} /> Missed
+        <CircleX size={12} /> <Copy k="lookup.outcome.missed" />
       </span>
     );
   return (
     <span className="inline-flex items-center gap-1 bg-accent-soft text-accent border border-accent px-2.5 py-1 font-condensed uppercase tracking-[0.22em] text-[10px] rounded-full">
-      Active
+      <Copy k="lookup.outcome.active" />
     </span>
   );
 }

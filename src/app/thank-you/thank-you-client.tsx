@@ -18,6 +18,7 @@ import { niceDateTime, usdc, usd } from "@/lib/format";
 import { buildTicketsPdf, downloadPdf } from "@/lib/pdf";
 import { generateTicketIDs } from "@/lib/ticket-gen";
 import { Label } from "@/components/sticker";
+import { Copy, useCopy } from "@/components/copy";
 
 type Order = {
   orderId: string;
@@ -64,6 +65,7 @@ const FALLBACK: Order = {
 };
 
 export function ThankYouClient() {
+  const t = useCopy();
   const activeDraw = usePrizeCycle();
   const [order, setOrder] = useState<Order>(FALLBACK);
   const [busy, setBusy] = useState(false);
@@ -139,7 +141,7 @@ export function ThankYouClient() {
           transition={{ delay: 0.15 }}
           className="hero-headline mt-8"
         >
-          You&apos;re <span className="accent-serif">in.</span>
+          <Copy k="ty.h.pre" /> <span className="accent-serif"><Copy k="ty.h.accent" /></span>
         </motion.h1>
 
         <motion.div
@@ -148,9 +150,9 @@ export function ThankYouClient() {
           transition={{ delay: 0.4 }}
           className="mt-6 flex flex-wrap justify-center gap-2"
         >
-          <Label tone="charity" variant="outline">Order №{order.orderId.slice(-6).toUpperCase()}</Label>
-          <Label tone="accent" variant="outline">Cycle №{String(order.drawCycle).padStart(2, "0")}</Label>
-          <Label tone="ink" variant="outline">{order.entries} tickets</Label>
+          <Label tone="charity" variant="outline"><Copy k="ty.orderPrefix" />{order.orderId.slice(-6).toUpperCase()}</Label>
+          <Label tone="accent" variant="outline"><Copy k="winners.cardCycle" />{String(order.drawCycle).padStart(2, "0")}</Label>
+          <Label tone="ink" variant="outline">{order.entries} <Copy k="ty.ticketsBadge" /></Label>
         </motion.div>
 
         <motion.div
@@ -168,14 +170,14 @@ export function ThankYouClient() {
             }}
           >
             <span className="absolute top-3 left-3 bg-brass text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border border-ink/10 rounded-md">
-              You&apos;re in for
+              <Copy k="ty.inFor" />
             </span>
             <span className="absolute top-3 right-3 bg-accent-bright text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border border-ink/10 rounded-md">
               {usd(activeDraw.vehicle.valueUSD)}
             </span>
             <div className="absolute bottom-3 left-4 right-4 flex justify-between items-end text-left">
               <div>
-                <p className="font-condensed uppercase tracking-[0.22em] text-[10px] text-paper/70">Prize</p>
+                <p className="font-condensed uppercase tracking-[0.22em] text-[10px] text-paper/70"><Copy k="ty.prizeLabel" /></p>
                 <p className="font-display font-bold text-2xl text-paper leading-tight drop-shadow">
                   {activeDraw.vehicle.make} {activeDraw.vehicle.model}
                 </p>
@@ -193,11 +195,11 @@ export function ThankYouClient() {
           transition={{ delay: 0.55 }}
           className="mt-8 text-lg text-ink-2 max-w-xl mx-auto font-serif"
         >
-          We just printed{" "}
+          <Copy k="ty.printed.pre" />{" "}
           <strong className="font-condensed numeral text-2xl text-accent">
             <AnimatedCounter value={order.entries} />
           </strong>{" "}
-          {order.entries === 1 ? "ticket" : "tickets"} for the draw.
+          {order.entries === 1 ? t("ty.unitSingular") : t("ty.unitPlural")} {t("ty.printed.post")}
         </motion.p>
 
         <motion.div
@@ -212,13 +214,13 @@ export function ThankYouClient() {
             className="inline-flex h-14 items-center gap-2 bg-accent border border-accent px-7 text-paper-3 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-ink hover:border-ink/10 disabled:opacity-60 rounded-full"
           >
             <Download size={16} />
-            {busy ? "Generating A3 PDF…" : "Download Your Tickets · A3 PDF"}
+            {busy ? t("ty.pdfBusy") : t("ty.pdfDownload")}
           </button>
           <button
             type="button"
             className="inline-flex h-14 items-center gap-2 border border-ink/10 bg-paper-3 px-6 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-ink hover:text-paper-3 rounded-full"
           >
-            <Share2 size={16} /> Share
+            <Share2 size={16} /> <Copy k="ty.share" />
           </button>
         </motion.div>
 
@@ -231,25 +233,25 @@ export function ThankYouClient() {
           transition={{ delay: 0.55 }}
           className="mt-14 mx-auto text-left"
         >
-          <p className="section-eyebrow section-eyebrow-rule">Your tickets</p>
+          <p className="section-eyebrow section-eyebrow-rule"><Copy k="ty.ticketsHeading" /></p>
           <div className="mt-4 overflow-x-auto scrollbar-thin">
             <ul className="flex gap-3 min-w-max">
-              {ticketIds.slice(0, 8).map((t, i) => (
+              {ticketIds.slice(0, 8).map((tk, i) => (
                 <motion.li
-                  key={t.full}
+                  key={tk.full}
                   initial={{ y: 30, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.5 + i * 0.07, type: "spring", stiffness: 180 }}
                   className="w-[240px] shrink-0 border border-ink/10 bg-paper-3 p-4 text-left rounded-xl overflow-hidden"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="dateline">Cycle №{String(order.drawCycle).padStart(2, "0")}</span>
+                    <span className="dateline"><Copy k="winners.cardCycle" />{String(order.drawCycle).padStart(2, "0")}</span>
                     <Ticket size={12} className="text-accent" />
                   </div>
-                  <p className="mt-3 font-condensed numeral text-base text-ink">{t.full}</p>
-                  <p className="mt-1 font-serif italic text-sm text-ink-3">printed · drum entry</p>
+                  <p className="mt-3 font-condensed numeral text-base text-ink">{tk.full}</p>
+                  <p className="mt-1 font-serif italic text-sm text-ink-3"><Copy k="ty.card.note" /></p>
                   <div className="mt-3 pt-3 border-t border-rule-soft font-condensed uppercase tracking-[0.22em] text-[10px] text-charity">
-                    10% → {order.charityName}
+                    <Copy k="ty.card.charityPrefix" /> {order.charityName}
                   </div>
                 </motion.li>
               ))}
@@ -260,7 +262,7 @@ export function ThankYouClient() {
                   transition={{ delay: 1.1 }}
                   className="w-[240px] shrink-0 border border-dashed border-ink/10 flex flex-col items-center justify-center text-ink-2 font-condensed uppercase tracking-[0.22em] text-[11px] rounded-xl"
                 >
-                  +{order.entries - 8} more in the PDF
+                  +{order.entries - 8} {t("ty.moreSuffix")}
                 </motion.li>
               )}
             </ul>
@@ -273,9 +275,9 @@ export function ThankYouClient() {
           transition={{ delay: 0.6 }}
           className="mt-12 grid gap-0 sm:grid-cols-3 text-left border border-ink/10 divide-y sm:divide-y-0 sm:divide-x divide-ink/10 rounded-xl overflow-hidden"
         >
-          <RBox icon={<Mail size={16} />} label="Receipt sent to" value={order.buyer.email} />
-          <RBox icon={<HeartHandshake size={16} />} label="To charity this purchase" value={usdc(order.charityCut)} accent="charity" />
-          <RBox icon={<Ticket size={16} />} label="Draw date" value={niceDateTime(activeDraw.drawDateISO)} />
+          <RBox icon={<Mail size={16} />} label={t("ty.receipt.email")} value={order.buyer.email} />
+          <RBox icon={<HeartHandshake size={16} />} label={t("ty.receipt.charity")} value={usdc(order.charityCut)} accent="charity" />
+          <RBox icon={<Ticket size={16} />} label={t("ty.receipt.draw")} value={niceDateTime(activeDraw.drawDateISO)} />
         </motion.div>
 
         <div className="mt-14 grid gap-0 sm:grid-cols-2 text-left border border-ink/10 divide-y sm:divide-y-0 sm:divide-x divide-ink/10 rounded-xl overflow-hidden">
@@ -284,8 +286,8 @@ export function ThankYouClient() {
             className="group flex items-center justify-between bg-paper-3 p-5 hover:bg-brass"
           >
             <div>
-              <p className="font-display font-bold text-lg">See all my entries</p>
-              <p className="dateline">Lookup by email or phone, anytime</p>
+              <p className="font-display font-bold text-lg"><Copy k="ty.link1.title" /></p>
+              <p className="dateline"><Copy k="ty.link1.sub" /></p>
             </div>
             <ArrowRight className="text-ink-2 group-hover:translate-x-1 transition" />
           </Link>
@@ -294,8 +296,8 @@ export function ThankYouClient() {
             className="group flex items-center justify-between bg-paper-3 p-5 hover:bg-brass"
           >
             <div>
-              <p className="font-display font-bold text-lg">Watch the next draw live</p>
-              <p className="dateline">Facebook Live + YouTube simulcast</p>
+              <p className="font-display font-bold text-lg"><Copy k="ty.link2.title" /></p>
+              <p className="dateline"><Copy k="ty.link2.sub" /></p>
             </div>
             <ArrowRight className="text-ink-2 group-hover:translate-x-1 transition" />
           </Link>
@@ -357,17 +359,17 @@ function PostPurchaseOffer() {
       className="mt-10 mx-auto max-w-xl text-left border border-brass bg-ink text-paper rounded-2xl overflow-hidden shadow-lift"
     >
       <div className="px-5 py-2.5 bg-brass text-ink flex items-center justify-between">
-        <span className="font-condensed uppercase tracking-[0.22em] text-[11px] font-bold">★ Winner&apos;s bonus — this page only</span>
-        <span className="font-condensed uppercase tracking-[0.18em] text-[10px]">Won&apos;t be offered again</span>
+        <span className="font-condensed uppercase tracking-[0.22em] text-[11px] font-bold"><Copy k="ty.offer.badge" /></span>
+        <span className="font-condensed uppercase tracking-[0.18em] text-[10px]"><Copy k="ty.offer.note" /></span>
       </div>
       {!claimed ? (
         <div className="p-5 flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="font-display font-bold text-xl leading-tight">
-              Add 10 more tickets for <span className="text-brass">$49</span>
+              <Copy k="ty.offer.title" /> <span className="text-brass"><Copy k="ty.offer.price" /></span>
             </p>
             <p className="mt-1 text-[13px] text-paper/70">
-              51% off the door price — as a thank-you for entering this cycle. Same order, no extra checkout.
+              <Copy k="ty.offer.body" />
             </p>
           </div>
           <button
@@ -375,14 +377,14 @@ function PostPurchaseOffer() {
             onClick={() => setClaimed(true)}
             className="inline-flex h-11 items-center gap-2 bg-brass text-ink px-6 rounded-full font-condensed uppercase tracking-[0.22em] text-[12px] font-bold hover:bg-paper transition-colors"
           >
-            Claim it
+            <Copy k="ty.offer.claim" />
           </button>
         </div>
       ) : (
         <div className="p-5">
-          <p className="font-display font-bold text-lg text-brass">10 bonus tickets added.</p>
+          <p className="font-display font-bold text-lg text-brass"><Copy k="ty.offer.claimedTitle" /></p>
           <p className="mt-1 text-[13px] text-paper/70">
-            They&apos;re printing with the rest of your order — watch for the updated ticket list in your email.
+            <Copy k="ty.offer.claimedBody" />
           </p>
         </div>
       )}
