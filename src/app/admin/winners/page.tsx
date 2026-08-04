@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Trophy, Trash2, Plus } from "lucide-react";
 import { type Winner } from "@/lib/mock-data";
 import { adminGet, adminSend } from "@/lib/admin-api";
+import { ImageUpload } from "@/components/admin/image-upload";
 import { niceDate } from "@/lib/format";
 
 const EMPTY = {
@@ -15,6 +16,7 @@ const EMPTY = {
   charity: "",
   quote: "",
   drawDateISO: new Date().toISOString().slice(0, 10),
+  photo: "",
 };
 
 export default function AdminWinnersPage() {
@@ -44,6 +46,7 @@ export default function AdminWinnersPage() {
         charity: form.charity.trim(),
         quote: form.quote.trim(),
         drawDateISO: new Date(`${form.drawDateISO}T19:00:00-04:00`).toISOString(),
+        photo: form.photo,
       });
       setForm(EMPTY);
       load();
@@ -94,6 +97,8 @@ export default function AdminWinnersPage() {
           <label className="block sm:col-span-2 lg:col-span-3"><span className="dateline on-paper">Winner quote</span>
             <textarea required rows={2} value={form.quote} onChange={set("quote")} placeholder="I didn't believe it until the phone rang…"
               className="mt-1.5 w-full border border-ink/10 bg-paper-3 rounded-lg px-3 py-2.5 text-[15px] text-ink outline-none focus:border-accent leading-relaxed" /></label>
+          <label className="block sm:col-span-2 lg:col-span-3"><span className="dateline on-paper">Winner photo</span>
+            <ImageUpload value={form.photo} onChange={(url) => setForm((f) => ({ ...f, photo: url }))} /></label>
         </div>
         <div className="px-5 pb-5">
           <button

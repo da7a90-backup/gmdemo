@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Save, Check, Plus, Trash2, HeartHandshake } from "lucide-react";
 import { type Partner } from "@/lib/partners-store";
 import { adminGet, adminSend } from "@/lib/admin-api";
+import { ImageUpload, GalleryUpload } from "@/components/admin/image-upload";
 import { PartnerMark } from "@/components/partner-mark";
 import { Label } from "@/components/sticker";
 
@@ -172,10 +173,8 @@ export default function AdminCyclesPage() {
             <input type="number" value={config.pricePerTicketUSD}
               onChange={(e) => setConfig((c) => ({ ...c!, pricePerTicketUSD: Number(e.target.value) || 0 }))}
               className={`${input} numeral`} /></label>
-          <label className="block sm:col-span-2 lg:col-span-4"><span className="dateline on-paper">Gallery image URLs (one per line — Shopify Files CDN)</span>
-            <textarea rows={3} value={config.vehicle.images.join("\n")}
-              onChange={(e) => setConfig((c) => ({ ...c!, vehicle: { ...c!.vehicle, images: e.target.value.split("\n").map((s) => s.trim()).filter(Boolean) } }))}
-              className="mt-1.5 w-full border border-ink/10 bg-paper-3 rounded-lg px-3 py-2.5 text-[14px] text-ink outline-none focus:border-accent font-mono" /></label>
+          <label className="block sm:col-span-2 lg:col-span-4"><span className="dateline on-paper">Prize gallery — first image is the primary (uploads to Shopify Files)</span>
+            <GalleryUpload value={config.vehicle.images} onChange={(urls) => setConfig((c) => ({ ...c!, vehicle: { ...c!.vehicle, images: urls } }))} /></label>
         </div>
         <p className="px-5 pb-4 dateline on-paper">Spec-sheet rows are seeded from the current data; image URLs point at Shopify Files CDN.</p>
       </div>
@@ -197,8 +196,8 @@ export default function AdminCyclesPage() {
                 <option value="charity">Charity partner</option>
                 <option value="sponsor">Brand sponsor</option>
               </select></label>
-            <label className="block"><span className="dateline on-paper">Logo URL (optional)</span>
-              <input value={form.logoUrl} onChange={(e) => setForm((f) => ({ ...f, logoUrl: e.target.value }))} placeholder="https://…/logo.svg" className={input} /></label>
+            <label className="block"><span className="dateline on-paper">Partner logo (upload)</span>
+              <ImageUpload value={form.logoUrl} onChange={(url) => setForm((f) => ({ ...f, logoUrl: url }))} /></label>
             <label className="block"><span className="dateline on-paper">Website (optional)</span>
               <input value={form.url} onChange={(e) => setForm((f) => ({ ...f, url: e.target.value }))} placeholder="https://example.org" className={input} /></label>
             <label className="block sm:col-span-2"><span className="dateline on-paper">One-line blurb (optional)</span>

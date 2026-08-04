@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Eye, Code, Trash2, PenLine, Plus, ExternalLink, Search } from "lucide-react";
 import { slugify, type Article, type ArticleTag } from "@/lib/blog-store";
 import { adminGet, adminSend } from "@/lib/admin-api";
+import { ImageUpload } from "@/components/admin/image-upload";
 import { renderMarkdown } from "@/lib/markdown";
 import { niceDate } from "@/lib/format";
 import { Label } from "@/components/sticker";
@@ -182,9 +183,8 @@ export default function AdminBlogPage() {
               <label className="block"><span className="dateline on-paper">SEO title (defaults to title)</span>
                 <input value={draft.seoTitle} onChange={(e) => set("seoTitle")(e.target.value)} maxLength={70}
                   placeholder="≤ 60 characters" className={input} /></label>
-              <label className="block"><span className="dateline on-paper">OG image URL</span>
-                <input value={draft.ogImage} onChange={(e) => set("ogImage")(e.target.value)}
-                  placeholder="https://…/cover.jpg" className={input} /></label>
+              <label className="block"><span className="dateline on-paper">OG image (upload)</span>
+                <ImageUpload value={draft.ogImage} onChange={(url) => set("ogImage")(url)} /></label>
               <label className="block sm:col-span-2">
                 <span className="flex items-center justify-between">
                   <span className="dateline on-paper">Meta description</span>
