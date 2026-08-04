@@ -91,7 +91,13 @@ export function EmailPopup() {
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (phone.replace(/\D/g, "").length !== 10) return;
-    addSmsSubscriber(phone, "Popup");
+    addSmsSubscriber(phone, "Popup"); // demo store (kept during transition)
+    // Real capture → Supabase + Postscript (no-op if backend/env absent).
+    fetch("/api/subscribe/sms", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ phone, source: "Popup" }),
+    }).catch(() => {});
     setSubmitted(true);
     setTimeout(() => setOpen(false), 3200);
   };

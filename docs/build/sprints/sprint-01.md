@@ -11,6 +11,20 @@
 Tracks in this sprint: **0 (Foundation)**, **A (Content)**, **B (Messaging)**, **C (generate only)**.
 0 must land first; A/B/C then run in parallel.
 
+## Progress
+- **Track 0 — Foundation:** ✅ done. Supabase wired; `db/migrations/*` + `pnpm migrate`
+  (tracked, idempotent) + `pnpm db:setup` (reset); shared `src/lib/server/db.ts` (pool, tx,
+  migrations) + `http.ts` (validation/response shape); `GET /api/health` green. *(Remaining:
+  wire migrate into CI.)*
+- **Track B — Messaging capture:** ✅ core done + verified. `email_subscribers`/`sms_subscribers`
+  tables; `POST /api/subscribe/{email,sms}` (DB-first, normalize, idempotent); provider adapters
+  (`postscript`/`klaviyo`/`sendgrid`) that **stub gracefully without keys**; footer + SMS popup
+  wired. *(Remaining: add provider keys to flip stub→live; admin manage/**send** desks against
+  Supabase; provider unsub/bounce webhooks.)*
+- **Track C — Generate:** ✅ endpoint built + stress-proven (`/tptestaqz00`). *(Remaining: A3 PDF
+  from real DB rows + `/admin/tickets` on Supabase.)*
+- **Track A — Content (Shopify Metaobjects):** ⛔ blocked on Shopify custom-app tokens.
+
 ---
 
 ## Track 0 — Foundation *(do first; ~2–3 days, blocks the rest)*

@@ -27,7 +27,17 @@ function NewsletterSignup() {
 
       {!done ? (
         <form
-          onSubmit={(e) => { e.preventDefault(); addEmailSubscriber(email, "Footer"); setDone(true); }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            addEmailSubscriber(email, "Footer"); // demo store (kept during transition)
+            // Real capture → Supabase + Klaviyo (no-op if backend/env absent).
+            fetch("/api/subscribe/email", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({ email, source: "Footer" }),
+            }).catch(() => {});
+            setDone(true);
+          }}
           className="flex w-full max-w-md md:justify-self-end items-center border border-fg/30 bg-bg-dark-2 rounded-full overflow-hidden focus-within:border-accent-bright"
         >
           <Mail size={16} className="text-fg-3 shrink-0 ml-4" />

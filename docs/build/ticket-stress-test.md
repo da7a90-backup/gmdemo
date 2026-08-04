@@ -21,7 +21,7 @@ summary, per-order results, and the full DB state with **every generated ticket 
     serialization. **Recommended for production.**
   - **`naive`** — the wrong way (`SELECT MAX()+1`, no lock, no retry). Kept only to demonstrate
     the failure.
-- `db/schema.sql` — the tables + constraints (subset of `data-model.md` §2).
+- `db/migrations/*.sql` — the tables + constraints (`pnpm migrate` applies them; `pnpm db:setup` resets).
 - `scripts/db-setup.mjs` — reset + seed one open cycle (+ its sequence).
 - `scripts/ticket-stress-test.mjs` — fires hundreds of concurrent orders and audits the DB.
 

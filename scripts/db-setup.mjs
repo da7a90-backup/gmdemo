@@ -1,49 +1,40 @@
-// Reset + create the ticketing schema and seed one open cycle.
+// Test-bench reset: drop everything, apply all migrations, seed one open cycle.
 //   node scripts/db-setup.mjs
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { newPool } from "./_env.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const migDir = join(root, "db", "migrations");
 const pool = newPool(1);
 
-const DROP = `
-drop table if exists entry_blocks cascade;
-drop table if exists processed_webhooks cascade;
-drop table if exists orders cascade;
-drop table if exists cycle_counters cascade;
-drop table if exists cycles cascade;
-drop table if exists users cascade;
-`;
+const DROP = `drop table if exists entry_blocks, processed_webhooks, orders, cycle_counters,
+  cycles, sms_subscribers, email_subscribers, users cascade;
+  drop table if exists schema_migrations cascade;`;
 
 async function main() {
-  const schema = readFileSync(join(root, "db", "schema.sql"), "utf8");
   const c = await pool.connect();
   try {
-    console.log("Dropping old tables…");
+    console.log("Dropping old objects…");
+    const seqs = (await c.query(`select relname from pg_class where relkind='S' and relname like 'order_seq_cyc_%'`)).rows;
+    for (const r of seqs) await c.query(`drop sequence if exists ${r.relname}`);
     await c.query(DROP);
-    console.log("Creating schema…");
-    await c.query(schema);
-    console.log("Seeding cycle 12 (open) + counter…");
+    await c.query(`create table schema_migrations (version text primary key, applied_at timestamptz not null default now())`);
+    for (const f of readdirSync(migDir).filter((f) => f.endsWith(".sql")).sort()) {
+      await c.query(readFileSync(join(migDir, f), "utf8"));
+      await c.query(`insert into schema_migrations (version) values ($1)`, [f]);
+      console.log(`  applied ${f}`);
+    }
     await c.query(`insert into cycles (code, status) values ('12', 'open')`);
-    await c.query(
-      `insert into cycle_counters (cycle_id, last_order_no)
-       select id, 0 from cycles where code = '12'`,
-    );
-    // Per-cycle SEQUENCE for the lock-free order-number allocator (?mode=seq).
-    const cid = (await c.query(`select id from cycles where code = '12'`)).rows[0].id;
-    await c.query(`drop sequence if exists order_seq_cyc_${cid}`);
+    const cid = (
+      await c.query(`insert into cycle_counters (cycle_id, last_order_no) select id, 0 from cycles where code='12' returning cycle_id`)
+    ).rows[0].cycle_id;
     await c.query(`create sequence order_seq_cyc_${cid} start 1`);
-    const cnt = await c.query(`select code, status from cycles`);
-    console.log(`Ready. Cycles:`, cnt.rows, `| sequence order_seq_cyc_${cid} created`);
+    console.log(`Ready. Seeded cycle 12 (open) + sequence order_seq_cyc_${cid}.`);
   } finally {
     c.release();
     await pool.end();
   }
 }
-
-main().catch((e) => {
-  console.error("SETUP FAILED:", e.message);
-  process.exit(1);
-});
+main().catch((e) => { console.error("SETUP FAILED:", e.message); process.exit(1); });

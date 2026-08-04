@@ -1,13 +1,8 @@
 // Shared server-side ticketing logic used by /api/tickets/generate and the
 // /tptestaqz00 test bench. Talks to Supabase via node-postgres (DIRECT_URL).
 // See docs/build/data-model.md §3.
-import { Pool, type PoolClient } from "pg";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
-
-const g = globalThis as unknown as { __gmPool?: Pool };
-export const pool: Pool =
-  g.__gmPool ?? (g.__gmPool = new Pool({ connectionString: process.env.DIRECT_URL, max: 10 }));
+import { type PoolClient } from "pg";
+import { pool, withClient, dropAll, applyAllMigrations } from "./db";
 
 export type Mode = "safe" | "naive" | "seq";
 export type Line = { id: number; ticket_count: number };
@@ -125,32 +120,19 @@ async function mint(client: PoolClient, body: Body, mode: Mode) {
 
 // ---- test-bench helpers ----------------------------------------------------
 
-const DROP = `
-drop table if exists entry_blocks cascade;
-drop table if exists processed_webhooks cascade;
-drop table if exists orders cascade;
-drop table if exists cycle_counters cascade;
-drop table if exists cycles cascade;
-drop table if exists users cascade;`;
-
 export async function resetDb() {
-  const schema = readFileSync(join(process.cwd(), "db", "schema.sql"), "utf8");
-  const c = await pool.connect();
-  try {
-    await c.query(DROP);
-    await c.query(schema);
+  return withClient(async (c) => {
+    await dropAll(c);
+    await applyAllMigrations(c);
     await c.query(`insert into cycles (code, status) values ('12', 'open')`);
     const cid = (
       await c.query(
         `insert into cycle_counters (cycle_id, last_order_no) select id, 0 from cycles where code='12' returning cycle_id`,
       )
     ).rows[0].cycle_id as number;
-    await c.query(`drop sequence if exists order_seq_cyc_${cid}`);
     await c.query(`create sequence order_seq_cyc_${cid} start 1`);
     return { ok: true as const, cycleId: cid };
-  } finally {
-    c.release();
-  }
+  });
 }
 
 export type BatchOpts = { count: number; mode: Mode; min: number; max: number; multiplier?: number };
