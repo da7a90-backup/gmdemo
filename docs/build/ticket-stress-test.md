@@ -3,7 +3,17 @@
 A runnable proof that the mint endpoint is collision-free, idempotent, and never leaves a
 paid order without tickets, verified against a real Supabase database under concurrency.
 
+## Interactive test bench: `/tptestaqz00`
+Run `pnpm dev` and open **http://localhost:3000/tptestaqz00** for a UI to drive this yourself:
+choose the number of orders (1–200, presets included), the entries-per-order range (varying),
+a multiplier, and the mode (`seq`/`safe`/`naive`), then hit **Run**. It fires the batch
+**server-side** (true concurrency — the browser caps at ~6 connections) and shows the run
+summary, per-order results, and the full DB state with **every generated ticket number**
+(expand any order). **Reset DB** clears it between runs. Local only (needs `DIRECT_URL`).
+
 ## What's here
+- `src/lib/server/ticketing.ts` — shared mint logic + batch/reset/audit helpers.
+- `src/app/tptestaqz00/page.tsx` + `src/app/api/tptest/{run,reset,audit}` — the test bench.
 - `src/app/api/tickets/generate/route.ts` — the endpoint. Query param `?mode=`:
   - **`safe`** (default) — atomic per-order counter (`UPDATE cycle_counters … RETURNING`) +
     `unique(cycle_id, order_token)` + bounded retry.
