@@ -51,9 +51,15 @@ brief wanted is preserved — only the *displayed* token is our own compact coun
 order-number space are harmless (uniqueness is all that matters, not contiguity), and a
 `unique (cycle_id, order_token)` constraint is the belt-and-suspenders backstop.
 
-> **Caps:** 4 digits ⇒ ≤ 9,999 orders per cycle and ≤ 9,999 tickets per order. Kevin set the
-> 9,999 max; flag in `open-questions.md` if a single cycle could exceed 9,999 **orders** (that
-> part is the binding one — the fix is a 5-digit order part or base36).
+> **Caps (decided — graceful overflow):** 4 digits *typically* means ≤ 9,999 orders per cycle
+> and ≤ 9,999 tickets per order. But the middle part is **not truncated** past 9,999 —
+> `padStart(4)` only pads, so order #10,000 becomes token `10000` and the ticket
+> `GM12-10000-0001` (15 chars). This was proven against the live DB (`scripts/overflow-check.mjs`):
+> 5- and 6-digit tokens are accepted, stay unique, and duplicates are still rejected. So the
+> ceiling **degrades gracefully** (numbers just get one char longer) rather than breaking.
+> **Decision:** keep 4 digits (normal cycles stay 14 chars) and **emit a monitoring alert when
+> a cycle passes ~9,000 orders** so we can react before numbers widen. Note the cap is on
+> *orders* per cycle, not tickets — tickets/cycle is effectively unbounded.
 
 ### 0.3 Validity is cycle-scoped (the big consequence)
 Ticket numbers are **valid only within their cycle**. Once the cycle is drawn/closed, every
@@ -512,6 +518,9 @@ demo's `analytics.ts` (`visit`/`purchase`, `source`, `channel`, `trigger`).
 - **RLS on**; service-role key server-only; a buyer reads only their own rows. Ticket lookup
   requires ownership/contact match, never a bare number (numbers are semi-guessable — §review).
 - **Preview isolation**: a Supabase branch DB per Vercel preview.
+- **Order-number ceiling alert**: emit an alert when an open cycle's order count passes ~9,000
+  (approaching the 4-digit middle-part width). Not a failure — numbers just widen to 5 digits
+  past 9,999 (§0.1) — but worth knowing about. `select count(*) from orders where cycle_id = :open`.
 
 ---
 

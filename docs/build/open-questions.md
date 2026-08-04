@@ -22,11 +22,12 @@ digits, so the middle part is a **per-cycle order counter** (`0001`, `0002`, …
 unique, starts at `0001`. Format is now `GM-0001-0001` (data-model §0). We still store the
 Shopify order id 1:1 for traceability.
 
-**A3. Caps — RESOLVED at 9,999, with one flag.** 4-digit parts ⇒ ≤ 9,999 tickets per order
-(Kevin's stated max) **and** ≤ 9,999 **orders per cycle**. The orders/cycle cap is the binding
-one. **CONFIRM:** could a single cycle exceed 9,999 orders? If yes, the order part goes to 5
-digits (`GM-00001-0001`, 13 chars — breaks ≤12) or base36. Assuming ≤ 9,999 orders/cycle for
-now per Kevin's "let's say 9,999."
+**A3. Caps — RESOLVED: graceful overflow + alert.** The middle part caps at 9,999 *orders* per
+cycle (not tickets — tickets/cycle is unbounded). Proven against the live DB
+(`scripts/overflow-check.mjs`): past 9,999 the token is **not truncated** — order #10,000 →
+`GM12-10000-0001` (15 chars), still unique, duplicates still DB-rejected. So it degrades
+gracefully. **Kevin chose:** keep 4 digits (normal cycles stay 14 chars) and **alert when a
+cycle nears ~9,000 orders** (data-model §7). No code change; no failure mode.
 
 **A4. Line item quantity.** A Shopify line can have `quantity > 1` (buyer picks 3× the 10-pack).
 Entries must be `bundle_size(variant) × line.quantity × multiplier`. The mint pseudocode now
@@ -146,8 +147,7 @@ as compliance follow-ups; don't expand the build scope unprompted.
 ---
 
 ## Open decisions still to get from Kevin
-Most are now resolved (A2 per-cycle counter, A3 9,999 caps, A5 no partial refunds, B1 typed
-fields, B1b media via Shopify Files, B2 ISR). Remaining:
-1. **A3 (confirm)** — could a single cycle ever exceed **9,999 orders**? If yes we widen the
-   order part (5 digits / base36). Assuming no for now.
-2. **A7** — draw procedure + record-retention policy (process, not code).
+Most are now resolved (A2 per-cycle counter, A3 graceful overflow + alert, A5 no partial
+refunds, B1 typed fields, B1b media via Shopify Files, B2 ISR). Remaining:
+1. **A7** — draw procedure + record-retention policy (process, not code).
+2. Build the **order-number ceiling alert** (~9,000 orders/cycle) as part of monitoring.
