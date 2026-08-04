@@ -106,14 +106,30 @@ const DEFAULTS: Record<string, string> = Object.fromEntries(CONTENT_FIELDS.map((
 const STORAGE_KEY = "gm:content-v1";
 export const CONTENT_EVENT = "gm:content-updated";
 
+// Static copy pulled from Shopify (via /api/content), fetched once on the client.
+let remote: Record<string, string> | null = null;
+let remoteLoading = false;
+
+/** Load Shopify copy once, then re-render every <Copy> via CONTENT_EVENT. */
+export function ensureRemoteContent() {
+  if (typeof window === "undefined" || remote !== null || remoteLoading) return;
+  remoteLoading = true;
+  fetch("/api/content")
+    .then((r) => r.json())
+    .then((j) => { remote = j?.ok ? (j.data as Record<string, string>) : {}; window.dispatchEvent(new Event(CONTENT_EVENT)); })
+    .catch(() => { remote = {}; })
+    .finally(() => { remoteLoading = false; });
+}
+
 export function getContent(): Record<string, string> {
   if (typeof window === "undefined") return DEFAULTS;
+  let local: Record<string, string> = {};
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? { ...DEFAULTS, ...(JSON.parse(raw) as Record<string, string>) } : DEFAULTS;
-  } catch {
-    return DEFAULTS;
-  }
+    if (raw) local = JSON.parse(raw) as Record<string, string>;
+  } catch { /* ignore */ }
+  // precedence: code defaults < Shopify copy < local admin override
+  return { ...DEFAULTS, ...(remote ?? {}), ...local };
 }
 
 /** Persist only the values that differ from defaults. */

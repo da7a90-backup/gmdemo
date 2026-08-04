@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getContent, contentDefault, CONTENT_EVENT } from "@/lib/content";
+import { getContent, contentDefault, ensureRemoteContent, CONTENT_EVENT } from "@/lib/content";
 
 /**
  * CMS-managed text. Renders the default copy on the server, then swaps in
@@ -10,6 +10,7 @@ export function Copy({ k }: { k: string }) {
   const [text, setText] = useState(() => contentDefault(k));
 
   useEffect(() => {
+    ensureRemoteContent(); // one-time fetch of Shopify copy (shared across all <Copy>)
     const load = () => setText(getContent()[k] ?? contentDefault(k));
     load();
     window.addEventListener(CONTENT_EVENT, load);
