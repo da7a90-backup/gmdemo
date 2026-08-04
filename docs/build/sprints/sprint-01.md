@@ -45,10 +45,12 @@ registry stay — only the data source changes to metaobjects.
 **A.0 Shopify access**
 - Custom app in Kevin's Shopify admin → Admin API token (read/write `metaobjects`, `files`) + Storefront API token.
 - Envs: `SHOPIFY_STORE_DOMAIN`, `SHOPIFY_ADMIN_TOKEN`, `SHOPIFY_STOREFRONT_TOKEN`, `SHOPIFY_API_VERSION`.
-- Define metaobject definitions: `copy_block`, `article`, `winner`, `partner`, `cycle`.
+- Define metaobject definitions: **per-page** `copy_block` (typed text fields, one per string — NOT a JSON blob), `article`, `winner`, `partner`, `cycle`. Media handled by `file` fields (§A.2).
 
 **A.1 Copy blocks (the `content.ts` CMS)**
-- `copy_block` metaobject keyed to `CONTENT_FIELDS` keys; seed defaults via a one-time script.
+- One `copy_block` metaobject **per page** (`homepage`, `tickets`, `popup`, `footer`, …), each
+  with individual labeled text fields mapped to `CONTENT_FIELDS` keys; seed via a one-time
+  script. Typed fields keep it non-technical-friendly (≤ 40 fields/def — well under).
 - `GET /api/content` (Storefront read) + `PUT /api/content` (admin-only → Admin API upsert).
 - `getContent()` reads metaobjects server-side (ISR); revalidate on `metaobjects/update` webhook.
 - Wire `/admin/content` desk to the endpoints; "reset to default" restores the seed value.
@@ -58,8 +60,12 @@ registry stay — only the data source changes to metaobjects.
 - Metaobjects `article` (markdown/html + SEO fields), `winner`, `partner`, `cycle` (content fields).
 - CRUD endpoints under `/api/admin/{articles,winners,partners,cycles}` → Shopify Admin API (admin-guarded).
 - Wire the four admin desks + public reads (`/blog`, `/blog/[slug]`, `/winners`, `/partners`).
-- Media (partner logos, winner photos, car gallery) → **Shopify Files** CDN; upload from desks.
-- Acceptance: publish a blog post + add a winner in admin → live on public pages.
+- **Media (images, video, PDF)** → metaobject `file` fields backed by **Shopify Files**, served
+  by Shopify CDN: partner logos, winner photos, car gallery + **video** (hosted file or YouTube
+  URL) and **PDF docs** (rules, proposal). Uploaded/picked in the metaobject editor; read via
+  `.value.url` in the Storefront API. Media bytes never touch our app.
+- Acceptance: publish a blog post with an image, add a winner with a photo, and attach a PDF →
+  all live on public pages, served from Shopify CDN.
 
 > Note: the raffle **sequence/state** for a cycle still lives in Supabase (`cycles` row +
 > `cycle_counters`); the cycle's *content* (car name, copy, images) is the Shopify `cycle`

@@ -17,33 +17,38 @@
 
 ## 0. Ticket numbers — the format and what it lets us delete
 
-### 0.1 The format (max 10–12 chars, three parts)
+### 0.1 The format (12 chars, three parts)
 ```
-   GM  -  1A2B  -  05
-   │       │       │
-   │       │       └── part 3: per-ORDER sequence (1..N of this order's entries)
-   │       └────────── part 2: order token — compact, derived from the Shopify order id
-   └────────────────── part 1: fixed prefix we set ("GM"; configurable)
+   GM  -  0001  -  0001
+   │       │        │
+   │       │        └── part 3: per-ORDER ticket sequence, 0001–9999
+   │       └─────────── part 2: per-CYCLE order number, 0001–9999 (unique within the cycle)
+   └─────────────────── part 1: fixed prefix we set ("GM"; configurable)
 ```
-- **Part 1 — prefix.** Constant `GM` (env/config, e.g. `TICKET_PREFIX`). 2 chars.
-- **Part 2 — order token.** 4 base36 chars derived from Shopify's order number:
-  `base36( shopify_order_number mod 36^4 )`, left-padded → `0000`–`ZZZZ` (1,679,616 values).
-  Every ticket in the same order shares this token — that's what ties a multi-ticket order
-  together. **Derived from the Shopify order id, per the brief.**
-- **Part 3 — sequence.** Decimal, per-order, `01`, `02`, …, min width 2, grows to 4.
-  `GM-1A2B-05` = 10 chars; `GM-1A2B-9999` = 12 chars (worst case, 9,999 entries in one order).
+- **Part 1 — prefix.** Constant `GM` (env `TICKET_PREFIX`). 2 chars.
+- **Part 2 — order number.** A **per-cycle order counter**: the first order of a cycle is
+  `0001`, the next `0002`, … Every ticket in the same order shares it — that's what ties a
+  multi-ticket order together. **Guaranteed unique within the cycle** because it's a counter
+  (the one hard requirement). 4 digits.
+- **Part 3 — sequence.** The ticket's index within its own order, `0001`…`9999` (so one order
+  holds up to 9,999 entries). Starts at `0001`. 4 digits.
 
-**Total: 10–12 characters, always ≤ 12.** A no-dash variant (`GM1A2B05`, 8 chars) exists if
+**Total: `GM-0001-0001` = 12 chars.** A no-dash variant (`GM00010001`, 10 chars) exists if
 Kevin wants ≤ 10 hard; default keeps the dashes for readability.
 
-### 0.2 Why "derived from the Shopify order number" is collision-safe here
-Shopify's `order_number` is unique and monotonically increasing per shop, so **any subset of
-orders is already unique**. Two orders would only share a token if their order numbers differ
-by an exact multiple of 36⁴ (1,679,616) — i.e. you'd need ~1.7M orders **inside a single
-cycle** for a within-cycle clash. That can't happen in a weekly raffle. We still keep a
-`unique (cycle_id, order_token)` constraint as a backstop that would *surface* (not silently
-allow) the astronomically unlikely case. Alternative if Kevin prefers tidy 1-2-3 numbering:
-assign a per-cycle order ordinal instead of deriving — noted in `open-questions.md`.
+### 0.2 Why a per-cycle counter, not a hash of the Shopify order id
+The hard requirement (Kevin, point 1): **no two orders in the same cycle may share the middle
+part.** A value *derived* from the Shopify order id (mod / truncation) can't guarantee that
+inside a 4-digit budget — two order ids far enough apart collide. The robust way to guarantee
+uniqueness in 4 digits is a **per-cycle order counter**: hand each new order the next integer.
+We still store the Shopify order id 1:1 on the order row for traceability, so the linkage the
+brief wanted is preserved — only the *displayed* token is our own compact counter. Gaps in the
+order-number space are harmless (uniqueness is all that matters, not contiguity), and a
+`unique (cycle_id, order_token)` constraint is the belt-and-suspenders backstop.
+
+> **Caps:** 4 digits ⇒ ≤ 9,999 orders per cycle and ≤ 9,999 tickets per order. Kevin set the
+> 9,999 max; flag in `open-questions.md` if a single cycle could exceed 9,999 **orders** (that
+> part is the binding one — the fix is a 5-digit order part or base36).
 
 ### 0.3 Validity is cycle-scoped (the big consequence)
 Ticket numbers are **valid only within their cycle**. Once the cycle is drawn/closed, every
@@ -53,22 +58,22 @@ always evaluated *with the cycle in context*, we never depend on cross-cycle uni
 number from cycle 12 and a (practically impossible) identical number in cycle 40 are different
 rows keyed by `cycle_id`. This is what makes the short format safe.
 
-### 0.4 What this format lets us DELETE
-The earlier design used a **global gapless per-cycle counter** (`cycle_counters`, one hot row,
-locked once per ticket) so entries were a contiguous `1..N` range for a digital "pick integer
-K" draw. The order-based number makes that unnecessary, and removing it is a real win:
+### 0.4 What this format shrinks
+The earlier design used a **per-ticket gapless counter** — one hot row locked once **per
+ticket**, so a 400-entry order took 400 locks — to make entries a contiguous `1..N` range for
+a digital "pick integer K" draw. The order-based number shrinks that dramatically:
 
-| Old (global gapless counter) | New (order-scoped number) |
+| Earlier (per-**ticket** gapless counter) | Now (per-**order** counter + per-order sequence) |
 |---|---|
-| one hot row per open cycle, row-locked on every mint | **no shared counter, no lock contention** |
-| "no missing" = contiguous integers | "no missing" = **completeness** (every paid line mints) — which is what Kevin actually needs |
+| counter locked once **per ticket** → 400-entry order = 400 locks | counter locked once **per order** → 400-entry order = **1 lock**; the ticket sequence needs no shared row |
+| "no missing" read as contiguous integers | "no missing" = **completeness** (every paid line mints) — what Kevin actually needs |
 | digital draw = pick integer 1..N | draw = physical drum, or weighted pick over blocks (§3.4) |
 
 **Key correctness clarification:** Kevin's "no missing ticket numbers" means *no paid entry is
 ever left without a ticket* (completeness + idempotency), **not** that the integers are
-contiguous. A physical drum draws paper; gaps in an integer space are irrelevant to it. So we
-optimize for the property that matters (completeness, uniqueness) and drop the one that
-doesn't (contiguity) — simpler *and* more scalable. See the review in `open-questions.md`.
+contiguous. A physical drum draws paper; gaps are irrelevant to it. The one small serialized
+step that remains is a **per-order** counter (the middle part), which even at draw-night peak
+is trivial — it's bumped at orders/second, not tickets/second. See `open-questions.md`.
 
 ---
 
@@ -87,7 +92,8 @@ users ──< orders ──< entry_blocks   (order_token lives on the order; blo
 promotions (rules engine, config-as-data) ──> resolved & SNAPSHOTTED onto orders/entry_blocks
 processed_webhooks (idempotency ledger)        analytics_events (GA4/Meta outbox + dedup)
 ```
-There is **no `cycle_counters` table** — deleted per §0.4.
+The only shared/serialized row is `cycle_counters`, bumped **once per order** to hand out the
+middle-part order number (§0.4) — not per ticket.
 
 ---
 
@@ -123,11 +129,17 @@ create table cycles (
 --   historical/invalid  ⇔  cycles.status in ('drawn','archived')
 
 -- ─────────────────────────────── orders ─────────────────────────────────
+-- Per-cycle order counter: hands out the 4-digit middle part. One row per cycle,
+-- bumped once PER ORDER (not per ticket). This is the only serialized row.
+create table cycle_counters (
+  cycle_id     bigint primary key references cycles(id),
+  last_order_no integer not null default 0
+);
+
 create table orders (
   id                 bigint generated always as identity primary key,
-  shopify_order_id   bigint unique not null,         -- idempotency anchor
-  shopify_order_number bigint not null,              -- source of the order_token
-  order_token        text not null,                  -- 4-char base36, part 2 of the number
+  shopify_order_id   bigint unique not null,         -- idempotency anchor + traceability
+  order_token        text not null,                  -- '0001'.. — the middle part (per-cycle order no.)
   user_id            bigint not null references users(id),
   cycle_id           bigint not null references cycles(id),
   subtotal_cents     integer not null,
@@ -265,8 +277,16 @@ BEGIN
   insert processed_webhooks(webhook_id) on conflict do nothing;   -- guard 2
   if no row inserted: COMMIT, return 200                          -- already handled
   cycle := the open cycle
-  order_token := base36( order.order_number mod 36^4 )            -- derived, no counter
-  upsert user; upsert order (order_token + promo & attribution SNAPSHOT)
+  upsert user
+  -- Assign the middle part idempotently: reuse if this order already minted, else take next.
+  order := select from orders where shopify_order_id = :sid
+  if not order:
+      n := UPDATE cycle_counters SET last_order_no = last_order_no + 1
+             WHERE cycle_id = :cycle RETURNING last_order_no      -- one lock, per ORDER
+      order_token := lpad(n, 4, '0')                              -- '0001'
+      insert order (shopify_order_id, order_token, promo & attribution SNAPSHOT)
+        on conflict (shopify_order_id) do nothing                 -- concurrent-safe
+      order := select from orders where shopify_order_id = :sid   -- re-read the winner
   seq := 0                                                        -- per-order running sequence
   for line in sort(order.line_items, by id):                     -- deterministic order → replay-stable
       entries := bundle_size(line) * line.quantity * order.promo_multiplier
@@ -279,11 +299,13 @@ BEGIN
 COMMIT
 return 200                                                        -- always 2xx once stored
 ```
-Ticket numbers are composed at read/print time: for a block, `GM-{order_token}-{seq}` for each
-`seq in [seq_start, seq_end]`. Because `order_token` derives from the order and `seq` is
-computed from the order's own (sorted) line list, the whole thing is **deterministic and
-replay-stable** — a retried webhook reproduces identical numbers, and the unique constraints
-make a double-insert a no-op. Concurrent orders share **no row**, so there is no contention.
+Ticket numbers are composed at read/print time: for a block, `GM-{order_token}-{lpad(seq,4)}`
+for each `seq in [seq_start, seq_end]`. The `order_token` is assigned once (idempotently
+reused on replay), and `seq` is computed from the order's own (sorted) line list, so the whole
+thing is **deterministic and replay-stable** — a retried webhook reproduces identical numbers
+and the unique constraints make a double-insert a no-op. The only cross-order serialization is
+the single `UPDATE cycle_counters` per order (one lock, one statement) — trivial at raffle
+volumes.
 
 ### 3.4 The draw
 - **Physical drum (primary):** the A3 PDF expands every non-void block into individual paper
@@ -293,15 +315,14 @@ make a double-insert a no-op. Concurrent orders share **no row**, so there is no
   probability ∝ `ticket_count`, then a uniform seq within it. Uniform over all entries without
   materializing one row per entry, and reproducible if seeded. Record the seed for audit.
 
-### 3.5 Refunds / cancellations (incl. **partial**)
-`refunds/create` can be partial — refund specific line items and/or quantities. Rule:
-- Full line refund → `voided = true` on that line's `entry_blocks` row.
-- Partial-quantity refund of a line → void the block and re-mint the retained remainder as a
-  new block (so entry counts stay honest), or (simpler, recommended) **void at line
-  granularity only** and treat quantity-level partial refunds as a manual admin action. Decide
-  in `open-questions.md`.
-- Voided ranges are **never renumbered or reused** — they remain as auditable, excluded gaps
-  (`where not voided`). Already-printed tickets stay valid on paper only if not voided.
+### 3.5 Refunds / cancellations (**no partial refunds** — Kevin's policy)
+Partial refunds are not offered, which keeps this simple: a refund/cancel always voids the
+**whole order**.
+- `refunds/create` or `orders/cancelled` → set `voided = true` on **every** `entry_blocks` row
+  for that `shopify_order_id`.
+- Voided ranges are **never renumbered or reused** — they remain as auditable, excluded rows
+  (`where not voided`). Any already-printed paper for a voided order is pulled before the draw.
+- Because the policy forbids partial refunds, we never split a block or re-mint a remainder.
 
 ### 3.6 Retention & "rendered invalid"
 `entry_blocks` and `orders` are **retained indefinitely**. After the cycle is `drawn`/`archived`
@@ -427,9 +448,10 @@ demo's `analytics.ts` (`visit`/`purchase`, `source`, `channel`, `trigger`).
 ---
 
 ## 7. Scale & operational notes
-- **No hot counter anymore.** With order-derived tokens + per-order sequences, concurrent
-  orders contend on no shared row. Throughput is bounded only by normal insert rates; the
-  draw-night spike is handled by ordinary connection pooling.
+- **Counter contention is per-order, not per-ticket.** The only serialized row is
+  `cycle_counters`, bumped once per order (one locked `UPDATE` statement). A 400-entry order
+  takes one lock, not 400; the per-order ticket sequence needs no shared row. Draw-night spikes
+  are orders/second — trivial for a single row lock with ordinary connection pooling.
 - **entry_blocks stays small** — one row per order line, not per entry. "My entries", counts,
   and the draw are cheap even at millions of entries (`SUM(ticket_count) WHERE NOT voided`).
 - **Indexes**: `entry_blocks(cycle_id) where not voided`, `entry_blocks(user_id)`,

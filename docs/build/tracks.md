@@ -71,10 +71,10 @@ conventions + session-cookie plumbing. No product feature ships without this.
 Turn all editable content into **Shopify Metaobjects**, read via the Storefront API. Kevin
 edits in Shopify admin; the existing `<Copy>` component and admin desks read/write through
 our endpoints, which proxy the Shopify Admin API.
-- Metaobject types: `copy_block` (mirrors `CONTENT_FIELDS` keys), `article`, `winner`, `partner`, `cycle` (content fields).
+- Metaobject types: per-page `copy_block` (typed text fields, not JSON), `article`, `winner`, `partner`, `cycle` (content fields).
 - `<Copy>` and public pages read metaobjects via Storefront API at build (ISR); revalidate on the `metaobjects/update` webhook.
 - Admin desks (`content`, `blog`, `winners`, `partners`, `cycles`) write via `/api/admin/*` → Shopify Admin API (keys server-side only).
-- Media (partner logos, winner photos, car gallery) → **Shopify Files** CDN.
+- **Media (images, video, PDF)** via metaobject `file` fields → **Shopify Files** CDN (logos, photos, galleries, hosted/YouTube video, PDF docs). Non-technical-friendly + evidence it stays fast — see `open-questions.md` §B.
 - **Depends on:** Track 0 (envs + route conventions) + Shopify Admin/Storefront tokens. Uses Shopify, not Supabase. **Independent of** B and C.
 
 ### Track B — Messaging & Subscriptions · **P0** · Sprint 1

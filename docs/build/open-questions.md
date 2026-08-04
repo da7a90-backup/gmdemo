@@ -16,27 +16,26 @@ gapless counter (`cycle_counters`) and its per-ticket row lock. **Recommendation
 order-based number (done in `data-model.md`); this is simpler *and* removes the only
 concurrency bottleneck. ✅ already applied.
 
-**A2. Order token: derive vs. counter.** Default = `base36(shopify_order_number mod 36^4)` —
-derived, compact, collision-free within any realistic cycle (§0.2). Alternative = a per-cycle
-order ordinal (tidy 1,2,3… but reintroduces a small per-order counter). **DECISION NEEDED:**
-derived (recommended, no counter) vs. ordinal (prettier numbers). I went with derived.
+**A2. Order token — RESOLVED: per-cycle order counter.** Kevin's requirement is simply that no
+two orders in a cycle share the middle part. A derived/hashed value can't guarantee that in 4
+digits, so the middle part is a **per-cycle order counter** (`0001`, `0002`, …) — guaranteed
+unique, starts at `0001`. Format is now `GM-0001-0001` (data-model §0). We still store the
+Shopify order id 1:1 for traceability.
 
-**A3. Sequence width / max entries per order.** Format holds ≤ 12 chars up to 9,999 entries in
-one order (`GM-1A2B-9999`). A member buying the largest bundle × 4× must stay under that.
-**Recommendation:** enforce a per-order entry cap (e.g. 5,000) at checkout, or widen the format
-if a legitimate use case exceeds it. **DECISION NEEDED:** what's the largest single order we
-allow?
+**A3. Caps — RESOLVED at 9,999, with one flag.** 4-digit parts ⇒ ≤ 9,999 tickets per order
+(Kevin's stated max) **and** ≤ 9,999 **orders per cycle**. The orders/cycle cap is the binding
+one. **CONFIRM:** could a single cycle exceed 9,999 orders? If yes, the order part goes to 5
+digits (`GM-00001-0001`, 13 chars — breaks ≤12) or base36. Assuming ≤ 9,999 orders/cycle for
+now per Kevin's "let's say 9,999."
 
 **A4. Line item quantity.** A Shopify line can have `quantity > 1` (buyer picks 3× the 10-pack).
 Entries must be `bundle_size(variant) × line.quantity × multiplier`. The mint pseudocode now
 includes `line.quantity` — make sure `bundle_size()` reads the variant, not the line, so this
 multiplies correctly.
 
-**A5. Partial refunds.** Shopify refunds can be partial (some lines, or partial quantity of a
-line). We void at **line** granularity cleanly; partial-*quantity* refunds are messier.
-**Recommendation:** support full-line voids automatically; treat partial-quantity refunds as a
-flagged admin action rather than auto-logic. **DECISION NEEDED:** is partial-quantity refund a
-real scenario for Kevin, or can we forbid it in the refund policy?
+**A5. Partial refunds — RESOLVED: none.** Kevin's policy forbids partial refunds, so a
+refund/cancel always voids the **whole order** (`voided = true` on every block for that
+`shopify_order_id`). No block-splitting or remainder re-mint. (data-model §3.5.)
 
 **A6. Ticket guessability.** Short, semi-derived numbers are guessable. That's fine *because
 tickets aren't bearer instruments* — winning is tied to the account/contact, not to presenting
@@ -55,20 +54,49 @@ process/compliance item — flag to Kevin, don't over-engineer.
 
 ## B. Content in Shopify Metaobjects
 
-**B1. Copy-blocks granularity.** ~40 keyed micro-copy strings (`CONTENT_FIELDS`) as one
-metaobject **entry per key** is clunky to edit in Shopify admin and multiplies API reads.
-**Recommendation:** model copy as **one `copy_block` metaobject per page** with a JSON/field
-map (or a single "site copy" entry), not one entry per string. Editorial (`article`, `winner`,
-`partner`, `cycle`) stays one entry each — that's what metaobjects are good at. **DECISION
-NEEDED:** confirm the copy grouping so we set up definitions once.
+**B1. Copy grouping — RESOLVED with evidence: typed fields per page, NOT a JSON blob.** Kevin
+asked (rightly) whether a JSON field is editable by a non-technical admin. Evidence: metaobjects
+are editable by non-technical merchants through a **clean native admin UI** — *but only when
+you use typed fields* (labeled text boxes). Shopify's **`json` field type renders as a raw code
+editor**, which is exactly what a non-technical person should never touch. So:
+- **Copy = one `copy_block` metaobject definition per page** (`homepage`, `tickets`, `popup`,
+  `footer`, …), each with individual **single-/multi-line text fields**, one per editable
+  string, each with a human label. Friendly to edit, no JSON.
+- Cap check: **max 40 fields per definition** — our biggest page (homepage ≈ 24 keys) is well
+  under it, so per-page grouping fits comfortably.
+- This keeps everything in Shopify (no custom CMS) *and* stays non-technical-friendly.
+- Sources: [mgroupweb metaobjects guide](https://mgroupweb.com/blogs/shopify-metaobjects-guide/),
+  [Shopify metaobject limits](https://shopify.dev/docs/apps/build/metaobjects/metaobject-limits),
+  [new admin metaobjects experience](https://changelog.shopify.com/posts/new-metaobjects-experience-in-admin).
 
-**B2. Read path & caching.** Every public page now depends on Storefront API metaobject reads.
-**Recommendation:** ISR + a single cached fetch per page, revalidated on the
-`metaobjects/update` webhook — don't fetch metaobjects per-request or per-component.
+**B1b. Media (images / video / PDF) — first-class, and it stays in Shopify.** Kevin flagged
+that images, videos, and PDF docs are content too. Handled natively: metaobjects have a
+**`file` field type** that references **Shopify Files** and accepts **images, videos, and
+generic files including PDFs**. Non-technical admins upload/pick files right in the metaobject
+editor; **Shopify's CDN serves them** (offloads our app, supports image transforms). In the
+Storefront API a file field resolves to a `MediaImage`/`Video`/`GenericFile` — read the URL via
+`.value.url` (a known gotcha: `.value` alone returns the reference object, not the URL). Video
+can be a Shopify-hosted file **or** an embedded YouTube URL (the site already has a
+`youtube-facade`); PDFs (official rules, proposal) are a `file` field the CDN serves for
+download.
+- Sources: [file metafields on metaobjects](https://marinapereda.dev/shopify-metaobject-file-metafields-fix/),
+  [uploading & managing files](https://help.shopify.com/en/manual/shopify-admin/productivity-tools/file-uploads),
+  [Storefront MetafieldReference](https://shopify.dev/docs/api/storefront/latest/unions/metafieldreference).
 
-**B3. Metaobject limits.** Confirm the store's plan supports the number of metaobject
-definitions/entries we need (winners + partners + articles grow over time). Low risk, worth a
-one-line check before committing.
+**B2. Read path & caching — RESOLVED with evidence: ISR, no slowdown.** Every public page
+depends on Storefront metaobject reads. Evidence: each Storefront GraphQL call is a network
+request, so the guidance is **cache with ISR/edge, keep reference nesting ≤ 2 levels,
+paginate** — do that and headless is *faster*, not slower. **Recommendation:** one cached fetch
+per page, revalidated on the `metaobjects/update` webhook; never fetch per-request or
+per-component. Media bytes never touch our app — Shopify CDN serves them. Sources:
+[wholesalehelper headless+metaobjects](https://wholesalehelper.io/blog/shopify-headless-and-metaobjects/),
+[weaverse headless performance](https://weaverse.io/blogs/the-performance-roi-of-shopify-headless-why-faster-loading-times-matter-more-in-2026).
+**Net answer to Kevin's point 4: keep content in Shopify — it will NOT slow the site if we
+cache with ISR, and the JSON-blob idea is discarded in favor of typed fields.**
+
+**B3. Metaobject limits — checked.** Plan allows **128 definitions** (Basic/Shopify/Advanced),
+**40 fields per definition**, ~**1M entries per definition**. Our needs (≈5 copy defs + article/
+winner/partner/cycle) are nowhere near any cap. ✅
 
 ---
 
@@ -117,9 +145,9 @@ as compliance follow-ups; don't expand the build scope unprompted.
 
 ---
 
-## Open decisions to get from Kevin
-1. **A2** order token: derived (recommended) vs per-cycle ordinal?
-2. **A3** max entries allowed in a single order?
-3. **A5** are partial-quantity refunds a real scenario, or forbid in policy?
-4. **B1** copy grouping in metaobjects: per-page JSON (recommended) vs per-string entries?
-5. **A7** draw procedure + record retention policy (process, not code).
+## Open decisions still to get from Kevin
+Most are now resolved (A2 per-cycle counter, A3 9,999 caps, A5 no partial refunds, B1 typed
+fields, B1b media via Shopify Files, B2 ISR). Remaining:
+1. **A3 (confirm)** — could a single cycle ever exceed **9,999 orders**? If yes we widen the
+   order part (5 digits / base36). Assuming no for now.
+2. **A7** — draw procedure + record-retention policy (process, not code).

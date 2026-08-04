@@ -149,13 +149,13 @@ create table attribution_events (
 ## 3. Ticket numbering — order-based, ≤ 12 chars
 
 > **Superseded by `docs/build/data-model.md` §0** — that doc is authoritative for the ticket
-> schema. Summary: the number is three parts, `GM-<order4>-<seq>` (e.g. `GM-1A2B-05`,
-> 10–12 chars). Part 2 is a 4-char base36 token **derived from the Shopify order number**
-> (`base36(order_number mod 36^4)`) shared by every ticket in the order; part 3 is the
-> per-order sequence. Numbers are **valid only within their cycle** and retained afterward
-> for history. This replaces the demo's contact-hashed `GM-{cycle}-{userHash}-{ticket}` and
-> **removes the gapless `cycle_counters` table** — see §0.4 there for why "no missing" means
-> completeness, not contiguous integers.
+> schema. Summary: three parts, `GM-0001-0001` (12 chars). Part 2 is a **per-cycle order
+> counter** (`0001`, `0002`, …) shared by every ticket in the order — guaranteed unique within
+> the cycle; part 3 is the per-order ticket sequence (`0001`–`9999`). Numbers are **valid only
+> within their cycle** and retained afterward for history. This replaces the demo's
+> contact-hashed `GM-{cycle}-{userHash}-{ticket}`. The old per-**ticket** gapless counter is
+> shrunk to a per-**order** counter — see §0.4 there for why "no missing" means completeness,
+> not contiguous integers.
 
 ---
 
@@ -307,21 +307,31 @@ can be routed through SendGrid for brand/deliverability if desired.)
 
 ## 9. Content as Shopify Metaobjects (headless CMS)
 
-Define metaobject types: `cycle`, `winner`, `partner`, `article`, `copy_block`. Kevin edits
-in Shopify admin; the storefront reads them through the Storefront API at build time
-(ISR) with tag-based revalidation on the `metaobjects/update` webhook. This directly
+Define metaobject types: `cycle`, `winner`, `partner`, `article`, and per-page `copy_block`.
+Kevin edits in Shopify admin; the storefront reads them through the Storefront API at build
+time (ISR) with tag-based revalidation on the `metaobjects/update` webhook. This directly
 replaces `cycle-store.ts`, `winners-store.ts`, `partners-store.ts`, `blog-store.ts`,
 `content.ts` — same shapes, remote source. The `Copy k="…"` component keeps working; it
 just resolves against `copy_block` metaobjects instead of `gm:content-v1`.
+
+**Copy = typed fields, not JSON** (so a non-technical admin edits labeled boxes): one
+`copy_block` definition **per page** with individual single-/multi-line text fields (≤ 40
+fields/def; our biggest page is well under). **Media (images, video, PDF) is first-class**:
+metaobject `file` fields reference **Shopify Files** (accepts images, videos, and PDFs),
+uploaded/picked in the same editor and served by **Shopify's CDN** — media bytes never touch
+our app. Read a file field's URL via `.value.url` in the Storefront API. Video may be a
+Shopify-hosted file or an embedded YouTube URL. See `docs/build/open-questions.md` §B for the
+evidence that this stays both non-technical-friendly and fast (ISR-cached).
 
 ---
 
 ## 10. Environments, secrets, rollout
 
-- **Env vars** (Vercel): `POSTGRES_URL` (Neon, auto), `SHOPIFY_STOREFRONT_TOKEN`,
-  `SHOPIFY_ADMIN_TOKEN`, `SHOPIFY_WEBHOOK_SECRET`, `POSTSCRIPT_API_KEY`,
-  `KLAVIYO_API_KEY`, `SENDGRID_API_KEY`, `META_CAPI_TOKEN`, `SESSION_SECRET`.
-- **Preview isolation**: Neon branch per Vercel preview so webhook tests don't touch prod tickets.
+- **Env vars** (Vercel): `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL` (Supabase),
+  `SHOPIFY_STORE_DOMAIN`, `SHOPIFY_STOREFRONT_TOKEN`, `SHOPIFY_ADMIN_TOKEN`,
+  `SHOPIFY_WEBHOOK_SECRET`, `POSTSCRIPT_API_KEY`, `KLAVIYO_API_KEY`, `SENDGRID_API_KEY`,
+  `META_CAPI_TOKEN`.
+- **Preview isolation**: Supabase branch DB per Vercel preview so webhook tests don't touch prod tickets.
 - **Migrations**: Drizzle or plain SQL files in `/db/migrations`, run in CI before deploy.
 - **Observability**: log every webhook (`processed_webhooks` is already an audit trail);
   alert if the reconciliation cron ever replays >0 tickets (means a webhook was lost).
