@@ -4,6 +4,8 @@
 import { withClient } from "./db";
 import { activeDraw, winners as mockWinners, blogPosts } from "@/lib/mock-data";
 import { upsertArticle, ensureArticleDefinition } from "./blog-shopify";
+import { seedFaq } from "./faq";
+import { DEFAULT_FAQ } from "@/lib/faq-data";
 
 // One real partner for the current cycle (the rest were placeholder/fake).
 const SEED_PARTNERS: { name: string; kind: "charity" | "sponsor"; logoUrl?: string; url?: string; blurb?: string }[] = [
@@ -65,6 +67,9 @@ export async function seedContent() {
       [JSON.stringify({ totalDonatedUSD: 0, charitiesFunded: 1, cyclesRun: 1, carsGivenAway: 0, ticketsCounted: 0 })],
     );
 
-    return { partners: SEED_PARTNERS.length, articles: blogPosts.length, winners: 1, cycle: 1 };
+    // 6) FAQ → Shopify metaobjects (type "faq_item")
+    await seedFaq(DEFAULT_FAQ);
+
+    return { partners: SEED_PARTNERS.length, articles: blogPosts.length, winners: 1, cycle: 1, faq: DEFAULT_FAQ.length };
   });
 }

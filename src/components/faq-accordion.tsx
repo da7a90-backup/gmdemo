@@ -1,24 +1,20 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Plus, Minus, FileText, ArrowRight } from "lucide-react";
 import { Copy } from "@/components/copy";
-
-const FAQ = [
-  { q: "How do I enter?", a: "Pick a ticket tier on the Tickets page. Each tier comes with a set number of entries." },
-  { q: "How do you pick the winner?", a: "Every entry is printed onto paper, dropped into our drum, and pulled on a livestream. The stream is fully transparent and archived in full." },
-  { q: "How do I know the draw is fair?", a: "Three things: every entry is a physically printed paper ticket, the pull is on a livestream archived to YouTube forever, and our 990 is publicly filed (we are a 501(c)(3))." },
-  { q: "What if I win — when do I get the car?", a: "We call you on the stream and arrange delivery, registration, and title transfer typically within 30 days." },
-  { q: "Can I take the cash instead?", a: "Yes. Every prize has a cash equivalent disclosed in the cycle's Official Rules. You choose at claim time." },
-  { q: "Where does the charity money go?", a: "10% of every cycle goes directly to the cycle's named partner charity. Each cycle publishes a reconciliation PDF and signed receipt." },
-  { q: "Can I cancel my membership?", a: "Yes, in 1 click from your account. Already-issued entries for the current cycle stay valid; no refunds for entries already in the drum." },
-  { q: "Who can enter?", a: "Legal residents of the 50 United States and DC, age 18+. Void where prohibited. See Official Rules for full eligibility." },
-  { q: "Where do I find the official rules?", a: "At generousmotors.org/rules — also linked below, in the footer of every page, and from every ticket-purchase confirmation email." },
-  { q: "How are my data and payment kept safe?", a: "All payment is processed by Shopify with PCI-DSS Level 1 compliance. We don't store card numbers." },
-  { q: "Who do I contact for support?", a: "support@generousmotors.org — typical response under 12 hours." },
-];
+import { DEFAULT_FAQ, type FaqItem } from "@/lib/faq-data";
 
 export function FAQAccordion() {
+  const [items, setItems] = useState<FaqItem[]>(DEFAULT_FAQ);
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/faq")
+      .then((r) => r.json())
+      .then((j) => { if (alive && j.ok && (j.data as FaqItem[]).length) setItems(j.data as FaqItem[]); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
   return (
     <section className="bg-paper-3 text-ink border-y border-rule" id="faq">
       <div className="mx-auto max-w-3xl px-5 py-24">
@@ -29,8 +25,8 @@ export function FAQAccordion() {
         </h2>
       </div>
       <ul className="mt-10 border border-ink/10 bg-paper-3 divide-y divide-ink/10 rounded-xl overflow-hidden">
-        {FAQ.map((item, i) => (
-          <FAQItem key={i} q={item.q} a={item.a} />
+        {items.map((item, i) => (
+          <FAQItem key={i} q={item.question} a={item.answer} />
         ))}
       </ul>
 
