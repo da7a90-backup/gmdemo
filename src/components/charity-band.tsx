@@ -4,10 +4,11 @@ import { usePrizeCycle, useLifetimeStats } from "@/lib/cycle-store";
 import { ArrowRight, FileText } from "lucide-react";
 import Link from "next/link";
 import { Label } from "@/components/sticker";
-import { Copy } from "@/components/copy";
+import { Copy, useCopy } from "@/components/copy";
 import { CharityName, CharityBlurb, CyclePartnerBadge } from "@/components/cycle-partner";
 
 export function CharityBand() {
+  const t = useCopy();
   const activeDraw = usePrizeCycle();
   const lifetimeStats = useLifetimeStats();
   return (
@@ -21,7 +22,7 @@ export function CharityBand() {
             <Copy k="charity.h.lead" /> <span className="accent-serif"><Copy k="charity.h.accent" /></span>
           </h2>
           <p className="mt-7 max-w-xl text-lg text-paper-3/85">
-            Cycle {activeDraw.cycle}&apos;s 10% goes to{" "}
+            {t("charity.band.intro").replace("{cycle}", String(activeDraw.cycle))}{" "}
             <span className="font-condensed uppercase tracking-[0.06em]">
               <CharityName />
             </span>
@@ -37,19 +38,19 @@ export function CharityBand() {
               href="/about#charity"
               className="inline-flex items-center gap-2 bg-brass text-ink px-5 py-3 border border-brass font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper-3 hover:border-paper-3 transition rounded-full"
             >
-              How the funds flow <ArrowRight size={14} />
+              <Copy k="charity.band.cta1" /> <ArrowRight size={14} />
             </Link>
             <Link
               href="/blog/cycle-12-corvette-charity-pick"
               className="inline-flex items-center gap-2 border border-paper-3 bg-transparent px-5 py-3 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper-3 hover:text-ink transition rounded-full"
             >
-              <FileText size={14} /> Why we picked them
+              <FileText size={14} /> <Copy k="charity.band.cta2" />
             </Link>
           </div>
 
           <div className="mt-7 flex flex-wrap gap-2 text-[12px]">
-            <Label tone="brass" variant="solid">Registered 501(c)(3)</Label>
-            <Label tone="paper" variant="outline">10% to charity</Label>
+            <Label tone="brass" variant="solid"><Copy k="charity.band.badge1" /></Label>
+            <Label tone="paper" variant="outline"><Copy k="charity.band.badge2" /></Label>
           </div>
 
           <div className="mt-6">
@@ -59,17 +60,17 @@ export function CharityBand() {
 
         <div className="lg:col-span-5 border border-paper-3 bg-ink-raised rounded-2xl overflow-hidden">
           <div className="border-b border-paper-3 p-5 flex items-baseline justify-between">
-            <p className="section-eyebrow !text-paper-3/70">Lifetime · all cycles</p>
-            <p className="dateline !text-paper-3/60">cumulative</p>
+            <p className="section-eyebrow !text-paper-3/70"><Copy k="charity.band.stats.eyebrow" /></p>
+            <p className="dateline !text-paper-3/60"><Copy k="charity.band.stats.note" /></p>
           </div>
 
           <div className="p-6">
-            <CounterRow value={lifetimeStats.totalDonatedUSD} prefix="$" label="Donated to partner charities" big />
+            <CounterRow value={lifetimeStats.totalDonatedUSD} prefix="$" label={<Copy k="charity.band.stat.donated" />} big />
             <div className="mt-6 grid grid-cols-2 gap-4 pt-6 border-t border-paper-3/20">
-              <CounterRow value={lifetimeStats.charitiesFunded} label="Partner charities" />
-              <CounterRow value={lifetimeStats.cyclesRun} label="Cycles run" />
-              <CounterRow value={lifetimeStats.carsGivenAway} label="Cars given away" />
-              <CounterRow value={lifetimeStats.ticketsCounted} label="Entries verified" />
+              <CounterRow value={lifetimeStats.charitiesFunded} label={<Copy k="charity.band.stat.charities" />} />
+              <CounterRow value={lifetimeStats.cyclesRun} label={<Copy k="charity.band.stat.cycles" />} />
+              <CounterRow value={lifetimeStats.carsGivenAway} label={<Copy k="charity.band.stat.cars" />} />
+              <CounterRow value={lifetimeStats.ticketsCounted} label={<Copy k="charity.band.stat.entries" />} />
             </div>
           </div>
         </div>
@@ -80,7 +81,7 @@ export function CharityBand() {
 
 function CounterRow({
   value, label, prefix, big,
-}: { value: number; label: string; prefix?: string; big?: boolean }) {
+}: { value: number; label: React.ReactNode; prefix?: string; big?: boolean }) {
   return (
     <div>
       <p

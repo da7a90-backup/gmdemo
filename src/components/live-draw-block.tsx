@@ -45,15 +45,15 @@ export function LiveDrawBlock() {
             </div>
 
             <div className="mt-6 flex flex-wrap gap-2">
-              <Label tone="brass" variant="solid">Fully transparent</Label>
-              <Label tone="paper" variant="solid">Archived to YouTube</Label>
+              <Label tone="brass" variant="solid"><Copy k="live.block.badge1" /></Label>
+              <Label tone="paper" variant="solid"><Copy k="live.block.badge2" /></Label>
             </div>
           </div>
 
           <ul className="lg:col-span-5 grid gap-3 self-center">
-            <Step icon={<Drum size={20} />} label="Drum loaded" body="Every printed entry is dropped into the drum on draw day." />
-            <Step icon={<Radio size={20} />} label="Simulcast" body="Facebook Live primary, YouTube mirror, captioned." />
-            <Step icon={<Tv2 size={20} />} label="Phone call on air" body="We dial the winner the moment the ticket is read." />
+            <Step icon={<Drum size={20} />} label={<Copy k="live.block.step1.label" />} body={<Copy k="live.block.step1.body" />} />
+            <Step icon={<Radio size={20} />} label={<Copy k="live.block.step2.label" />} body={<Copy k="live.block.step2.body" />} />
+            <Step icon={<Tv2 size={20} />} label={<Copy k="live.block.step3.label" />} body={<Copy k="live.block.step3.body" />} />
           </ul>
         </div>
       </div>
@@ -61,7 +61,7 @@ export function LiveDrawBlock() {
   );
 }
 
-function Step({ icon, label, body }: { icon: React.ReactNode; label: string; body: string }) {
+function Step({ icon, label, body }: { icon: React.ReactNode; label: React.ReactNode; body: React.ReactNode }) {
   return (
     <li className="flex gap-4 border border-paper/40 bg-paper/[0.05] p-4 rounded-lg">
       <span className="inline-flex h-11 w-11 items-center justify-center bg-brass text-ink border border-paper shrink-0 rounded-md">{icon}</span>

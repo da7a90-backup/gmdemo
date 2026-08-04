@@ -39,7 +39,7 @@ export function PricingTiers() {
                 mode === "once" ? "bg-ink text-paper-3" : "text-ink"
               }`}
             >
-              One-time
+              <Copy k="pricing.tab.once" />
             </button>
             <button
               role="tab"
@@ -49,8 +49,8 @@ export function PricingTiers() {
                 mode === "monthly" ? "bg-ink text-paper-3" : "text-ink"
               }`}
             >
-              Monthly
-              <span className="text-[10px] px-1.5 py-0.5 bg-brass text-ink rounded-full">save 67%</span>
+              <Copy k="pricing.tab.monthly" />
+              <span className="text-[10px] px-1.5 py-0.5 bg-brass text-ink rounded-full"><Copy k="pricing.save" /></span>
             </button>
           </div>
         </div>
@@ -76,7 +76,7 @@ export function PricingTiers() {
                 <p className={`mt-1 text-[14px] font-serif italic ${t.popular ? "text-paper/70" : "text-ink-3"}`}>{t.blurb}</p>
                 <div className="mt-7 flex items-baseline gap-2">
                   <span className="font-condensed numeral text-6xl leading-none font-semibold">{usd(t.priceUSD)}</span>
-                  <span className={`${t.popular ? "text-paper/70" : "text-ink-2"} text-sm`}>one-time</span>
+                  <span className={`${t.popular ? "text-paper/70" : "text-ink-2"} text-sm`}><Copy k="pricing.oneTime" /></span>
                 </div>
                 <p className={`mt-3 font-condensed uppercase tracking-[0.22em] text-[12px] ${t.popular ? "text-paper" : "text-ink"}`}>
                   <span className={`numeral text-base ${t.popular ? "text-brass" : "text-accent"}`}>{t.entries}</span> {t.entries === 1 ? "entry" : "entries"} · Cycle 12
@@ -87,7 +87,7 @@ export function PricingTiers() {
                     t.popular ? "bg-accent text-paper-3 border-accent hover:bg-paper-3 hover:text-ink hover:border-paper-3" : "bg-ink text-paper-3 border-ink/10 hover:bg-accent hover:border-accent"
                   } transition-colors`}
                 >
-                  Buy now
+                  <Copy k="pricing.buy" />
                 </Link>
               </article>
             ))}
@@ -100,7 +100,7 @@ export function PricingTiers() {
               className="inline-flex items-center gap-2 border border-ink/10 bg-paper-3 px-5 py-2.5 font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper-3 transition-colors rounded-full"
             >
               {showAll ? <Minus size={14} /> : <Plus size={14} />}
-              {showAll ? "Hide" : "Show"} the full 6-tier ladder
+              {showAll ? <Copy k="pricing.hide" /> : <Copy k="pricing.show" />} <Copy k="pricing.ladder" />
             </button>
           </div>
         </>
@@ -120,7 +120,7 @@ export function PricingTiers() {
               <h3 className="font-display font-bold text-3xl">{m.name}</h3>
               <div className="mt-5 flex items-baseline gap-2">
                 <span className="font-condensed numeral text-6xl leading-none font-semibold">{usd(m.monthlyUSD)}</span>
-                <span className={`${m.popular ? "text-paper-3/70" : "text-ink-3"} text-sm`}>/ month</span>
+                <span className={`${m.popular ? "text-paper-3/70" : "text-ink-3"} text-sm`}><Copy k="pricing.perMonth" /></span>
               </div>
               <p className={`mt-3 font-condensed uppercase tracking-[0.22em] text-[12px]`}>
                 <span className="numeral text-base">{m.monthlyEntries}</span> entries · every draw · auto-entered
@@ -139,10 +139,10 @@ export function PricingTiers() {
                   m.popular ? "bg-brass text-ink border-brass hover:bg-paper-3 hover:border-paper-3" : "bg-ink text-paper-3 border-ink/10 hover:bg-accent hover:border-accent"
                 } transition-colors`}
               >
-                Join {m.name}
+                <Copy k="pricing.join" /> {m.name}
               </Link>
               <p className={`mt-3 text-center font-serif italic text-[13px] ${m.popular ? "text-paper-3/70" : "text-ink-3"}`}>
-                Pause or cancel any time.
+                <Copy k="pricing.cancel" />
               </p>
             </article>
           ))}

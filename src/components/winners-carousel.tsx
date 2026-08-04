@@ -28,7 +28,7 @@ export function WinnersCarousel() {
           href="/winners"
           className="hidden sm:inline-flex items-center gap-2 border border-ink/10 bg-paper-4 px-4 py-2 font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper rounded-full"
         >
-          Full archive <ArrowRight size={12} />
+          <Copy k="winners.fullArchive" /> <ArrowRight size={12} />
         </Link>
       </div>
 
@@ -58,10 +58,10 @@ export function WinnersCarousel() {
                   </div>
                 </div>
                 <span className="absolute top-2 left-2 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[9px] px-2 py-0.5 border border-ink/10 rounded-md">
-                  Cycle №{String(w.drawCycle).padStart(2, "0")}
+                  <Copy k="winners.cardCycle" />{String(w.drawCycle).padStart(2, "0")}
                 </span>
                 <button aria-label="Watch reveal" className="absolute right-2 bottom-2 inline-flex items-center gap-1 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[9px] px-2 py-1 border border-ink/10 rounded-full">
-                  <PlayCircle size={10} /> Reveal
+                  <PlayCircle size={10} /> <Copy k="winners.reveal" />
                 </button>
               </div>
               <div className="p-4">

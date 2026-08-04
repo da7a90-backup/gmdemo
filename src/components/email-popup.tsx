@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { X, ArrowRight, HeartHandshake, MessageSquareText, Smartphone } from "lucide-react";
 import { addSmsSubscriber } from "@/lib/subscribers";
-import { Copy } from "@/components/copy";
+import { Copy, useCopy } from "@/components/copy";
 
 /** Routes where the SMS popup should never appear (interrupts the buy / confirmation flow). */
 const SUPPRESS_PATHS = ["/checkout", "/thank-you", "/admin"];
@@ -37,6 +37,7 @@ function formatPhone(raw: string): string {
 }
 
 export function EmailPopup() {
+  const t = useCopy();
   const pathname = usePathname();
   const suppressed = SUPPRESS_PATHS.some((p) => pathname?.startsWith(p));
   const [open, setOpen] = useState(false);
@@ -130,8 +131,8 @@ export function EmailPopup() {
 
         <div className="border-heavy-3 bg-paper-3 shadow-lift rounded-2xl overflow-hidden max-h-[88dvh] overflow-y-auto">
         <div className="bg-accent-bright text-ink border-b border-ink/10 px-5 py-2.5 flex items-center justify-between">
-          <span className="font-condensed uppercase tracking-[0.24em] text-[12px] font-bold">★ Text club</span>
-          <span className="font-condensed uppercase tracking-[0.22em] text-[11px]">Free to join</span>
+          <span className="font-condensed uppercase tracking-[0.24em] text-[12px] font-bold"><Copy k="popup.header.badge" /></span>
+          <span className="font-condensed uppercase tracking-[0.22em] text-[11px]"><Copy k="popup.header.free" /></span>
         </div>
 
         {!submitted ? (
@@ -147,7 +148,7 @@ export function EmailPopup() {
 
             <form onSubmit={onSubmit} className="mt-4 sm:mt-6">
               <label className="block">
-                <span className="dateline on-paper">Mobile number</span>
+                <span className="dateline on-paper"><Copy k="popup.field.label" /></span>
                 <span className="mt-1.5 flex items-center border border-ink/10 bg-paper-4 px-3 rounded-lg">
                   <Smartphone size={16} className="text-ink-3 shrink-0" />
                   <span className="ml-2 font-condensed text-[15px] text-ink-3 select-none">+1</span>
@@ -158,7 +159,7 @@ export function EmailPopup() {
                     required
                     value={phone}
                     onChange={(e) => setPhone(formatPhone(e.target.value))}
-                    placeholder="(555) 123-4567"
+                    placeholder={t("popup.field.placeholder")}
                     className="ml-2 w-full h-11 sm:h-12 bg-transparent text-[16px] text-ink placeholder:text-ink-3 outline-none numeral"
                     autoFocus
                   />
@@ -173,16 +174,16 @@ export function EmailPopup() {
 
               {/* TCPA consent disclosure — must sit directly under the CTA, no gaps */}
               <p className="mt-2.5 text-[10px] sm:text-[11px] leading-snug text-ink-3">
-                *By signing up via text, you agree to receive recurring automated promotional and personalized marketing text messages (e.g. draw reminders) from Generous Motors at the number provided. Consent is not a condition of any purchase. Reply HELP for help and STOP to cancel. Msg frequency varies. Msg &amp; data rates may apply. View{" "}
-                <Link href="/about" className="font-bold underline underline-offset-2 text-accent">TERMS</Link>
+                <Copy k="popup.tcpa" />{" "}
+                <Link href="/about" className="font-bold underline underline-offset-2 text-accent"><Copy k="popup.terms" /></Link>
                 {" "}&amp;{" "}
-                <Link href="/about" className="font-bold underline underline-offset-2 text-accent">PRIVACY</Link>.
+                <Link href="/about" className="font-bold underline underline-offset-2 text-accent"><Copy k="popup.privacy" /></Link>.
               </p>
             </form>
 
             <div className="mt-4 pt-4 border-t border-rule-soft hidden sm:flex items-start gap-2.5 text-[12px] text-ink-3 font-serif italic">
               <HeartHandshake size={14} className="mt-0.5 text-charity shrink-0" />
-              <span>10% of every cycle goes to that cycle&apos;s nonprofit partner. Joining the text club helps us reach more drivers — and more charities.</span>
+              <span><Copy k="popup.charityNote" /></span>
             </div>
 
             <button
@@ -190,7 +191,7 @@ export function EmailPopup() {
               onClick={onClose}
               className="mt-3 sm:mt-4 w-full text-center text-[12px] text-ink-3 underline underline-offset-4 hover:text-ink"
             >
-              No thanks, take me back
+              <Copy k="popup.skip" />
             </button>
           </div>
         ) : (
@@ -200,7 +201,7 @@ export function EmailPopup() {
             </div>
             <h2 className="mt-5 font-display font-bold text-2xl text-ink"><Copy k="popup.success.title" /></h2>
             <p className="mt-2 text-ink-2 font-serif">
-              We just texted {phone || "you"}. Reply <strong className="font-condensed not-italic">Y</strong> to confirm your spot — that&apos;s it.
+              {t("popup.success.body").replace("{phone}", phone || "you")}
             </p>
           </div>
         )}
