@@ -97,11 +97,15 @@ by accident, so they are BANNED here:
 | bump the counter in a **different transaction** than the insert | reserved number leaks / gets reused |
 
 **How we allocate the order number (safe by construction):**
-1. **One fused statement** — `UPDATE cycle_counters SET last_order_no = last_order_no + 1 WHERE
-   cycle_id = :c RETURNING last_order_no`. The read and write are the *same* statement; Postgres
-   re-reads the row under the write's row lock, so it's correct even at the default Read
-   Committed. **Never** an ORM increment. (Equivalent, even lower-contention option: a per-cycle
-   Postgres `SEQUENCE` — `nextval` is lock-free and collision-proof *by design*; gaps are fine.)
+1. **A per-cycle Postgres `SEQUENCE` — `nextval` (recommended, and stress-tested).** `nextval`
+   is collision-proof *by design* and **lock-free**, so concurrent orders don't serialize. The
+   stress test (`ticket-stress-test.md`) measured this at **~4× the throughput** of the counter
+   row (23s vs 92s for 200 concurrent orders) with identical, perfect correctness. Gaps in the
+   sequence are fine (we don't need contiguity). Create the sequence when the cycle opens.
+   *Alternative* (simpler, no per-cycle DDL, but it serializes): **one fused statement** —
+   `UPDATE cycle_counters SET last_order_no = last_order_no + 1 WHERE cycle_id = :c RETURNING
+   last_order_no`; read and write are the *same* statement, so Postgres re-reads under the
+   write's row lock — correct even at Read Committed. **Never** an ORM increment.
 2. **Primary only** — the allocation never runs against a read replica.
 3. **Counter row pre-created when the cycle opens** (or `INSERT … ON CONFLICT DO UPDATE …
    RETURNING`), so two orders never race to *create* the counter row.
@@ -492,10 +496,12 @@ demo's `analytics.ts` (`visit`/`purchase`, `source`, `channel`, `trigger`).
 ---
 
 ## 7. Scale & operational notes
-- **Counter contention is per-order, not per-ticket.** The only serialized row is
-  `cycle_counters`, bumped once per order (one locked `UPDATE` statement). A 400-entry order
-  takes one lock, not 400; the per-order ticket sequence needs no shared row. Draw-night spikes
-  are orders/second — trivial for a single row lock with ordinary connection pooling.
+- **Order-number allocation is lock-free with a per-cycle `SEQUENCE`** (`nextval`), so
+  concurrent orders don't serialize at all — measured ~4× faster than the counter-row lock and
+  perfectly correct under 200 concurrent orders + 50 duplicate deliveries (see
+  `ticket-stress-test.md`). The per-order ticket sequence needs no shared row either. Even the
+  simpler counter-row variant, which does serialize on one lock per order, is trivial at
+  raffle volumes; the sequence is the recommended default.
 - **entry_blocks stays small** — one row per order line, not per entry. "My entries", counts,
   and the draw are cheap even at millions of entries (`SUM(ticket_count) WHERE NOT voided`).
 - **Indexes**: `entry_blocks(cycle_id) where not voided`, `entry_blocks(user_id)`,
