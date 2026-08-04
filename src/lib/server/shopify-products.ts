@@ -1,5 +1,5 @@
 // Sprint 2 — the "Tickets" product in Shopify: one product, one "Bundle" option,
-// six variants (own prices), each with a gm_raffle.base_entries metafield. Idempotent by
+// six variants (own prices), each with a base_entries metafield (namespace gm_tickets). Idempotent by
 // handle. Promo multiplier is applied at add-to-cart (line-item property) + webhook.
 import { shopifyAdmin } from "./shopify";
 
@@ -22,9 +22,9 @@ async function ensureBaseEntriesDefinition() {
      }`,
     {
       def: {
-        name: "Base entries", namespace: "gm_raffle", key: "base_entries",
+        name: "Base entries", namespace: "gm_tickets", key: "base_entries",
         type: "number_integer", ownerType: "PRODUCTVARIANT",
-        description: "Base raffle entries for this bundle (before promo multiplier).",
+        description: "Base entries for this bundle (before promo multiplier).",
       },
     },
   ).catch(() => {}); // ignore "already exists"
@@ -46,7 +46,7 @@ async function setBaseEntries(productId: string) {
     .map((node) => {
       const bundleName = node.selectedOptions.find((o) => o.name === "Bundle")?.value;
       const b = BUNDLES.find((x) => x.name === bundleName);
-      return b ? { ownerId: node.id, namespace: "gm_raffle", key: "base_entries", type: "number_integer", value: String(b.entries) } : null;
+      return b ? { ownerId: node.id, namespace: "gm_tickets", key: "base_entries", type: "number_integer", value: String(b.entries) } : null;
     })
     .filter(Boolean);
   if (metafields.length) {
@@ -59,13 +59,13 @@ async function setBaseEntries(productId: string) {
 
 async function summarize(productId: string, status: "created" | "exists") {
   const r = await shopifyAdmin<{
-    product: { id: string; title: string; handle: string; status: string;
+    product: { id: string; title: string; handle: string; status: string; productType: string;
       variants: { nodes: { title: string; price: string; metafield: { value: string } | null }[] } };
   }>(
     `query($id: ID!) {
        product(id: $id) {
-         id title handle status
-         variants(first: 20) { nodes { title price metafield(namespace: "gm_raffle", key: "base_entries") { value } } }
+         id title handle status productType
+         variants(first: 20) { nodes { title price metafield(namespace: "gm_tickets", key: "base_entries") { value } } }
        }
      }`,
     { id: productId },
@@ -79,16 +79,37 @@ async function summarize(productId: string, status: "created" | "exists") {
     title: p.title,
     handle: p.handle,
     productStatus: p.status,
+    productType: p.productType,
     adminUrl: `https://admin.shopify.com/store/${shop}/products/${numericId}`,
     variants: p.variants.nodes.map((v) => ({ bundle: v.title, price: v.price, base_entries: v.metafield?.value ?? null })),
   };
 }
 
+async function cleanupOldDefinition() {
+  // Remove the earlier gm_raffle namespace + its metafields entirely.
+  const r = await shopifyAdmin<{ metafieldDefinitions: { nodes: { id: string }[] } }>(
+    `{ metafieldDefinitions(first: 5, ownerType: PRODUCTVARIANT, namespace: "gm_raffle", key: "base_entries") { nodes { id } } }`,
+  ).catch(() => null);
+  const id = r?.metafieldDefinitions?.nodes?.[0]?.id;
+  if (id) {
+    await shopifyAdmin(
+      `mutation($id: ID!) { metafieldDefinitionDelete(id: $id, deleteAllAssociatedMetafields: true) { deletedDefinitionId userErrors { message } } }`,
+      { id },
+    ).catch(() => {});
+  }
+}
+
 export async function ensureTicketsProduct() {
+  await cleanupOldDefinition();
   await ensureBaseEntriesDefinition();
 
   const existing = await productIdByHandle();
   if (existing) {
+    // enforce the correct title + product type on the live product
+    await shopifyAdmin(
+      `mutation($p: ProductUpdateInput!) { productUpdate(product: $p) { product { id } userErrors { message } } }`,
+      { p: { id: existing, title: "Tickets", productType: "Tickets" } },
+    ).catch(() => {});
     await setBaseEntries(existing); // idempotent — (re)sets base_entries metafields
     return summarize(existing, "exists");
   }
@@ -102,7 +123,7 @@ export async function ensureTicketsProduct() {
         title: "Tickets",
         handle: HANDLE,
         status: "ACTIVE",
-        productType: "Raffle entry",
+        productType: "Tickets",
         productOptions: [{ name: "Bundle", values: BUNDLES.map((b) => ({ name: b.name })) }],
         variants: BUNDLES.map((b) => ({
           optionValues: [{ optionName: "Bundle", name: b.name }],
