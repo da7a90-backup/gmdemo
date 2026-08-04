@@ -5,6 +5,7 @@ import { useWinners } from "@/lib/winners-store";
 import { niceDate } from "@/lib/format";
 import { PlayCircle, ArrowRight } from "lucide-react";
 import { Label } from "@/components/sticker";
+import { Copy } from "@/components/copy";
 
 export function WinnersGallery({
   limit = 6,
@@ -19,21 +20,21 @@ export function WinnersGallery({
       {showHeader && (
         <div className="grid lg:grid-cols-12 gap-8 items-end border-b border-rule-soft pb-12">
           <div className="lg:col-span-8">
-            <p className="section-eyebrow section-eyebrow-rule">Winners — every cycle, named</p>
+            <p className="section-eyebrow section-eyebrow-rule"><Copy k="winners.gallery.eyebrow" /></p>
             <h2 className="mt-4 hero-headline" style={{ fontSize: "clamp(2.25rem,5vw,4.25rem)" }}>
-              Real winners. <span className="accent-serif">Real cars.</span><br />
-              Real charity checks.
+              <Copy k="winners.gallery.h.l1" /> <span className="accent-serif"><Copy k="winners.gallery.h.accent" /></span><br />
+              <Copy k="winners.gallery.h.l2" />
             </h2>
           </div>
           <div className="lg:col-span-4 flex flex-col items-start lg:items-end gap-4">
             <p className="text-ink-2 text-[17px] font-serif leading-[1.55] lg:text-right">
-              Every winner is named, photographed, called on stream, and posted here forever.
+              <Copy k="winners.gallery.side" />
             </p>
             <Link
               href="/winners"
               className="inline-flex items-center gap-2 border border-ink/10 bg-paper-3 px-5 py-2.5 font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper-3 transition rounded-full"
             >
-              Full archive <ArrowRight size={14} />
+              <Copy k="winners.fullArchive" /> <ArrowRight size={14} />
             </Link>
           </div>
         </div>
@@ -76,14 +77,14 @@ export function WinnerCard({ winner: w }: { winner: Winner }) {
         </div>
 
         <span className="absolute top-3 left-3">
-          <Label tone="paper">Cycle №{String(w.drawCycle).padStart(2, "0")}</Label>
+          <Label tone="paper"><Copy k="winners.cardCycle" />{String(w.drawCycle).padStart(2, "0")}</Label>
         </span>
 
         <button
           aria-label="Watch reveal clip"
           className="absolute right-3 bottom-3 inline-flex items-center gap-1.5 bg-paper-3 text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-3 py-1.5 border border-ink/10 hover:bg-brass rounded-full"
         >
-          <PlayCircle size={12} /> Reveal
+          <PlayCircle size={12} /> <Copy k="winners.reveal" />
         </button>
       </div>
       <div className="p-5">
@@ -96,7 +97,7 @@ export function WinnerCard({ winner: w }: { winner: Winner }) {
           &ldquo;{w.quote}&rdquo;
         </blockquote>
         <p className="mt-4 dateline">
-          Charity allocation: <span className="text-charity">{w.charity}</span>
+          <Copy k="winners.card.charityLabel" /> <span className="text-charity">{w.charity}</span>
         </p>
       </div>
     </article>

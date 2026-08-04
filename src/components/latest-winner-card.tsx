@@ -3,6 +3,7 @@ import { useWinners } from "@/lib/winners-store";
 import { niceDate } from "@/lib/format";
 import { PlayCircle } from "lucide-react";
 import { Label } from "@/components/sticker";
+import { Copy } from "@/components/copy";
 
 /** Featured card for the most recent winner (winners[0]). Shared by home + tickets. */
 export function LatestWinnerCard() {
@@ -21,13 +22,13 @@ export function LatestWinnerCard() {
           </div>
         </div>
         <span className="absolute top-3 left-3">
-          <Label tone="brass" variant="solid">★ Latest winner</Label>
+          <Label tone="brass" variant="solid"><Copy k="winners.latestBadge" /></Label>
         </span>
         <span className="absolute top-3 right-3 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[9px] px-2 py-0.5 border border-ink/10 rounded-md">
-          Cycle №{String(latest.drawCycle).padStart(2, "0")}
+          <Copy k="winners.cardCycle" />{String(latest.drawCycle).padStart(2, "0")}
         </span>
         <button aria-label="Watch reveal" className="absolute right-3 bottom-3 inline-flex items-center gap-1 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border border-ink/10 hover:bg-brass rounded-full">
-          <PlayCircle size={12} /> Watch the reveal
+          <PlayCircle size={12} /> <Copy k="winners.watchReveal" />
         </button>
       </div>
 
@@ -36,10 +37,10 @@ export function LatestWinnerCard() {
           {latest.firstName} {latest.lastInitial}.
         </p>
         <p className="dateline on-paper mt-1">
-          {latest.city}, {latest.state} · drawn {niceDate(latest.drawDateISO)}
+          {latest.city}, {latest.state} · <Copy k="winners.drawnPrefix" /> {niceDate(latest.drawDateISO)}
         </p>
         <p className="mt-2 font-condensed uppercase tracking-[0.22em] text-[13px] text-accent">
-          Won the {latest.vehicle}
+          <Copy k="winners.wonThe" /> {latest.vehicle}
         </p>
         <blockquote className="mt-4 font-serif italic text-[17px] md:text-lg text-ink-2 leading-snug max-w-xl">
           &ldquo;{latest.quote}&rdquo;

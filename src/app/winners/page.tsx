@@ -5,10 +5,15 @@ import { winners, lifetimeStats } from "@/lib/mock-data";
 import { ArrowRight } from "lucide-react";
 import { Announce } from "@/components/marquee";
 import { Label } from "@/components/sticker";
+import { getContentServer } from "@/lib/server/copy";
 
 export const metadata = { title: "Winners — Generous Motors" };
 
-export default function WinnersPage() {
+// Rendered per-request so Kevin's Shopify copy edits show up.
+export const dynamic = "force-dynamic";
+
+export default async function WinnersPage() {
+  const copy = await getContentServer();
   return (
     <div className="bg-paper-3 text-ink">
       <section className="relative border-b border-ink/10 overflow-hidden grain">
@@ -22,36 +27,36 @@ export default function WinnersPage() {
         />
         <div className="mx-auto max-w-[1400px] px-5 py-10 grid lg:grid-cols-12 gap-6 items-end border-b border-rule-soft">
           <div className="lg:col-span-8">
-            <p className="section-eyebrow section-eyebrow-rule">Winners archive · since 2024</p>
+            <p className="section-eyebrow section-eyebrow-rule">{copy["winners.page.eyebrow"]}</p>
             <h1 className="mt-3 hero-headline" style={{ fontSize: "clamp(2rem,4.5vw,3.75rem)" }}>
-              Eleven cycles. <span className="accent-serif">Eleven drivers.</span>
+              {copy["winners.page.h.lead"]} <span className="accent-serif">{copy["winners.page.h.accent"]}</span>
             </h1>
             <p className="mt-4 max-w-xl text-[15px] text-ink-2 font-serif">
-              Every winner is real, photographed, called on stream, and named here forever.
+              {copy["winners.page.intro"]}
             </p>
           </div>
           <div className="lg:col-span-4 flex flex-wrap items-end justify-end gap-2">
-            <Label tone="brass" variant="outline">Verified · physical drum</Label>
-            <Label tone="ink" variant="outline">On camera · every cycle</Label>
+            <Label tone="brass" variant="outline">{copy["winners.page.badge1"]}</Label>
+            <Label tone="ink" variant="outline">{copy["winners.page.badge2"]}</Label>
           </div>
         </div>
 
         <div className="mx-auto max-w-[1400px] px-5 pb-8 grid grid-cols-2 gap-0 md:grid-cols-4 rounded-xl overflow-hidden border-x border-ink/10 mt-6 divide-x divide-ink/10">
-          <KPI label="Cars given away" value={lifetimeStats.carsGivenAway} />
-          <KPI label="Charities funded" value={lifetimeStats.charitiesFunded} />
-          <KPI label="Lifetime payout (USD)" value={lifetimeStats.lifetimePayoutUSD} prefix="$" />
-          <KPI label="Donated to charity (USD)" value={lifetimeStats.totalDonatedUSD} prefix="$" tone="charity" />
+          <KPI label={copy["winners.kpi.cars"]} value={lifetimeStats.carsGivenAway} />
+          <KPI label={copy["winners.kpi.charities"]} value={lifetimeStats.charitiesFunded} />
+          <KPI label={copy["winners.kpi.payout"]} value={lifetimeStats.lifetimePayoutUSD} prefix="$" />
+          <KPI label={copy["winners.kpi.donated"]} value={lifetimeStats.totalDonatedUSD} prefix="$" tone="charity" />
         </div>
       </section>
 
       <Announce
-        label="Recent winners"
+        label={copy["winners.recent.label"]}
         tone="paper"
         items={[
-          "Maria T · Miami · '69 Mustang Fastback",
-          "James R · Houston · '23 Corvette Stingray",
-          "Angela P · Tampa · Bronco Heritage",
-          "Derek M · Atlanta · Challenger SRT",
+          copy["winners.recent.i1"],
+          copy["winners.recent.i2"],
+          copy["winners.recent.i3"],
+          copy["winners.recent.i4"],
         ]}
       />
 
@@ -65,15 +70,15 @@ export default function WinnersPage() {
         </ul>
 
         <div className="mt-16 rounded-2xl border border-ink/10 bg-brass p-10 text-center">
-          <p className="section-eyebrow">Cycle 12 is open</p>
+          <p className="section-eyebrow">{copy["winners.cta.eyebrow"]}</p>
           <h2 className="mt-4 hero-headline" style={{ fontSize: "clamp(2rem,4vw,3.25rem)" }}>
-            Your name could be on this wall <span className="accent-serif">next.</span>
+            {copy["winners.cta.h.lead"]} <span className="accent-serif">{copy["winners.cta.h.accent"]}</span>
           </h2>
           <Link
             href="/tickets"
             className="mt-7 inline-flex h-12 items-center gap-2 rounded-full bg-ink text-paper-3 px-6 border border-ink/10 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-accent hover:border-accent transition-colors"
           >
-            Buy tickets <ArrowRight size={14} />
+            {copy["winners.cta.button"]} <ArrowRight size={14} />
           </Link>
         </div>
       </section>
