@@ -1,5 +1,6 @@
 import { ok, fail, readJson, requireAdmin, errMsg } from "@/lib/server/http";
 import { listWinners, createWinner, deleteWinner, type Winner } from "@/lib/server/editorial";
+import { klaviyoEvent } from "@/lib/server/providers/klaviyo";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -9,9 +10,25 @@ export async function GET() {
 }
 export async function POST(req: Request) {
   const g = requireAdmin(req); if (g) return g;
-  const b = await readJson<Omit<Winner, "id">>(req);
+  // `email` is optional and NOT stored — when present, it's the winner's address for
+  // the "You won" Klaviyo notification (there's no draw-from-drum flow yet that would
+  // carry a user email automatically).
+  const b = await readJson<Omit<Winner, "id"> & { email?: string }>(req);
   if (!b?.firstName || !b?.vehicle) return fail("firstName and vehicle required");
-  try { return ok(await createWinner(b)); } catch (e) { return fail(errMsg(e), 500); }
+  try {
+    const w = await createWinner(b);
+    if (b.email) {
+      await klaviyoEvent("Won Drawing", b.email, {
+        prize: w.vehicle,
+        cycle: w.drawCycle,
+        charity: w.charity,
+        winner_name: `${w.firstName} ${w.lastInitial}`.trim(),
+      }).catch(() => {});
+    }
+    return ok(w);
+  } catch (e) {
+    return fail(errMsg(e), 500);
+  }
 }
 export async function DELETE(req: Request) {
   const g = requireAdmin(req); if (g) return g;
