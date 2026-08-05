@@ -16,8 +16,22 @@ export default function AccountLoginPage() {
   const [error, setError] = useState("");
   const otpRef = useRef<HTMLInputElement | null>(null);
 
+  // Prefer real Shopify-hosted passwordless login when the Customer Account API is
+  // configured; otherwise fall back to the demo OTP below. `?demo=1` forces the demo.
   useEffect(() => {
-    if (getUser()) router.replace("/account");
+    let alive = true;
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((j) => {
+        if (!alive) return;
+        const d = j?.data;
+        if (d?.signedIn) { router.replace("/account"); return; }
+        const demo = new URLSearchParams(window.location.search).get("demo");
+        if (d?.authConfigured && !demo) { window.location.href = "/api/auth/shopify/login?returnTo=/account"; return; }
+        if (getUser()) router.replace("/account"); // demo session
+      })
+      .catch(() => { if (alive && getUser()) router.replace("/account"); });
+    return () => { alive = false; };
   }, [router]);
 
   const sendCode = (e: React.FormEvent) => {
