@@ -1,12 +1,14 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { Save, RotateCcw, Check } from "lucide-react";
-import { CONTENT_FIELDS, getContent, saveContent, resetContent, contentDefault } from "@/lib/content";
+import { Save, RotateCcw, Check, Loader2, AlertTriangle } from "lucide-react";
+import { CONTENT_FIELDS, CONTENT_DEFAULTS, getContent, saveContent, resetContent, contentDefault } from "@/lib/content";
 import { Label } from "@/components/sticker";
 
 export default function AdminContentPage() {
   const [values, setValues] = useState<Record<string, string> | null>(null);
   const [saved, setSaved] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     setValues(getContent());
@@ -26,16 +28,49 @@ export default function AdminContentPage() {
 
   const edited = CONTENT_FIELDS.filter((f) => values[f.key] !== f.def).length;
 
-  const onSave = () => {
+  // Publish to Shopify metaobjects (the live CMS) and mirror to localStorage for
+  // instant preview in this browser. Other visitors pick it up via /api/content.
+  const onSave = async () => {
+    if (!values) return;
+    setError("");
+    setPublishing(true);
     saveContent(values);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+    try {
+      const r = await fetch("/api/admin/copy", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ values }),
+      });
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.error || "publish failed");
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch (e) {
+      setError(String((e as Error)?.message ?? e));
+    } finally {
+      setPublishing(false);
+    }
   };
 
-  const onReset = () => {
+  const onReset = async () => {
     resetContent();
     setValues(getContent());
     setSaved(false);
+    setError("");
+    setPublishing(true);
+    try {
+      const r = await fetch("/api/admin/copy", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ values: CONTENT_DEFAULTS }),
+      });
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.error || "reset failed");
+    } catch (e) {
+      setError(String((e as Error)?.message ?? e));
+    } finally {
+      setPublishing(false);
+    }
   };
 
   return (
@@ -54,20 +89,29 @@ export default function AdminContentPage() {
           <button
             type="button"
             onClick={onReset}
-            className="inline-flex items-center gap-2 border border-ink/10 bg-paper-3 px-4 py-2.5 rounded-full font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper transition-colors"
+            disabled={publishing}
+            className="inline-flex items-center gap-2 border border-ink/10 bg-paper-3 px-4 py-2.5 rounded-full font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper transition-colors disabled:opacity-50"
           >
             <RotateCcw size={13} /> Reset all
           </button>
           <button
             type="button"
             onClick={onSave}
-            className="inline-flex items-center gap-2 bg-accent-bright text-ink border border-ink/10 px-5 py-2.5 rounded-full font-condensed uppercase tracking-[0.22em] text-[11px] font-bold hover:bg-accent hover:text-paper-3 transition-colors"
+            disabled={publishing}
+            className="inline-flex items-center gap-2 bg-accent-bright text-ink border border-ink/10 px-5 py-2.5 rounded-full font-condensed uppercase tracking-[0.22em] text-[11px] font-bold hover:bg-accent hover:text-paper-3 transition-colors disabled:opacity-60"
           >
-            {saved ? <Check size={13} /> : <Save size={13} />}
-            {saved ? "Published" : "Publish changes"}
+            {publishing ? <Loader2 size={13} className="animate-spin" /> : saved ? <Check size={13} /> : <Save size={13} />}
+            {publishing ? "Publishing…" : saved ? "Published to Shopify" : "Publish changes"}
           </button>
         </div>
       </div>
+
+      {error && (
+        <div className="mt-4 flex items-start gap-2 border border-brass bg-brass-soft rounded-xl px-4 py-3 text-[13px] text-ink">
+          <AlertTriangle size={15} className="mt-0.5 shrink-0 text-brass-deep" />
+          <span>Publish failed: {error}. Changes are saved locally in this browser but not yet in Shopify.</span>
+        </div>
+      )}
 
       <div className="mt-8 grid gap-10">
         {pages.map(([page, groups]) => (
@@ -129,7 +173,8 @@ export default function AdminContentPage() {
       </div>
 
       <p className="mt-6 dateline on-paper">
-        Production build: these fields live in a headless CMS or Shopify metafields — same keys, same pickup.
+        Publishing writes every field to its <span className="text-ink">copy_&lt;page&gt;</span> Shopify metaobject —
+        the same source the public pages read. Editable in Shopify admin too.
       </p>
     </main>
   );

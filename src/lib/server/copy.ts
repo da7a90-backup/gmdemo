@@ -168,3 +168,31 @@ export async function getContentServer(): Promise<Record<string, string>> {
   const shop = await getCopyMap().catch(() => ({}));
   return { ...DEFAULTS, ...shop };
 }
+
+/**
+ * Publish admin copy edits to Shopify: overwrite each `copy_<page>` default entry
+ * with the provided values (code default for any absent key). Used by the admin
+ * Content desk so Kevin's edits become the live CMS the public site reads.
+ * Returns a per-page status; `metaobjectUpsert` creates the entry if missing.
+ */
+export async function writeCopyValues(values: Record<string, string>) {
+  const done: { page: string; type: string; status: string }[] = [];
+  for (const [page, fields] of pages()) {
+    const type = typeFor(page);
+    const res = await shopifyAdmin<{ metaobjectUpsert: { userErrors: UE } }>(
+      `mutation($h: MetaobjectHandleInput!, $m: MetaobjectUpsertInput!) {
+        metaobjectUpsert(handle: $h, metaobject: $m) { metaobject { id } userErrors { message code } }
+      }`,
+      {
+        h: { type, handle: "default" },
+        m: {
+          capabilities: { publishable: { status: "ACTIVE" } },
+          fields: fields.map((f) => ({ key: fieldKey(f.key), value: values[f.key] ?? f.def })),
+        },
+      },
+    ).catch((e) => ({ metaobjectUpsert: { userErrors: [{ message: String(e) }] } }));
+    const err = firstErr(res.metaobjectUpsert.userErrors);
+    done.push({ page, type, status: err ? `err: ${err}` : "published" });
+  }
+  return done;
+}
