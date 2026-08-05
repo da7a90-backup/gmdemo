@@ -11,6 +11,7 @@ import { trackVisit, track } from "@/lib/analytics";
 import { usdc, intl, niceWeekday } from "@/lib/format";
 import { CountdownBar } from "@/components/countdown";
 import { VehicleGallery } from "@/components/vehicle-gallery";
+import { startTicketCheckout } from "@/lib/checkout";
 import { Label } from "@/components/sticker";
 import { Copy, useCopy } from "@/components/copy";
 
@@ -43,7 +44,7 @@ export default function MemberTicketsPage() {
   const live = member ? isPromoLive(member) : false;
   const mult = member && live ? member.multiplier : 1;
 
-  const onBuy = (tierId: string) => {
+  const onBuy = async (tierId: string) => {
     const tier = ticketTiers.find((t) => t.id === tierId);
     track({
       type: "purchase",
@@ -55,7 +56,15 @@ export default function MemberTicketsPage() {
       amountUSD: tier?.priceUSD,
     });
     setRedirecting(true);
-    setTimeout(() => router.push(`/checkout?tier=${tierId}&type=once&promo=member`), 900);
+    if (tier) {
+      const redirected = await startTicketCheckout({
+        entries: tier.entries,
+        multiplier: mult,
+        attribution: { attr_source: "member", attr_channel: "Members", attr_trigger: "member login", attr_page: "/account/tickets" },
+      });
+      if (redirected) return;
+    }
+    router.push(`/checkout?tier=${tierId}&type=once&promo=member`);
   };
 
   return (

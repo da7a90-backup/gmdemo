@@ -1,19 +1,33 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Check, Plus, Minus } from "lucide-react";
 import { ticketTiers, membershipTiers } from "@/lib/mock-data";
 import { usePrizeCycle } from "@/lib/cycle-store";
 import { usd } from "@/lib/format";
+import { startTicketCheckout } from "@/lib/checkout";
 import { Label } from "@/components/sticker";
 import { Copy, useCopy } from "@/components/copy";
 
 export function PricingTiers() {
   const cp = useCopy();
+  const router = useRouter();
   const activeDraw = usePrizeCycle();
   const [mode, setMode] = useState<"once" | "monthly">("once");
   const [showAll, setShowAll] = useState(false);
   const visibleOnce = showAll ? ticketTiers : ticketTiers.slice(0, 3);
+
+  // One-time bundle → real Shopify checkout (baseline attribution); falls back to
+  // the demo checkout if Shopify is unavailable.
+  const buyOnce = async (tierId: string, entries: number) => {
+    const redirected = await startTicketCheckout({
+      entries,
+      multiplier: 1,
+      attribution: { attr_source: "organic", attr_channel: "Organic", attr_page: "/" },
+    });
+    if (!redirected) router.push(`/checkout?tier=${tierId}&type=once`);
+  };
 
   return (
     <section className="bg-paper-3 text-ink border-y border-rule" id="tickets">
@@ -84,14 +98,15 @@ export function PricingTiers() {
                 <p className={`mt-3 font-condensed uppercase tracking-[0.22em] text-[12px] ${t.popular ? "text-paper" : "text-ink"}`}>
                   <span className={`numeral text-base ${t.popular ? "text-brass" : "text-accent"}`}>{t.entries}</span> {t.entries === 1 ? cp("pricing.entrySingular") : cp("pricing.entryPlural")} {cp("pricing.cyclePrefix")} {activeDraw.cycle}
                 </p>
-                <Link
-                  href={`/checkout?tier=${t.id}&type=once`}
+                <button
+                  type="button"
+                  onClick={() => buyOnce(t.id, t.entries)}
                   className={`mt-8 inline-flex h-12 items-center justify-center border font-condensed uppercase tracking-[0.22em] text-[12px] rounded-full ${
                     t.popular ? "bg-accent text-paper-3 border-accent hover:bg-paper-3 hover:text-ink hover:border-paper-3" : "bg-ink text-paper-3 border-ink/10 hover:bg-accent hover:border-accent"
                   } transition-colors`}
                 >
                   <Copy k="pricing.buy" />
-                </Link>
+                </button>
               </article>
             ))}
           </div>

@@ -85,6 +85,23 @@ async function summarize(productId: string, status: "created" | "exists") {
   };
 }
 
+/** Publish the product to every sales channel/publication so the Storefront API
+ * (used by the cart) can see it. Idempotent; needs write_publications scope. */
+async function publishEverywhere(productId: string) {
+  const pubs = await shopifyAdmin<{ publications: { nodes: { id: string }[] } }>(
+    `{ publications(first: 25) { nodes { id name } } }`,
+  ).catch(() => ({ publications: { nodes: [] as { id: string }[] } }));
+  const input = pubs.publications.nodes.map((p) => ({ publicationId: p.id }));
+  if (input.length) {
+    await shopifyAdmin(
+      `mutation($id: ID!, $input: [PublicationInput!]!) {
+         publishablePublish(id: $id, input: $input) { userErrors { message } }
+       }`,
+      { id: productId, input },
+    ).catch(() => {});
+  }
+}
+
 async function cleanupOldDefinition() {
   // Remove the earlier gm_raffle namespace + its metafields entirely.
   const r = await shopifyAdmin<{ metafieldDefinitions: { nodes: { id: string }[] } }>(
@@ -111,6 +128,7 @@ export async function ensureTicketsProduct() {
       { p: { id: existing, title: "Tickets", productType: "Tickets" } },
     ).catch(() => {});
     await setBaseEntries(existing); // idempotent — (re)sets base_entries metafields
+    await publishEverywhere(existing); // ensure Storefront (cart) can see it
     return summarize(existing, "exists");
   }
 
@@ -136,5 +154,6 @@ export async function ensureTicketsProduct() {
   if (set.productSet.userErrors?.length) throw new Error("productSet: " + JSON.stringify(set.productSet.userErrors));
   const productId = set.productSet.product!.id;
   await setBaseEntries(productId);
+  await publishEverywhere(productId); // ensure Storefront (cart) can see it
   return summarize(productId, "created");
 }

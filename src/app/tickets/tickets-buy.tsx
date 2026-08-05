@@ -18,6 +18,7 @@ import { PromoBanner } from "@/components/promo-banner";
 import { resolvePromo, getPromoConfig, isPromoLive, PROMOS_EVENT, type PromoTier } from "@/lib/promotions";
 import { trackVisit, track, describeTrigger } from "@/lib/analytics";
 import { VehicleGallery } from "@/components/vehicle-gallery";
+import { startTicketCheckout, utmAttrs } from "@/lib/checkout";
 import { Copy, useCopy } from "@/components/copy";
 import { CharityName, CharityBlurb, CyclePartnerBadge } from "@/components/cycle-partner";
 import { getUser, SESSION_EVENT } from "@/lib/session";
@@ -56,7 +57,7 @@ export function TicketsBuy() {
 
   const mult = promo?.multiplier ?? 1;
 
-  const onBuy = (tierId: string, type: "once" | "monthly") => {
+  const onBuy = async (tierId: string, type: "once" | "monthly") => {
     const item = type === "once"
       ? ticketTiers.find((t) => t.id === tierId)
       : membershipTiers.find((m) => m.id === tierId);
@@ -70,9 +71,28 @@ export function TicketsBuy() {
       amountUSD: item ? ("priceUSD" in item ? item.priceUSD : item.monthlyUSD) : undefined,
     });
     setRedirecting(true);
-    // Brief delay sells the "leaving the merchant site for Shopify checkout" handoff.
+
+    // Real Shopify checkout for one-time ticket bundles (membership = selling plan,
+    // not wired yet → falls through to the demo checkout).
+    if (type === "once" && item && "entries" in item) {
+      const redirected = await startTicketCheckout({
+        entries: item.entries,
+        multiplier: mult,
+        attribution: {
+          attr_source: promo?.id ?? "organic",
+          attr_channel: promo?.label ?? "Organic",
+          attr_promo: promo?.code ?? (promo && promo.id !== "organic" ? promo.id : ""),
+          attr_trigger: describeTrigger(searchParams, promo?.id === "member") ?? "",
+          attr_page: "/tickets",
+          ...utmAttrs(searchParams),
+        },
+      });
+      if (redirected) return;
+    }
+
+    // Fallback: simulated checkout (membership, or Shopify unavailable).
     const promoQS = promo ? `&promo=${encodeURIComponent(promo.code ?? promo.id)}` : "";
-    setTimeout(() => router.push(`/checkout?tier=${tierId}&type=${type}${promoQS}`), 900);
+    router.push(`/checkout?tier=${tierId}&type=${type}${promoQS}`);
   };
 
   return (
