@@ -2,9 +2,11 @@
 // storefront. OAuth 2.0 + PKCE. Shopify hosts the login page and sends the one-time
 // code; this app only starts the flow, exchanges the code, and holds a session.
 //
-// The authorize/token/logout endpoints + client_id/secret are NOT hardcoded — you
-// record them from Shopify admin → Sales channels → Headless/Hydrogen → Customer
-// Account API, and set them as env. Docs:
+// The authorize/token/logout endpoints + client_id are NOT hardcoded — you record them
+// from Shopify admin → Sales channels → Headless → Customer Account API, and set them as
+// env. GM's client is a PUBLIC (web app) client: token exchange is PKCE-only — NO
+// client_secret, NO Authorization header (the code_verifier proves identity). The optional
+// CLIENT_SECRET below is only for a confidential client; leave it unset for public. Docs:
 //   https://shopify.dev/docs/storefronts/headless/building-with-the-customer-account-api/authenticate-customers
 import crypto from "node:crypto";
 
