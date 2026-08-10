@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { WinnerCard } from "@/components/winners-gallery";
 import { AnimatedCounter } from "@/components/animated-counter";
-import { winners, lifetimeStats } from "@/lib/mock-data";
+import { winners as mockWinners, lifetimeStats as mockStats } from "@/lib/mock-data";
 import { ArrowRight } from "lucide-react";
 import { Announce } from "@/components/marquee";
 import { Label } from "@/components/sticker";
 import { getContentServer } from "@/lib/server/copy";
+import { listWinners, getLifetimeStats } from "@/lib/server/editorial";
 
 export const metadata = { title: "Winners — Generous Motors" };
 
@@ -13,7 +14,11 @@ export const metadata = { title: "Winners — Generous Motors" };
 export const dynamic = "force-dynamic";
 
 export default async function WinnersPage() {
-  const copy = await getContentServer();
+  // Real winners + lifetime stats from the DB, with the mock as fallback (so the
+  // deployed demo without a DB still renders); stats merged over mock so no field is missing.
+  const [copy, dbWinners, dbStats] = await Promise.all([getContentServer(), listWinners().catch(() => []), getLifetimeStats().catch(() => null)]);
+  const winners = dbWinners.length ? dbWinners : mockWinners;
+  const lifetimeStats = { ...mockStats, ...(dbStats ?? {}) };
   return (
     <div className="bg-paper-3 text-ink">
       <section className="relative border-b border-ink/10 overflow-hidden grain">
