@@ -165,11 +165,26 @@ export async function upsertSubscriptionContract(c: ContractPayload, status: str
   }
 }
 
+/** Void every (non-void) entry block for a Shopify order — used by refund/cancel.
+ * Idempotent; returns how many blocks were voided. */
+export async function voidOrderTickets(shopifyOrderId: number): Promise<number> {
+  const r = await pool
+    .query(
+      `update entry_blocks set voided = true
+       where order_id = (select id from orders where shopify_order_id = $1) and not voided`,
+      [shopifyOrderId],
+    )
+    .catch(() => null);
+  return r?.rowCount ?? 0;
+}
+
 /* --------------------------- webhook registration -------------------------- */
 // The topics this app consumes → the route each is delivered to. Registering
 // points Shopify at our HTTPS endpoints; delivery is HMAC-signed with the app secret.
 const WEBHOOK_TOPICS: { topic: string; path: string }[] = [
   { topic: "ORDERS_PAID", path: "/api/webhooks/orders-paid" },
+  { topic: "ORDERS_CANCELLED", path: "/api/webhooks/orders-void" },
+  { topic: "REFUNDS_CREATE", path: "/api/webhooks/orders-void" },
   { topic: "SUBSCRIPTION_CONTRACTS_CREATE", path: "/api/webhooks/subscription-contracts" },
   { topic: "SUBSCRIPTION_CONTRACTS_UPDATE", path: "/api/webhooks/subscription-contracts" },
 ];
