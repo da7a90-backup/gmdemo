@@ -1,6 +1,6 @@
 import { ok, fail, readJson, requireAdmin, errMsg } from "@/lib/server/http";
 import { listWinners, createWinner, deleteWinner, type Winner } from "@/lib/server/editorial";
-import { klaviyoEvent } from "@/lib/server/providers/klaviyo";
+import { emitEmailEvent } from "@/lib/server/email-templates";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,11 +18,11 @@ export async function POST(req: Request) {
   try {
     const w = await createWinner(b);
     if (b.email) {
-      await klaviyoEvent("Won Drawing", b.email, {
+      await emitEmailEvent("Won Drawing", "won_drawing", b.email, {
         prize: w.vehicle,
-        cycle: w.drawCycle,
-        charity: w.charity,
-        winner_name: `${w.firstName} ${w.lastInitial}`.trim(),
+        cycle: w.drawCycle ?? "",
+        charity: w.charity ?? "",
+        winner_name: `${w.firstName} ${w.lastInitial ?? ""}`.trim(),
       }).catch(() => {});
     }
     return ok(w);

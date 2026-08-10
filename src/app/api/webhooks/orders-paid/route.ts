@@ -10,7 +10,8 @@ import {
   isMembershipOrder, applyOrderMeta, type OrderPayload,
 } from "@/lib/server/webhooks";
 import { mintOne } from "@/lib/server/ticketing";
-import { klaviyoEvent } from "@/lib/server/providers/klaviyo";
+import { pool } from "@/lib/server/db";
+import { emitEmailEvent } from "@/lib/server/email-templates";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -46,16 +47,22 @@ export async function POST(req: Request) {
     // Best-effort: holder name on the order + member link on the user.
     await applyOrderMeta(payload, isMembershipOrder(payload));
     // "You're in" receipt — only on a FRESH mint (not a duplicate delivery), after
-    // the tickets exist, so the email can include them. Klaviyo flow sends it.
+    // the tickets exist, so the email can include them. Code renders the admin
+    // template and injects subject + body_html into the Klaviyo event.
     if (result.status === "minted" && body.order.email) {
-      await klaviyoEvent(
+      const prize =
+        (await pool.query(`select vehicle_label from cycles where code = $1`, [result.cycle_code]).catch(() => null))
+          ?.rows?.[0]?.vehicle_label ?? "";
+      await emitEmailEvent(
         "Tickets Minted",
+        "tickets_minted",
         body.order.email,
         {
-          cycle: result.cycle_code,
-          entries: result.entries,
-          ticket_prefix: result.ticket_prefix,
-          order_token: result.order_token,
+          entries: result.entries ?? 0,
+          cycle: result.cycle_code ?? "",
+          prize,
+          ticket_prefix: result.ticket_prefix ?? "",
+          order_token: result.order_token ?? "",
           shopify_order_id: body.order.id,
         },
         `mint-${body.order.id}`,
