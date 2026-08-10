@@ -49,7 +49,7 @@ export function migrationFiles(): { version: string; sql: string }[] {
 const APP_TABLES = [
   "entry_blocks", "processed_webhooks", "orders", "cycle_counters", "cycles",
   "subscription_contracts", "sms_subscribers", "email_subscribers", "users",
-  "email_templates",
+  "email_templates", "campaigns",
 ];
 
 /** Destructive — used by the test-bench reset only. */
