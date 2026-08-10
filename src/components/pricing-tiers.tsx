@@ -6,7 +6,7 @@ import { Check, Plus, Minus } from "lucide-react";
 import { ticketTiers, membershipTiers } from "@/lib/mock-data";
 import { usePrizeCycle } from "@/lib/cycle-store";
 import { usd } from "@/lib/format";
-import { startTicketCheckout } from "@/lib/checkout";
+import { startTicketCheckout, startMembershipCheckout } from "@/lib/checkout";
 import { Label } from "@/components/sticker";
 import { Copy, useCopy } from "@/components/copy";
 
@@ -27,6 +27,12 @@ export function PricingTiers() {
       attribution: { attr_source: "organic", attr_channel: "Organic", attr_page: "/" },
     });
     if (!redirected) router.push(`/checkout?tier=${tierId}&type=once`);
+  };
+
+  // Membership tier → real Shopify subscription checkout; demo fallback.
+  const joinMembership = async (tierId: string, tierName: string) => {
+    const redirected = await startMembershipCheckout(tierName, { attr_source: "organic", attr_channel: "Organic", attr_page: "/" });
+    if (!redirected) router.push(`/checkout?tier=${tierId}&type=monthly`);
   };
 
   return (
@@ -151,14 +157,15 @@ export function PricingTiers() {
                   </li>
                 ))}
               </ul>
-              <Link
-                href={`/checkout?tier=${m.id}&type=monthly`}
+              <button
+                type="button"
+                onClick={() => joinMembership(m.id, m.name)}
                 className={`mt-8 inline-flex h-12 items-center justify-center border font-condensed uppercase tracking-[0.22em] text-[12px] rounded-full ${
                   m.popular ? "bg-brass text-ink border-brass hover:bg-paper-3 hover:border-paper-3" : "bg-ink text-paper-3 border-ink/10 hover:bg-accent hover:border-accent"
                 } transition-colors`}
               >
                 <Copy k="pricing.join" /> {m.name}
-              </Link>
+              </button>
               <p className={`mt-3 text-center font-serif italic text-[13px] ${m.popular ? "text-paper-3/70" : "text-ink-3"}`}>
                 <Copy k="pricing.cancel" />
               </p>

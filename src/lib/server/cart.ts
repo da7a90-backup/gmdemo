@@ -70,3 +70,64 @@ export async function createTicketCart(opts: {
   if (err || !res.cartCreate.cart) throw new Error("cartCreate: " + (err ?? "no cart returned"));
   return { cartId: res.cartCreate.cart.id, checkoutUrl: res.cartCreate.cart.checkoutUrl };
 }
+
+/* ------------------------------ membership -------------------------------- */
+import { MEMBERSHIP_PLANS } from "./shopify-membership";
+
+export type MembershipVariant = { tier: string; variantId: string; sellingPlanId: string; entries: number; price: number };
+
+/** The "Membership" product variants + their monthly selling plan (Storefront). */
+export async function getMembershipVariants(): Promise<MembershipVariant[]> {
+  const r = await shopifyStorefront<{
+    product: { variants: { nodes: { id: string; price: { amount: string }; selectedOptions: { name: string; value: string }[]; sellingPlanAllocations: { nodes: { sellingPlan: { id: string } }[] } }[] } } | null;
+  }>(
+    `query {
+      product(handle: "membership") {
+        variants(first: 10) {
+          nodes {
+            id price { amount } selectedOptions { name value }
+            sellingPlanAllocations(first: 5) { nodes { sellingPlan { id } } }
+          }
+        }
+      }
+    }`,
+  ).catch(() => null);
+
+  return (r?.product?.variants?.nodes ?? [])
+    .map((n) => {
+      const tier = n.selectedOptions.find((o) => o.name === "Tier")?.value ?? "";
+      const plan = MEMBERSHIP_PLANS.find((p) => p.tier === tier);
+      const sellingPlanId = n.sellingPlanAllocations?.nodes?.[0]?.sellingPlan?.id ?? "";
+      return plan && sellingPlanId ? { tier, variantId: n.id, sellingPlanId, entries: plan.entries, price: Number(n.price.amount) } : null;
+    })
+    .filter((v): v is MembershipVariant => v != null);
+}
+
+/** Create a SUBSCRIPTION cart for a membership tier (variant + selling plan on the
+ * line) → hosted checkout. `_entries` = the tier's monthly allotment; `membership`
+ * flags it for the orders/paid webhook. */
+export async function createMembershipCart(opts: { tier: string; attributes: CartAttr[] }): Promise<{ cartId: string; checkoutUrl: string }> {
+  const variants = await getMembershipVariants();
+  const v = variants.find((x) => x.tier.toLowerCase() === opts.tier.toLowerCase());
+  if (!v) throw new Error(`no membership variant for tier ${opts.tier}`);
+
+  const res = await shopifyStorefront<{
+    cartCreate: { cart: { id: string; checkoutUrl: string } | null; userErrors: { message: string }[] };
+  }>(
+    `mutation($input: CartInput!) { cartCreate(input: $input) { cart { id checkoutUrl } userErrors { message field } } }`,
+    {
+      input: {
+        lines: [{
+          merchandiseId: v.variantId,
+          quantity: 1,
+          sellingPlanId: v.sellingPlanId,
+          attributes: [{ key: "_entries", value: String(v.entries) }, { key: "membership", value: "true" }],
+        }],
+        attributes: opts.attributes,
+      },
+    },
+  );
+  const err = res.cartCreate.userErrors?.[0]?.message;
+  if (err || !res.cartCreate.cart) throw new Error("membership cartCreate: " + (err ?? "no cart returned"));
+  return { cartId: res.cartCreate.cart.id, checkoutUrl: res.cartCreate.cart.checkoutUrl };
+}

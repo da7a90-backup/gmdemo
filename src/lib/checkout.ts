@@ -23,12 +23,20 @@ export async function startTicketCheckout(opts: {
   multiplier: number;
   attribution: Record<string, string>;
 }): Promise<boolean> {
+  return postCart({ entries: opts.entries, quantity: 1, multiplier: opts.multiplier, attribution: opts.attribution });
+}
+
+/**
+ * Create a real Shopify SUBSCRIPTION cart for a membership tier and redirect to the
+ * hosted checkout. Returns true if it redirected; false → caller falls back to /checkout.
+ */
+export async function startMembershipCheckout(tier: string, attribution: Record<string, string>): Promise<boolean> {
+  return postCart({ tier, attribution });
+}
+
+async function postCart(payload: Record<string, unknown>): Promise<boolean> {
   try {
-    const r = await fetch("/api/cart", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ entries: opts.entries, quantity: 1, multiplier: opts.multiplier, attribution: opts.attribution }),
-    });
+    const r = await fetch("/api/cart", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
     const j = await r.json();
     if (j?.ok && j.data?.checkoutUrl) {
       window.location.href = j.data.checkoutUrl as string;

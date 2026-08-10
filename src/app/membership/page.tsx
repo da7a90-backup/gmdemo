@@ -7,6 +7,7 @@ import { Label } from "@/components/sticker";
 import { listMembershipPerks } from "@/lib/server/content-lists";
 import { DEFAULT_MEMBERSHIP_PERKS, MEMBERSHIP_BASE_ENTRIES } from "@/lib/membership-data";
 import { getContentServer } from "@/lib/server/copy";
+import { MembershipJoinButton } from "@/components/membership-join";
 
 export const metadata = { title: "Membership — Generous Motors" };
 
@@ -74,14 +75,15 @@ export default async function MembershipPage() {
                   </li>
                 ))}
               </ul>
-              <Link
-                href={`/checkout?tier=${m.id}&type=monthly`}
+              <MembershipJoinButton
+                tier={m.name}
+                id={m.id}
                 className={`mt-8 inline-flex h-12 items-center justify-center rounded-full border font-condensed uppercase tracking-[0.22em] text-[12px] ${
                   m.popular ? "bg-brass text-ink border-brass hover:bg-paper-3 hover:border-paper-3" : "bg-ink text-paper-3 border-ink/10 hover:bg-charity hover:border-charity"
                 } transition-colors`}
               >
                 {copy["mem.join"]} {m.name} <ArrowRight size={14} className="ml-2" />
-              </Link>
+              </MembershipJoinButton>
               <p className={`mt-3 text-center text-[13px] font-serif italic ${m.popular ? "text-paper-3/70" : "text-ink-3"}`}>
                 {copy["mem.cancel"]}
               </p>

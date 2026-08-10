@@ -18,7 +18,7 @@ import { PromoBanner } from "@/components/promo-banner";
 import { resolvePromo, getPromoConfig, isPromoLive, PROMOS_EVENT, type PromoTier } from "@/lib/promotions";
 import { trackVisit, track, describeTrigger } from "@/lib/analytics";
 import { VehicleGallery } from "@/components/vehicle-gallery";
-import { startTicketCheckout, utmAttrs } from "@/lib/checkout";
+import { startTicketCheckout, startMembershipCheckout, utmAttrs } from "@/lib/checkout";
 import { Copy, useCopy } from "@/components/copy";
 import { CharityName, CharityBlurb, CyclePartnerBadge } from "@/components/cycle-partner";
 import { getUser, SESSION_EVENT } from "@/lib/session";
@@ -90,7 +90,18 @@ export function TicketsBuy() {
       if (redirected) return;
     }
 
-    // Fallback: simulated checkout (membership, or Shopify unavailable).
+    // Membership tier → real Shopify subscription checkout.
+    if (type === "monthly" && item && "name" in item) {
+      const redirected = await startMembershipCheckout(item.name, {
+        attr_source: promo?.id ?? "organic",
+        attr_channel: promo?.label ?? "Organic",
+        attr_page: "/tickets",
+        ...utmAttrs(searchParams),
+      });
+      if (redirected) return;
+    }
+
+    // Fallback: simulated checkout (Shopify unavailable).
     const promoQS = promo ? `&promo=${encodeURIComponent(promo.code ?? promo.id)}` : "";
     router.push(`/checkout?tier=${tierId}&type=${type}${promoQS}`);
   };

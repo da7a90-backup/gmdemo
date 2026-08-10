@@ -87,7 +87,7 @@ async function summarize(productId: string, status: "created" | "exists") {
 
 /** Publish the product to every sales channel/publication so the Storefront API
  * (used by the cart) can see it. Idempotent; needs write_publications scope. */
-async function publishEverywhere(productId: string) {
+export async function publishEverywhere(productId: string) {
   const pubs = await shopifyAdmin<{ publications: { nodes: { id: string }[] } }>(
     `{ publications(first: 25) { nodes { id name } } }`,
   ).catch(() => ({ publications: { nodes: [] as { id: string }[] } }));
