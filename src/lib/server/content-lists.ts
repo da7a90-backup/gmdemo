@@ -12,6 +12,7 @@ import type { RuleSection } from "@/lib/rules-data";
 import type { LegalDoc } from "@/lib/legal-data";
 import type { AboutStep } from "@/lib/about-data";
 import type { MembershipPerk } from "@/lib/membership-data";
+import { ensureFaqDefinition } from "./faq";
 
 type Field = { key: string; value: string | null };
 type FieldSpec = { key: string; name: string; type: "single_line_text_field" | "multi_line_text_field" | "number_integer" };
@@ -169,4 +170,88 @@ export async function seedMembershipPerks(items: MembershipPerk[]) {
       { key: "sort", value: String(i) },
     ]);
   }
+}
+
+/* ============================================================================
+ * Generic, schema-driven CRUD so the GM admin can edit every repeatable list
+ * (FAQ, Rules, Legal, About steps, Loyalty ladder) without touching Shopify.
+ * The UI + API are fully driven by LIST_SCHEMAS. Saving replaces the whole list:
+ * upsert each row by a stable handle, then delete any entries no longer present.
+ * ========================================================================== */
+export type ListKind = "faq" | "rules" | "legal" | "about" | "perks";
+export type ListFieldType = "text" | "textarea" | "number";
+export type ListField = { key: string; label: string; type: ListFieldType };
+export type ListRow = Record<string, string>;
+
+export const LIST_SCHEMAS: Record<ListKind, { title: string; blurb: string; itemName: string; fields: ListField[] }> = {
+  faq: {
+    title: "FAQ", blurb: "Questions & answers on the FAQ page.", itemName: "question",
+    fields: [{ key: "question", label: "Question", type: "textarea" }, { key: "answer", label: "Answer", type: "textarea" }],
+  },
+  rules: {
+    title: "Official Rules", blurb: "Sections of the Official Rules page.", itemName: "section",
+    fields: [{ key: "title", label: "Title", type: "text" }, { key: "body", label: "Body", type: "textarea" }],
+  },
+  legal: {
+    title: "Legal documents", blurb: "Standalone /legal/[slug] pages.", itemName: "document",
+    fields: [{ key: "slug", label: "Slug (URL)", type: "text" }, { key: "title", label: "Title", type: "text" }, { key: "body", label: "Body", type: "textarea" }],
+  },
+  about: {
+    title: "How the draw works", blurb: "The process steps on the About page.", itemName: "step",
+    fields: [{ key: "title", label: "Title", type: "text" }, { key: "body", label: "Body", type: "textarea" }],
+  },
+  perks: {
+    title: "Loyalty ladder", blurb: "Monthly loyalty multipliers on the Membership page.", itemName: "tier",
+    fields: [{ key: "month", label: "Month", type: "number" }, { key: "multiplier", label: "Multiplier (e.g. 1.25)", type: "text" }],
+  },
+};
+
+const KIND_TYPE: Record<ListKind, string> = { faq: "faq_item", rules: RULE, legal: LEGAL, about: ABOUT, perks: PERK };
+const KIND_ENSURE: Record<ListKind, () => Promise<void>> = {
+  faq: ensureFaqDefinition, rules: ensureRuleDefinition, legal: ensureLegalDefinition, about: ensureAboutStepDefinition, perks: ensureMembershipPerkDefinition,
+};
+const handleFor = (kind: ListKind, row: ListRow, i: number) =>
+  kind === "legal" ? `legal-${(row.slug || `doc-${i + 1}`).trim()}` : `${{ faq: "faq", rules: "rule", about: "about", perks: "perk" }[kind]}-${i + 1}`;
+
+/** All entries of a type with id + handle + fields (Admin API — needed for delete/diff). */
+async function listNodesAdmin(type: string): Promise<{ id: string; handle: string; fields: Field[] }[]> {
+  const r = await shopifyAdmin<{ metaobjects: { nodes: { id: string; handle: string; fields: Field[] }[] } }>(
+    `query { metaobjects(type: "${type}", first: 100) { nodes { id handle fields { key value } } } }`,
+  ).catch(() => null);
+  return r?.metaobjects?.nodes ?? [];
+}
+
+async function deleteById(id: string) {
+  await shopifyAdmin(`mutation($id: ID!) { metaobjectDelete(id: $id) { deletedId userErrors { message } } }`, { id }).catch(() => {});
+}
+
+/** Read a list as generic rows (schema-keyed), sorted by the `sort` field when present. */
+export async function getContentList(kind: ListKind): Promise<ListRow[]> {
+  const nodes = await listNodesAdmin(KIND_TYPE[kind]);
+  const keys = LIST_SCHEMAS[kind].fields.map((f) => f.key);
+  return nodes
+    .map((n) => {
+      const row: ListRow = {};
+      for (const k of keys) row[k] = g(n.fields, k);
+      return { row, sort: Number(g(n.fields, "sort")) || 0 };
+    })
+    .sort((a, b) => a.sort - b.sort)
+    .map((x) => x.row);
+}
+
+/** Replace the whole list: upsert each row, then delete entries no longer present. */
+export async function saveContentList(kind: ListKind, rows: ListRow[]): Promise<void> {
+  await KIND_ENSURE[kind]();
+  const type = KIND_TYPE[kind];
+  const existing = await listNodesAdmin(type);
+  const hasSort = kind !== "legal";
+  const handles: string[] = [];
+  for (let i = 0; i < rows.length; i++) {
+    const handle = handleFor(kind, rows[i], i);
+    handles.push(handle);
+    const fields: Field[] = LIST_SCHEMAS[kind].fields.map((f) => ({ key: f.key, value: String(rows[i][f.key] ?? "") }));
+    if (hasSort) fields.push({ key: "sort", value: String(i) });
+    await upsert(type, handle, fields);
+  }
+  for (const e of existing) if (!handles.includes(e.handle)) await deleteById(e.id);
 }

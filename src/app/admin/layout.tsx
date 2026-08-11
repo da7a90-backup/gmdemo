@@ -1,13 +1,14 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Megaphone, PenLine, Trophy, Printer, MessageSquareText, Mail, MailPlus, ChartNoAxesColumn, Newspaper, RefreshCw } from "lucide-react";
+import { Megaphone, PenLine, Trophy, Printer, MessageSquareText, Mail, MailPlus, ChartNoAxesColumn, Newspaper, RefreshCw, ListChecks } from "lucide-react";
 import { Label } from "@/components/sticker";
 
 const SECTIONS = [
   { href: "/admin/promotions", label: "Promotions", icon: Megaphone },
   { href: "/admin/attribution", label: "Attribution", icon: ChartNoAxesColumn },
   { href: "/admin/content", label: "Content", icon: PenLine },
+  { href: "/admin/content-lists", label: "Pages & lists", icon: ListChecks },
   { href: "/admin/emails", label: "Email templates", icon: MailPlus },
   { href: "/admin/blog", label: "Blog", icon: Newspaper },
   { href: "/admin/cycles", label: "Cycle & partners", icon: RefreshCw },
@@ -27,7 +28,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <aside>
           <div className="flex items-center gap-2 lg:flex-col lg:items-start">
             <Label tone="ink" variant="solid">Admin</Label>
-            <Label tone="brass" variant="outline" size="sm">Demo — saves to this browser</Label>
+            <Label tone="brass" variant="outline" size="sm">Live — saves to Shopify</Label>
           </div>
           <nav aria-label="Admin" className="mt-5 flex lg:flex-col gap-1.5 overflow-x-auto scrollbar-thin pb-2 lg:pb-0">
             {SECTIONS.map((s) => {
