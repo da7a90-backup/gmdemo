@@ -24,10 +24,15 @@ export function SiteHeader() {
   const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
-    const load = () => setSignedIn(!!getUser());
+    let alive = true;
+    const load = async () => {
+      if (getUser()) { setSignedIn(true); return; } // demo session
+      const me = await fetch("/api/auth/me").then((r) => r.json()).catch(() => null); // real OTP session
+      if (alive) setSignedIn(!!me?.data?.signedIn);
+    };
     load();
     window.addEventListener(SESSION_EVENT, load);
-    return () => window.removeEventListener(SESSION_EVENT, load);
+    return () => { alive = false; window.removeEventListener(SESSION_EVENT, load); };
   }, []);
 
   return (

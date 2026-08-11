@@ -52,6 +52,19 @@ export const EMAIL_TEMPLATES: EmailTemplateDef[] = [
 <p>Your entry also helped fund <strong>{{charity}}</strong>. We'll reach out shortly to arrange delivery and the handover on stream.</p>`,
   },
   {
+    key: "login_code",
+    metric: "Login Code",
+    name: "Sign-in code (email)",
+    description: "The one-time passcode for email login (self-hosted OTP — /api/auth/otp/start).",
+    variables: [{ name: "code", example: "482913" }],
+    subject: "Your Generous Motors sign-in code",
+    body:
+      `<h1 style="font-family:Georgia,serif">Your sign-in code</h1>
+<p>Enter this code to sign in:</p>
+<p style="font-size:32px;font-weight:bold;letter-spacing:6px;font-family:Georgia,serif">{{code}}</p>
+<p>It expires in 10 minutes. If you didn't request this, you can ignore this email.</p>`,
+  },
+  {
     key: "newsletter_welcome",
     metric: "Newsletter Welcome",
     name: "Newsletter welcome",

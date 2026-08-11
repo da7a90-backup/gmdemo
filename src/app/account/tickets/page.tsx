@@ -25,18 +25,22 @@ export default function MemberTicketsPage() {
   const v = activeDraw.vehicle;
 
   useEffect(() => {
-    if (!getUser()) {
-      router.replace("/account/login");
-      return;
-    }
+    let alive = true;
     const loadPromos = () => {
       setMember(getPromoConfig().find((t) => t.id === "member") ?? null);
     };
-    loadPromos();
-    setReady(true);
-    trackVisit({ source: "member", channel: "Members", trigger: "member login", page: "/account/tickets" });
+    (async () => {
+      // Real OTP session (email/phone) OR the demo session both count as signed in.
+      const me = await fetch("/api/auth/me").then((r) => r.json()).catch(() => null);
+      const signedIn = !!me?.data?.signedIn || !!getUser();
+      if (!signedIn) { if (alive) router.replace("/account/login"); return; }
+      if (!alive) return;
+      loadPromos();
+      setReady(true);
+      trackVisit({ source: "member", channel: "Members", trigger: "member login", page: "/account/tickets" });
+    })();
     window.addEventListener(PROMOS_EVENT, loadPromos);
-    return () => window.removeEventListener(PROMOS_EVENT, loadPromos);
+    return () => { alive = false; window.removeEventListener(PROMOS_EVENT, loadPromos); };
   }, [router]);
 
   if (!ready) return null;

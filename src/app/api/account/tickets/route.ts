@@ -12,7 +12,7 @@ export async function GET(req: Request) {
   const s = sessionFromRequest(req);
   if (!s) return fail("not signed in", 401);
   try {
-    return ok(await listCustomerEntries({ email: s.email, gid: s.customerGid }));
+    return ok(await listCustomerEntries({ email: s.email, gid: s.customerGid, phone: s.phone }));
   } catch (e) {
     return fail(String((e as Error)?.message ?? e), 500);
   }

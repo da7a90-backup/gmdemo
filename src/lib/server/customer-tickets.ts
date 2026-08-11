@@ -15,9 +15,9 @@ export type CustomerEntry = {
 
 export type CustomerEntries = { active: CustomerEntry[]; past: CustomerEntry[]; totalTickets: number };
 
-export async function listCustomerEntries(opts: { email?: string | null; gid?: string | null }): Promise<CustomerEntries> {
-  const { email = null, gid = null } = opts;
-  if (!email && !gid) return { active: [], past: [], totalTickets: 0 };
+export async function listCustomerEntries(opts: { email?: string | null; gid?: string | null; phone?: string | null }): Promise<CustomerEntries> {
+  const { email = null, gid = null, phone = null } = opts;
+  if (!email && !gid && !phone) return { active: [], past: [], totalTickets: 0 };
 
   const rows = (
     await pool.query(
@@ -30,10 +30,11 @@ export async function listCustomerEntries(opts: { email?: string | null; gid?: s
        join users u   on u.id = eb.user_id
        where not eb.voided
          and ( ($1::citext is not null and u.email = $1)
-            or ($2::text  is not null and u.shopify_customer_gid = $2) )
+            or ($2::text  is not null and u.shopify_customer_gid = $2)
+            or ($3::text  is not null and u.phone = $3) )
        group by o.id, o.order_token, cy.code, cy.status, cy.vehicle_label, cy.draw_date
        order by cy.code::int desc, o.order_token::int`,
-      [email, gid],
+      [email, gid, phone],
     )
   ).rows;
 

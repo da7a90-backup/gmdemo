@@ -29,7 +29,7 @@ export type OrderPayload = {
   contact_email?: string | null;
   note_attributes?: Prop[];
   phone?: string | null;
-  customer?: { id?: number; email?: string | null; first_name?: string | null; last_name?: string | null; admin_graphql_api_id?: string | null };
+  customer?: { id?: number; email?: string | null; phone?: string | null; first_name?: string | null; last_name?: string | null; admin_graphql_api_id?: string | null };
   billing_address?: { name?: string | null } | null;
   shipping_address?: { name?: string | null } | null;
   line_items?: { id: number; quantity?: number; properties?: Prop[]; selling_plan_allocation?: unknown }[];
@@ -94,6 +94,14 @@ export async function applyOrderMeta(o: OrderPayload, member: boolean): Promise<
         `update users set shopify_customer_gid = coalesce($2, shopify_customer_gid), is_member = is_member or $3 where email = $1`,
         [email, gid, member],
       )
+      .catch(() => {});
+  }
+  // Capture the buyer's phone so phone-based login can find their tickets (best-effort;
+  // phone is unique on users, so ignore conflicts).
+  const phone = o.phone || o.customer?.phone || null;
+  if (email && phone) {
+    await pool
+      .query(`update users set phone = $2 where email = $1 and (phone is null or phone = '')`, [email, phone])
       .catch(() => {});
   }
 }

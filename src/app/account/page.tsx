@@ -41,7 +41,7 @@ export default function AccountPage() {
         const t = await fetch("/api/account/tickets").then((r) => r.json()).catch(() => null);
         const d = t?.data as { active?: RealEntry[]; past?: RealEntry[] } | undefined;
         if (alive && d) {
-          setView({ email: me.data.email ?? "", active: (d.active ?? []).map(fromReal), past: (d.past ?? []).map(fromReal), real: true });
+          setView({ email: me.data.email ?? me.data.phone ?? "", active: (d.active ?? []).map(fromReal), past: (d.past ?? []).map(fromReal), real: true });
           return;
         }
       }

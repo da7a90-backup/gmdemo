@@ -97,7 +97,7 @@ function decodeJwt(jwt: string): Record<string, unknown> {
 }
 
 /* ------------------------------------ session ------------------------------------ */
-export type Session = { email: string | null; customerGid: string | null; exp: number };
+export type Session = { email: string | null; phone?: string | null; customerGid: string | null; exp: number };
 
 function sign(payload: string): string {
   return b64url(crypto.createHmac("sha256", SESSION_SECRET).update(payload).digest());

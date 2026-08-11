@@ -1,148 +1,156 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Mail, KeyRound, ArrowRight, Inbox } from "lucide-react";
-import { getUser, signIn } from "@/lib/session";
+import { Mail, Phone, KeyRound, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 import { Label } from "@/components/sticker";
-import { Copy, useCopy } from "@/components/copy";
+
+type Channel = "email" | "phone";
 
 export default function AccountLoginPage() {
-  const cp = useCopy();
   const router = useRouter();
-  const [step, setStep] = useState<"email" | "otp">("email");
-  const [email, setEmail] = useState("");
-  const [sentCode, setSentCode] = useState("");
-  const [otp, setOtp] = useState("");
+  const [channel, setChannel] = useState<Channel>("email");
+  const [step, setStep] = useState<"request" | "verify">("request");
+  const [identifier, setIdentifier] = useState("");
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const otpRef = useRef<HTMLInputElement | null>(null);
+  const [info, setInfo] = useState("");
+  const [returnTo, setReturnTo] = useState("/account");
+  const codeRef = useRef<HTMLInputElement>(null);
 
-  // Prefer real Shopify-hosted passwordless login when the Customer Account API is
-  // configured; otherwise fall back to the demo OTP below. `?demo=1` forces the demo.
+  // Already signed in → bounce to the account (or returnTo).
   useEffect(() => {
+    const rt = new URLSearchParams(window.location.search).get("returnTo");
+    const dest = rt && rt.startsWith("/") ? rt : "/account";
+    setReturnTo(dest);
     let alive = true;
     fetch("/api/auth/me")
       .then((r) => r.json())
-      .then((j) => {
-        if (!alive) return;
-        const d = j?.data;
-        if (d?.signedIn) { router.replace("/account"); return; }
-        const demo = new URLSearchParams(window.location.search).get("demo");
-        if (d?.authConfigured && !demo) { window.location.href = "/api/auth/shopify/login?returnTo=/account"; return; }
-        if (getUser()) router.replace("/account"); // demo session
-      })
-      .catch(() => { if (alive && getUser()) router.replace("/account"); });
+      .then((j) => { if (alive && j?.data?.signedIn) router.replace(dest); })
+      .catch(() => {});
     return () => { alive = false; };
   }, [router]);
 
-  const sendCode = (e: React.FormEvent) => {
-    e.preventDefault();
-    const code = String(Math.floor(100000 + Math.random() * 900000));
-    setSentCode(code);
-    setOtp("");
-    setError("");
-    setStep("otp");
-    setTimeout(() => otpRef.current?.focus(), 50);
+  const apiChannel = channel === "phone" ? "sms" : "email";
+
+  const sendCode = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!identifier.trim() || busy) return;
+    setBusy(true); setError(""); setInfo("");
+    try {
+      const r = await fetch("/api/auth/otp/start", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ channel: apiChannel, identifier }),
+      });
+      const j = await r.json();
+      if (!j.ok) { setError(j.error || "Couldn't send the code."); return; }
+      setStep("verify");
+      setInfo(`We sent a 6-digit code to your ${channel === "email" ? "email" : "phone"}.`);
+      setTimeout(() => codeRef.current?.focus(), 60);
+    } catch { setError("Network error — please try again."); }
+    finally { setBusy(false); }
   };
 
-  const verify = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (otp.trim() !== sentCode) {
-      setError(cp("acc.login.error"));
-      return;
-    }
-    signIn(email);
-    router.push("/account");
+  const verify = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (busy) return;
+    if (code.replace(/\D/g, "").length !== 6) { setError("Enter the 6-digit code."); return; }
+    setBusy(true); setError("");
+    try {
+      const r = await fetch("/api/auth/otp/verify", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ channel: apiChannel, identifier, code }),
+      });
+      const j = await r.json();
+      if (!j.ok) { setError(j.error || "Incorrect code."); return; }
+      router.replace(returnTo);
+    } catch { setError("Network error — please try again."); }
+    finally { setBusy(false); }
   };
+
+  const restart = () => { setStep("request"); setCode(""); setError(""); setInfo(""); };
+  const input = "mt-1.5 w-full border border-ink/15 bg-paper-3 rounded-lg px-3 h-12 text-[15px] text-ink outline-none focus:border-accent";
 
   return (
-    <main className="bg-paper text-ink min-h-[70vh] grain relative overflow-hidden">
-      <div className="mx-auto max-w-md px-5 py-14">
-        <Label tone="ink" variant="outline"><Copy k="acc.login.badge" /></Label>
-        <h1 className="mt-4 hero-headline" style={{ fontSize: "clamp(2rem, 4vw, 3rem)", lineHeight: 1.05 }}>
-          <Copy k="acc.login.h.pre" /> <span className="accent-serif"><Copy k="acc.login.h.accent" /></span>
-        </h1>
-        <p className="mt-3 text-[15px] text-ink-2 font-serif">
-          <Copy k="acc.login.intro" />
-        </p>
+    <div className="bg-paper-3 text-ink min-h-[70vh]">
+      <section className="mx-auto max-w-md px-5 py-20">
+        <div className="text-center">
+          <Label tone="ink" variant="solid">Sign in</Label>
+          <h1 className="mt-4 hero-headline" style={{ fontSize: "clamp(2rem,5vw,2.75rem)" }}>Your garage.</h1>
+          <p className="mt-3 text-ink-2 font-serif">No password — we'll send you a one-time code.</p>
+        </div>
 
-        <div className="mt-7 border border-ink/10 bg-paper-4 rounded-2xl shadow-soft overflow-hidden">
-          {step === "email" ? (
-            <form onSubmit={sendCode} className="p-6">
-              <label className="block">
-                <span className="dateline on-paper"><Copy k="acc.login.emailLabel" /></span>
-                <span className="mt-1.5 flex items-center border border-ink/10 bg-paper-3 px-3 rounded-lg">
-                  <Mail size={16} className="text-ink-3 shrink-0" />
-                  <input
-                    type="email"
-                    required
-                    autoFocus
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder={cp("lookup.ph.email")}
-                    className="ml-2 w-full h-12 bg-transparent text-[16px] text-ink placeholder:text-ink-3 outline-none"
-                  />
-                </span>
-              </label>
-              <button
-                type="submit"
-                className="mt-4 w-full inline-flex items-center justify-center gap-2 h-12 rounded-full bg-accent-bright text-ink border border-ink/10 font-condensed uppercase tracking-[0.22em] text-[13px] font-bold hover:bg-accent hover:text-paper-3 transition-colors"
-              >
-                <Copy k="acc.login.sendCode" /> <ArrowRight size={16} strokeWidth={2.5} />
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={verify} className="p-6">
-              <p className="dateline on-paper"><Copy k="acc.login.codeSentTo" /></p>
-              <p className="font-display font-bold text-ink">{email}</p>
-              <label className="block mt-4">
-                <span className="dateline on-paper"><Copy k="acc.login.otpLabel" /></span>
-                <span className="mt-1.5 flex items-center border border-ink/10 bg-paper-3 px-3 rounded-lg">
-                  <KeyRound size={16} className="text-ink-3 shrink-0" />
-                  <input
-                    ref={otpRef}
-                    inputMode="numeric"
-                    pattern="[0-9]{6}"
-                    maxLength={6}
-                    required
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                    placeholder="••••••"
-                    className="ml-2 w-full h-12 bg-transparent text-[20px] tracking-[0.4em] text-ink placeholder:text-ink-3 outline-none numeral"
-                  />
-                </span>
-              </label>
-              {error && <p className="mt-2 text-[13px] text-brass-deep font-semibold">{error}</p>}
-              <button
-                type="submit"
-                className="mt-4 w-full inline-flex items-center justify-center gap-2 h-12 rounded-full bg-accent-bright text-ink border border-ink/10 font-condensed uppercase tracking-[0.22em] text-[13px] font-bold hover:bg-accent hover:text-paper-3 transition-colors"
-              >
-                <Copy k="acc.login.verify" /> <ArrowRight size={16} strokeWidth={2.5} />
-              </button>
-              <button
-                type="button"
-                onClick={() => setStep("email")}
-                className="mt-3 w-full text-center text-[12px] text-ink-3 underline underline-offset-4 hover:text-ink"
-              >
-                <Copy k="acc.login.differentEmail" />
-              </button>
-
-              {/* Demo inbox — stands in for the real email delivery */}
-              <div className="mt-5 border border-brass bg-brass-soft rounded-xl p-4 flex items-start gap-3">
-                <Inbox size={16} className="mt-0.5 shrink-0 text-ink" />
-                <div>
-                  <p className="font-condensed uppercase tracking-[0.22em] text-[10px] font-bold text-ink">
-                    <Copy k="acc.login.demoInboxTitle" />
-                  </p>
-                  <p className="mt-1 text-[14px] text-ink-2">
-                    <Copy k="acc.login.demoInboxBody" />{" "}
-                    <strong className="numeral text-ink text-base tracking-[0.2em]">{sentCode}</strong>
-                  </p>
-                </div>
+        <div className="mt-8 border border-ink/10 bg-paper-4 rounded-2xl shadow-soft p-6">
+          {step === "request" ? (
+            <>
+              {/* channel tabs */}
+              <div role="tablist" aria-label="Sign-in method" className="inline-flex w-full rounded-full border border-ink/10 overflow-hidden mb-5">
+                {(["email", "phone"] as Channel[]).map((c) => (
+                  <button key={c} role="tab" aria-selected={channel === c}
+                    onClick={() => { setChannel(c); setError(""); }}
+                    className={`flex-1 inline-flex items-center justify-center gap-2 py-2.5 font-condensed uppercase tracking-[0.18em] text-[11px] font-semibold transition-colors ${
+                      channel === c ? "bg-ink text-brass" : "bg-paper-3 text-ink hover:bg-ink/5"
+                    }`}>
+                    {c === "email" ? <Mail size={14} /> : <Phone size={14} />} {c}
+                  </button>
+                ))}
               </div>
+
+              <form onSubmit={sendCode}>
+                <label className="block">
+                  <span className="dateline on-paper">{channel === "email" ? "Email address" : "Mobile number"}</span>
+                  <input
+                    type={channel === "email" ? "email" : "tel"}
+                    inputMode={channel === "email" ? "email" : "tel"}
+                    autoComplete={channel === "email" ? "email" : "tel"}
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
+                    placeholder={channel === "email" ? "you@example.com" : "(555) 123-4567"}
+                    className={input}
+                    autoFocus
+                  />
+                </label>
+                {error && <p className="mt-3 dateline text-brass-deep">⚠ {error}</p>}
+                <button type="submit" disabled={busy}
+                  className="mt-5 w-full inline-flex items-center justify-center gap-2 bg-ink text-brass px-5 h-12 rounded-full font-condensed uppercase tracking-[0.22em] text-[11px] font-bold hover:bg-accent hover:text-paper-3 transition-colors disabled:opacity-60">
+                  {busy ? <Loader2 size={14} className="animate-spin" /> : <ArrowRight size={14} />} Send code
+                </button>
+              </form>
+            </>
+          ) : (
+            <form onSubmit={verify}>
+              <button type="button" onClick={restart} className="inline-flex items-center gap-1.5 dateline on-paper mb-4 hover:text-ink">
+                <ArrowLeft size={13} /> Use a different {channel === "email" ? "email" : "number"}
+              </button>
+              {info && <p className="dateline on-paper mb-3">{info} <span className="numeral">{identifier}</span></p>}
+              <label className="block">
+                <span className="dateline on-paper">6-digit code</span>
+                <input
+                  ref={codeRef}
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  placeholder="••••••"
+                  className={`${input} tracking-[0.5em] text-center numeral text-xl`}
+                />
+              </label>
+              {error && <p className="mt-3 dateline text-brass-deep">⚠ {error}</p>}
+              <button type="submit" disabled={busy}
+                className="mt-5 w-full inline-flex items-center justify-center gap-2 bg-ink text-brass px-5 h-12 rounded-full font-condensed uppercase tracking-[0.22em] text-[11px] font-bold hover:bg-accent hover:text-paper-3 transition-colors disabled:opacity-60">
+                {busy ? <Loader2 size={14} className="animate-spin" /> : <KeyRound size={14} />} Verify &amp; sign in
+              </button>
+              <button type="button" onClick={() => sendCode()} disabled={busy}
+                className="mt-3 w-full dateline on-paper hover:text-ink">Resend code</button>
             </form>
           )}
         </div>
-      </div>
-    </main>
+
+        <p className="mt-5 text-center dateline on-paper">
+          Signing in lets you see the tickets tied to your email or phone.
+        </p>
+      </section>
+    </div>
   );
 }

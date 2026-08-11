@@ -11,6 +11,7 @@ export async function GET(req: Request) {
     authConfigured: customerAuthConfigured(),
     signedIn: !!s,
     email: s?.email ?? null,
+    phone: s?.phone ?? null,
     customerGid: s?.customerGid ?? null,
   });
 }
