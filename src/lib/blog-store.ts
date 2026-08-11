@@ -86,7 +86,7 @@ export function useMergedPosts(): MergedPost[] {
   const [list, setList] = useState<MergedPost[]>(blogPosts);
   useEffect(() => {
     let alive = true;
-    fetch("/api/admin/articles?published=1")
+    fetch("/api/blog") // public endpoint (metaobjects + built-ins); not behind the admin gate
       .then((r) => r.json())
       .then((j) => {
         if (!alive || !j.ok) return;
