@@ -36,8 +36,10 @@ export async function GET(req: Request) {
     const info = (
       await pool
         .query(
-          `select coalesce(max(o.full_name), '') as name, coalesce(max(u.email), '') as email, coalesce(max(u.phone), '') as phone
-           from users u left join orders o on o.email = u.email
+          `select coalesce(max(o.full_name), '') as name, max(u.email) as email, max(u.phone) as phone
+           from users u
+           join entry_blocks eb on eb.user_id = u.id
+           join orders o on o.id = eb.order_id
            where ($1::citext is not null and u.email = $1) or ($2::text is not null and u.phone = $2)`,
           [email, phone],
         )
