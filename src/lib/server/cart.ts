@@ -8,6 +8,24 @@ import { BUNDLES } from "./shopify-products";
 
 const entriesForBundle = (name: string) => BUNDLES.find((b) => b.name === name)?.entries ?? null;
 
+/** Headless domain fix: Shopify builds `checkoutUrl` from the store's PRIMARY domain. When
+ * that domain points at this Next.js app (headless), the checkout link 404s and Shopify even
+ * 301-redirects the myshopify host to it. Set SHOPIFY_CHECKOUT_DOMAIN to a Shopify-served host
+ * (the `*.myshopify.com` domain, or a checkout subdomain CNAME'd to Shopify) to force checkout
+ * onto a host that actually resolves to Shopify's hosted checkout. */
+function withCheckoutHost(url: string): string {
+  const host = process.env.SHOPIFY_CHECKOUT_DOMAIN;
+  if (!host) return url;
+  try {
+    const u = new URL(url);
+    u.host = host;
+    u.protocol = "https:";
+    return u.toString();
+  } catch {
+    return url;
+  }
+}
+
 export type TicketVariant = { variantId: string; bundle: string; entries: number; price: number };
 
 /** The live "Tickets" product variants (Storefront), mapped to entry counts via
@@ -68,7 +86,7 @@ export async function createTicketCart(opts: {
 
   const err = res.cartCreate.userErrors?.[0]?.message;
   if (err || !res.cartCreate.cart) throw new Error("cartCreate: " + (err ?? "no cart returned"));
-  return { cartId: res.cartCreate.cart.id, checkoutUrl: res.cartCreate.cart.checkoutUrl };
+  return { cartId: res.cartCreate.cart.id, checkoutUrl: withCheckoutHost(res.cartCreate.cart.checkoutUrl) };
 }
 
 /* ------------------------------ membership -------------------------------- */
@@ -129,5 +147,5 @@ export async function createMembershipCart(opts: { tier: string; attributes: Car
   );
   const err = res.cartCreate.userErrors?.[0]?.message;
   if (err || !res.cartCreate.cart) throw new Error("membership cartCreate: " + (err ?? "no cart returned"));
-  return { cartId: res.cartCreate.cart.id, checkoutUrl: res.cartCreate.cart.checkoutUrl };
+  return { cartId: res.cartCreate.cart.id, checkoutUrl: withCheckoutHost(res.cartCreate.cart.checkoutUrl) };
 }
