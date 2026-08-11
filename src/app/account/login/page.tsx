@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Mail, Phone, KeyRound, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 import { Label } from "@/components/sticker";
+import { SMS_LOGIN_ENABLED } from "@/lib/auth-config";
 
 type Channel = "email" | "phone";
 
@@ -83,18 +84,20 @@ export default function AccountLoginPage() {
         <div className="mt-8 border border-ink/10 bg-paper-4 rounded-2xl shadow-soft p-6">
           {step === "request" ? (
             <>
-              {/* channel tabs */}
-              <div role="tablist" aria-label="Sign-in method" className="inline-flex w-full rounded-full border border-ink/10 overflow-hidden mb-5">
-                {(["email", "phone"] as Channel[]).map((c) => (
-                  <button key={c} role="tab" aria-selected={channel === c}
-                    onClick={() => { setChannel(c); setError(""); }}
-                    className={`flex-1 inline-flex items-center justify-center gap-2 py-2.5 font-condensed uppercase tracking-[0.18em] text-[11px] font-semibold transition-colors ${
-                      channel === c ? "bg-ink text-brass" : "bg-paper-3 text-ink hover:bg-ink/5"
-                    }`}>
-                    {c === "email" ? <Mail size={14} /> : <Phone size={14} />} {c}
-                  </button>
-                ))}
-              </div>
+              {/* channel tabs — phone hidden until SMS login is enabled */}
+              {SMS_LOGIN_ENABLED && (
+                <div role="tablist" aria-label="Sign-in method" className="inline-flex w-full rounded-full border border-ink/10 overflow-hidden mb-5">
+                  {(["email", "phone"] as Channel[]).map((c) => (
+                    <button key={c} role="tab" aria-selected={channel === c}
+                      onClick={() => { setChannel(c); setError(""); }}
+                      className={`flex-1 inline-flex items-center justify-center gap-2 py-2.5 font-condensed uppercase tracking-[0.18em] text-[11px] font-semibold transition-colors ${
+                        channel === c ? "bg-ink text-brass" : "bg-paper-3 text-ink hover:bg-ink/5"
+                      }`}>
+                      {c === "email" ? <Mail size={14} /> : <Phone size={14} />} {c}
+                    </button>
+                  ))}
+                </div>
+              )}
 
               <form onSubmit={sendCode}>
                 <label className="block">

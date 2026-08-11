@@ -3,6 +3,7 @@
 // no Shopify redirect. See src/lib/server/otp-auth.ts.
 import { ok, fail, readJson } from "@/lib/server/http";
 import { startOtp, type Channel } from "@/lib/server/otp-auth";
+import { SMS_LOGIN_ENABLED } from "@/lib/auth-config";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,6 +11,7 @@ export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   const b = await readJson<{ channel?: string; identifier?: string }>(req);
   const channel: Channel = b?.channel === "sms" ? "sms" : "email";
+  if (channel === "sms" && !SMS_LOGIN_ENABLED) return fail("SMS login is disabled", 403);
   if (!b?.identifier?.trim()) return fail("identifier required");
   const r = await startOtp(channel, b.identifier);
   return r.ok ? ok({ sent: true, channel }) : fail(r.error ?? "could not send code", 400);
