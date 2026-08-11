@@ -5,7 +5,6 @@ import { Facebook, Instagram, Youtube, Mail, ArrowRight, CheckCircle2 } from "lu
 import { Logo } from "@/components/logo";
 import { Label } from "@/components/sticker";
 import { Copy, useCopy } from "@/components/copy";
-import { addEmailSubscriber } from "@/lib/subscribers";
 
 function NewsletterSignup() {
   const t = useCopy();
@@ -28,16 +27,16 @@ function NewsletterSignup() {
 
       {!done ? (
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
-            addEmailSubscriber(email, "Footer"); // demo store (kept during transition)
-            // Real capture → Supabase + Klaviyo (no-op if backend/env absent).
-            fetch("/api/subscribe/email", {
-              method: "POST",
-              headers: { "content-type": "application/json" },
-              body: JSON.stringify({ email, source: "Footer" }),
-            }).catch(() => {});
-            setDone(true);
+            try {
+              const r = await fetch("/api/subscribe/email", {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({ email, source: "Footer" }),
+              });
+              if ((await r.json())?.ok) setDone(true); // only show success on a real subscribe
+            } catch { /* leave the form up so they can retry */ }
           }}
           className="flex w-full max-w-md md:justify-self-end items-center border border-fg/30 bg-bg-dark-2 rounded-full overflow-hidden focus-within:border-accent-bright"
         >

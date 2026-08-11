@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { X, ArrowRight, HeartHandshake, MessageSquareText, Smartphone } from "lucide-react";
-import { addSmsSubscriber } from "@/lib/subscribers";
 import { Copy, useCopy } from "@/components/copy";
 
 /** Routes where the SMS popup should never appear (interrupts the buy / confirmation flow). */
@@ -89,18 +88,20 @@ export function EmailPopup() {
   if (suppressed) return null;
 
   const onClose = () => setOpen(false);
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (phone.replace(/\D/g, "").length !== 10) return;
-    addSmsSubscriber(phone, "Popup"); // demo store (kept during transition)
-    // Real capture → Supabase + Postscript (no-op if backend/env absent).
-    fetch("/api/subscribe/sms", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ phone, source: "Popup" }),
-    }).catch(() => {});
-    setSubmitted(true);
-    setTimeout(() => setOpen(false), 3200);
+    try {
+      const r = await fetch("/api/subscribe/sms", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ phone, source: "Popup" }),
+      });
+      if ((await r.json())?.ok) { // only confirm on a real subscribe
+        setSubmitted(true);
+        setTimeout(() => setOpen(false), 3200);
+      }
+    } catch { /* leave the form up so they can retry */ }
   };
 
   if (!open) return null;
