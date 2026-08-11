@@ -10,8 +10,8 @@ type Campaign = {
   recipients: number | null; error: string | null; createdISO: string; sentISO: string | null;
 };
 
-/** Compose + send real campaigns. Email sends go out as Klaviyo campaigns; SMS is
- * gated on Postscript API access. Promo variables are injected server-side. */
+/** Compose + send real campaigns. Email → Klaviyo campaigns; SMS → Postscript sends
+ * (message_requests to every subscribed number). Promo variables are injected server-side. */
 export function CampaignDesk({ channel, recipients }: { channel: "email" | "sms"; recipients: number }) {
   const [campaigns, setCampaigns] = useState<Campaign[] | null>(null);
   const [subject, setSubject] = useState("");
