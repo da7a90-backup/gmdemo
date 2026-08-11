@@ -3,7 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Search, Mail, Phone, Ticket, ArrowRight, CircleCheckBig, CircleX } from "lucide-react";
-import { entryDB, type EntryRecord, type Entry } from "@/lib/mock-data";
+import { type EntryRecord, type Entry } from "@/lib/mock-data";
 import { niceDate, niceDateTime, intl } from "@/lib/format";
 import { Label } from "@/components/sticker";
 import { Copy, useCopy } from "@/components/copy";
@@ -14,23 +14,33 @@ export function LookupClient() {
   const [value, setValue] = useState("");
   const [record, setRecord] = useState<EntryRecord | null>(null);
   const [searched, setSearched] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const doLookup = async (m: "email" | "phone", val: string) => {
+    if (!val.trim()) return;
+    setSearched(true);
+    setLoading(true);
+    setRecord(null);
+    try {
+      const q = m === "email" ? `email=${encodeURIComponent(val.trim())}` : `phone=${encodeURIComponent(val.trim())}`;
+      const j = await fetch(`/api/lookup?${q}`).then((r) => r.json());
+      setRecord(j?.ok && j.data?.found ? (j.data.record as EntryRecord) : null);
+    } catch {
+      setRecord(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSearched(true);
-    if (mode === "email") {
-      const r = entryDB.find((x) => x.email.toLowerCase() === value.trim().toLowerCase());
-      setRecord(r ?? null);
-    } else {
-      const digits = value.replace(/\D/g, "");
-      const r = entryDB.find((x) => x.phone === digits);
-      setRecord(r ?? null);
-    }
+    doLookup(mode, value);
   };
 
   const onDemo = () => {
     setMode("email");
-    setValue("demo@generousmotors.org");
+    setValue("buyer1@example.com");
+    doLookup("email", "buyer1@example.com");
   };
 
   return (
@@ -107,7 +117,7 @@ export function LookupClient() {
           </div>
         )}
 
-        {searched && !record && (
+        {searched && !loading && !record && (
           <div className="border border-ink/10 bg-paper-3 p-12 text-center rounded-xl">
             <p className="font-display font-bold text-2xl text-ink"><Copy k="lookup.noneTitle" /></p>
             <p className="mt-3 text-ink-2 font-serif">

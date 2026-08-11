@@ -5,9 +5,16 @@ import { Pool, type PoolClient, type QueryResultRow } from "pg";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
+// Serverless-friendly pool: small per-instance cap + short idle timeout so many
+// concurrent Vercel functions (webhook/cron bursts) don't exhaust Postgres connections.
 const g = globalThis as unknown as { __gmPool?: Pool };
 export const pool: Pool =
-  g.__gmPool ?? (g.__gmPool = new Pool({ connectionString: process.env.DIRECT_URL, max: 10 }));
+  g.__gmPool ??
+  (g.__gmPool = new Pool({
+    connectionString: process.env.DIRECT_URL,
+    max: 5,
+    idleTimeoutMillis: 10_000,
+  }));
 
 export function query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[]) {
   return pool.query<T>(text, params as never);

@@ -5,8 +5,8 @@ import Link from "next/link";
 import {
   ShieldCheck, Tv2, HeartHandshake, Lock, Drum, ArrowRight, PlayCircle,
 } from "lucide-react";
-import { ticketTiers, membershipTiers, lifetimeStats } from "@/lib/mock-data";
-import { usePrizeCycle } from "@/lib/cycle-store";
+import { ticketTiers, membershipTiers } from "@/lib/mock-data";
+import { usePrizeCycle, useLifetimeStats } from "@/lib/cycle-store";
 import { useWinners } from "@/lib/winners-store";
 import { usdc, intl, niceWeekday, niceDate, usd } from "@/lib/format";
 import { Label } from "@/components/sticker";
@@ -21,7 +21,6 @@ import { VehicleGallery } from "@/components/vehicle-gallery";
 import { startTicketCheckout, startMembershipCheckout, utmAttrs } from "@/lib/checkout";
 import { Copy, useCopy } from "@/components/copy";
 import { CharityName, CharityBlurb, CyclePartnerBadge } from "@/components/cycle-partner";
-import { getUser, SESSION_EVENT } from "@/lib/session";
 
 export function TicketsBuy() {
   const t = useCopy();
@@ -33,11 +32,20 @@ export function TicketsBuy() {
   const winners = useWinners();
   const [promo, setPromo] = useState<PromoTier | null>(null);
   const searchParams = useSearchParams();
+  const stats = useLifetimeStats();
+  const [isMember, setIsMember] = useState(false);
 
-  // Promotion pickup: membership login, ?promo=CODE links, or utm_* ad campaigns.
+  // Real signed-in member? (Shopify OTP session → users.is_member). Drives the member multiplier.
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/auth/me").then((r) => r.json()).then((j) => { if (alive) setIsMember(!!j?.data?.isMember); }).catch(() => {});
+    return () => { alive = false; };
+  }, []);
+
+  // Promotion pickup: membership session, ?promo=CODE links, or utm_* ad campaigns.
   useEffect(() => {
     const resolve = () => {
-      const p = resolvePromo(searchParams, !!getUser(), getPromoConfig());
+      const p = resolvePromo(searchParams, isMember, getPromoConfig());
       setPromo(p);
       trackVisit({
         source: p?.id ?? "organic",
@@ -48,12 +56,8 @@ export function TicketsBuy() {
     };
     resolve();
     window.addEventListener(PROMOS_EVENT, resolve);
-    window.addEventListener(SESSION_EVENT, resolve);
-    return () => {
-      window.removeEventListener(PROMOS_EVENT, resolve);
-      window.removeEventListener(SESSION_EVENT, resolve);
-    };
-  }, [searchParams]);
+    return () => window.removeEventListener(PROMOS_EVENT, resolve);
+  }, [searchParams, isMember]);
 
   const mult = promo?.multiplier ?? 1;
 
@@ -398,16 +402,16 @@ export function TicketsBuy() {
             </div>
             <div className="p-6">
               <p className="font-condensed numeral font-bold leading-none text-accent-bright" style={{ fontSize: "4.5rem" }}>
-                {usd(lifetimeStats.totalDonatedUSD)}
+                {usd(stats.totalDonatedUSD)}
               </p>
               <p className="mt-2 font-condensed uppercase tracking-[0.22em] text-[12px] text-paper-3">
                 <Copy k="tickets.charity.donated" />
               </p>
               <div className="mt-6 grid grid-cols-2 gap-4 pt-5 border-t border-paper-3/30">
-                <KCharity label={t("tickets.charity.k.cycles")} v={String(lifetimeStats.cyclesRun)} />
-                <KCharity label={t("tickets.charity.k.charities")} v={String(lifetimeStats.charitiesFunded)} />
-                <KCharity label={t("tickets.charity.k.cars")} v={String(lifetimeStats.carsGivenAway)} />
-                <KCharity label={t("tickets.charity.k.entries")} v={intl(lifetimeStats.ticketsCounted)} />
+                <KCharity label={t("tickets.charity.k.cycles")} v={String(stats.cyclesRun)} />
+                <KCharity label={t("tickets.charity.k.charities")} v={String(stats.charitiesFunded)} />
+                <KCharity label={t("tickets.charity.k.cars")} v={String(stats.carsGivenAway)} />
+                <KCharity label={t("tickets.charity.k.entries")} v={intl(stats.ticketsCounted)} />
               </div>
             </div>
           </div>
