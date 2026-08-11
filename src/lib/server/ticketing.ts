@@ -118,6 +118,35 @@ async function mint(client: PoolClient, body: Body, mode: Mode) {
   };
 }
 
+/**
+ * Open the NEXT cycle: close the current open cycle, create a new one (auto-incremented
+ * code) with its per-cycle order-number sequence + counter, all in one transaction. This
+ * is the production path for rotating cycles (the mint reads `status='open'` +
+ * `order_seq_cyc_<id>`). Returns the new cycle's id + code.
+ */
+export async function openNewCycle(opts: { vehicleLabel?: string | null; drawDateISO?: string | null }): Promise<{ id: number; code: string }> {
+  return withClient(async (c) => {
+    await c.query("BEGIN");
+    try {
+      await c.query(`update cycles set status = 'closed' where status = 'open'`);
+      const nextCode = String((await c.query(`select coalesce(max(nullif(code, '')::int), 0) + 1 as n from cycles`)).rows[0].n);
+      const ins = (
+        await c.query(
+          `insert into cycles (code, status, vehicle_label, draw_date) values ($1, 'open', $2, $3) returning id, code`,
+          [nextCode, opts.vehicleLabel ?? null, opts.drawDateISO ?? null],
+        )
+      ).rows[0] as { id: number; code: string };
+      await c.query(`insert into cycle_counters (cycle_id, last_order_no) values ($1, 0) on conflict do nothing`, [ins.id]);
+      await c.query(`create sequence if not exists order_seq_cyc_${ins.id} start 1`);
+      await c.query("COMMIT");
+      return { id: ins.id, code: ins.code };
+    } catch (e) {
+      await c.query("ROLLBACK").catch(() => {});
+      throw e;
+    }
+  });
+}
+
 // ---- test-bench helpers ----------------------------------------------------
 
 export async function resetDb() {

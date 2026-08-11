@@ -21,7 +21,10 @@ export default function AdminPage() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    setPromos(getPromoConfig());
+    fetch("/api/admin/promotions")
+      .then((r) => r.json())
+      .then((j) => setPromos(j?.ok ? (j.data as PromoTier[]) : getPromoConfig()))
+      .catch(() => setPromos(getPromoConfig()));
   }, []);
 
   if (!promos) return null;
@@ -31,15 +34,16 @@ export default function AdminPage() {
     setPromos((prev) => prev!.map((t) => (t.id === id ? { ...t, ...patch } : t)));
   };
 
-  const onSave = () => {
-    savePromoConfig(promos);
+  const onSave = async () => {
+    await savePromoConfig(promos);
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };
 
-  const onReset = () => {
-    resetPromoConfig();
-    setPromos(getPromoConfig());
+  const onReset = async () => {
+    await resetPromoConfig();
+    const j = await fetch("/api/admin/promotions").then((r) => r.json()).catch(() => null);
+    setPromos(j?.ok ? (j.data as PromoTier[]) : getPromoConfig());
     setSaved(false);
   };
 
@@ -195,7 +199,7 @@ export default function AdminPage() {
         </div>
 
         <p className="mt-6 dateline on-paper">
-          Production build: promotions live as Shopify products/metafields or discount rules — this desk writes the same shape of config, stored locally for the demo.
+          Saved server-side (site settings) — edits go live for every visitor, picked up on the tickets pages by membership, <code className="numeral">?promo=CODE</code>, or UTM.
         </p>
     </main>
   );

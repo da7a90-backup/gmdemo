@@ -84,32 +84,49 @@ export const DEFAULT_PROMOS: PromoTier[] = [
   },
 ];
 
-const STORAGE_KEY = "gm:promos-v1";
 export const PROMOS_EVENT = "gm:promos-updated";
 
-/** Admin-configured promos merged over defaults. Safe on the server (returns defaults). */
+// Server-backed config: the cache is hydrated from GET /api/promos (once, on the client)
+// so admin edits reach every visitor, not just the admin's browser. Consumers call
+// getPromoConfig() (sync) and re-read on PROMOS_EVENT when the cache updates.
+let _cache: PromoTier[] | null = null;
+
+/** Admin-configured promos merged over defaults. Returns the server cache once loaded. */
 export function getPromoConfig(): PromoTier[] {
-  if (typeof window === "undefined") return DEFAULT_PROMOS;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_PROMOS;
-    const stored = JSON.parse(raw) as Partial<PromoTier>[];
-    return DEFAULT_PROMOS.map((d) => {
-      const o = stored.find((s) => s.id === d.id);
-      return o ? { ...d, ...o } : d;
-    });
-  } catch {
-    return DEFAULT_PROMOS;
-  }
+  return _cache ?? DEFAULT_PROMOS;
 }
 
-export function savePromoConfig(promos: PromoTier[]) {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(promos));
+// Hydrate the cache from the server on first client load.
+if (typeof window !== "undefined") {
+  fetch("/api/promos")
+    .then((r) => r.json())
+    .then((j) => {
+      if (j?.ok && Array.isArray(j.data)) {
+        _cache = j.data as PromoTier[];
+        window.dispatchEvent(new Event(PROMOS_EVENT));
+      }
+    })
+    .catch(() => {});
+}
+
+/** Save the promo config to the server (admin) + update the local cache optimistically. */
+export async function savePromoConfig(promos: PromoTier[]): Promise<void> {
+  _cache = promos;
   window.dispatchEvent(new Event(PROMOS_EVENT));
+  await fetch("/api/admin/promotions", {
+    method: "PUT",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ promos }),
+  }).catch(() => {});
 }
 
-export function resetPromoConfig() {
-  window.localStorage.removeItem(STORAGE_KEY);
+export async function resetPromoConfig(): Promise<void> {
+  await fetch("/api/admin/promotions", {
+    method: "PUT",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ promos: DEFAULT_PROMOS }),
+  }).catch(() => {});
+  _cache = DEFAULT_PROMOS;
   window.dispatchEvent(new Event(PROMOS_EVENT));
 }
 

@@ -89,6 +89,15 @@ export default function AdminCyclesPage() {
 
   const input = "mt-1.5 w-full h-11 border border-ink/10 bg-paper-3 rounded-lg px-3 text-[15px] text-ink outline-none focus:border-accent";
 
+  const openNextCycle = async () => {
+    if (!confirm("Open the NEXT cycle? This CLOSES the current cycle and starts fresh ticket numbering. Afterward, set the new prize + draw date and save.")) return;
+    setErr(null);
+    try {
+      await adminSend("/api/admin/cycle", "POST", {});
+      loadConfig();
+    } catch (e) { setErr(String((e as Error).message)); }
+  };
+
   return (
     <main>
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -101,14 +110,23 @@ export default function AdminCyclesPage() {
             charity sections across the site pick it up live. Manage the partner registry below.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={onSave}
-          className="inline-flex items-center gap-2 bg-accent-bright text-ink border border-ink/10 px-5 py-2.5 rounded-full font-condensed uppercase tracking-[0.22em] text-[11px] font-bold hover:bg-accent hover:text-paper-3 transition-colors"
-        >
-          {saved ? <Check size={13} /> : <Save size={13} />}
-          {saved ? "Saved" : "Save cycle"}
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={onSave}
+            className="inline-flex items-center gap-2 bg-accent-bright text-ink border border-ink/10 px-5 py-2.5 rounded-full font-condensed uppercase tracking-[0.22em] text-[11px] font-bold hover:bg-accent hover:text-paper-3 transition-colors"
+          >
+            {saved ? <Check size={13} /> : <Save size={13} />}
+            {saved ? "Saved" : "Save cycle"}
+          </button>
+          <button
+            type="button"
+            onClick={openNextCycle}
+            className="inline-flex items-center gap-2 border border-ink/15 bg-paper-4 px-5 py-2.5 rounded-full font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper transition-colors"
+          >
+            <Plus size={13} /> Open next cycle
+          </button>
+        </div>
       </div>
 
       {err && <p className="mt-4 text-[13px] text-red-600 font-condensed">⚠ {err}</p>}

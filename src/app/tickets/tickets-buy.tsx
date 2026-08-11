@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { ticketTiers, membershipTiers } from "@/lib/mock-data";
 import { usePrizeCycle, useLifetimeStats } from "@/lib/cycle-store";
+import { usePricing } from "@/lib/pricing-store";
 import { useWinners } from "@/lib/winners-store";
 import { usdc, intl, niceWeekday, niceDate, usd } from "@/lib/format";
 import { Label } from "@/components/sticker";
@@ -33,6 +34,7 @@ export function TicketsBuy() {
   const [promo, setPromo] = useState<PromoTier | null>(null);
   const searchParams = useSearchParams();
   const stats = useLifetimeStats();
+  const pricing = usePricing();
   const [isMember, setIsMember] = useState(false);
 
   // Real signed-in member? (Shopify OTP session → users.is_member). Drives the member multiplier.
@@ -206,7 +208,7 @@ export function TicketsBuy() {
                       <span className="font-condensed uppercase tracking-[0.18em] text-[9px] text-ink-3 mt-0.5">
                         {tier.entries * mult === 1 ? t("tickets.unitSingular") : t("tickets.unitPlural")}
                       </span>
-                      <span className="mt-1 font-display font-bold text-lg text-ink leading-none">{usdc(tier.priceUSD)}</span>
+                      <span className="mt-1 font-display font-bold text-lg text-ink leading-none">{usdc(pricing.ticketPrice(tier.entries) ?? tier.priceUSD)}</span>
                       <button
                         type="button"
                         onClick={() => onBuy(tier.id, "once")}
@@ -221,7 +223,8 @@ export function TicketsBuy() {
                 <div className="mt-3 grid grid-cols-3 gap-2">
                   {membershipTiers.map((m) => {
                     const listValue = m.monthlyEntries * 10;
-                    const pctOff = Math.round((1 - m.monthlyUSD / listValue) * 100);
+                    const monthly = pricing.membershipPrice(m.name) ?? m.monthlyUSD;
+                    const pctOff = Math.round((1 - monthly / listValue) * 100);
                     return (
                       <div
                         key={m.id}
@@ -244,7 +247,7 @@ export function TicketsBuy() {
                             {usd(listValue)}
                           </s>
                           <span className="font-display font-bold text-lg text-ink leading-none">
-                            {usd(m.monthlyUSD)}<span className="text-ink-3 text-[11px] font-condensed"><Copy k="tickets.perMo" /></span>
+                            {usd(monthly)}<span className="text-ink-3 text-[11px] font-condensed"><Copy k="tickets.perMo" /></span>
                           </span>
                         </span>
                         <span className="mt-1 dateline on-paper"><Copy k="tickets.savePrefix" /> {pctOff}%</span>

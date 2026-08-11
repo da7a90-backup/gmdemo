@@ -7,6 +7,7 @@ import { Label } from "@/components/sticker";
 import { listMembershipPerks } from "@/lib/server/content-lists";
 import { DEFAULT_MEMBERSHIP_PERKS, MEMBERSHIP_BASE_ENTRIES } from "@/lib/membership-data";
 import { getContentServer } from "@/lib/server/copy";
+import { getMembershipVariants } from "@/lib/server/cart";
 import { MembershipJoinButton } from "@/components/membership-join";
 
 export const metadata = { title: "Membership — Generous Motors" };
@@ -15,8 +16,9 @@ export const metadata = { title: "Membership — Generous Motors" };
 export const dynamic = "force-dynamic";
 
 export default async function MembershipPage() {
-  const [fetchedPerks, copy] = await Promise.all([listMembershipPerks(), getContentServer()]);
+  const [fetchedPerks, copy, variants] = await Promise.all([listMembershipPerks(), getContentServer(), getMembershipVariants().catch(() => [])]);
   const perks = fetchedPerks.length ? fetchedPerks : DEFAULT_MEMBERSHIP_PERKS;
+  const priceByTier: Record<string, number> = Object.fromEntries(variants.map((v) => [v.tier.toLowerCase(), v.price]));
   return (
     <div className="bg-paper-3 text-ink">
       <section className="relative border-b border-ink/10 overflow-hidden grain">
@@ -61,7 +63,7 @@ export default async function MembershipPage() {
               </div>
               <h2 className="font-display font-bold text-3xl">{m.name}</h2>
               <div className="mt-5 flex items-baseline gap-2">
-                <span className="font-condensed numeral text-6xl leading-none font-semibold">{usd(m.monthlyUSD)}</span>
+                <span className="font-condensed numeral text-6xl leading-none font-semibold">{usd(priceByTier[m.name.toLowerCase()] ?? m.monthlyUSD)}</span>
                 <span className={`${m.popular ? "text-paper-3/70" : "text-ink-3"} text-sm`}>{copy["mem.perMonth"]}</span>
               </div>
               <p className={`mt-3 font-condensed uppercase tracking-[0.22em] text-[12px]`}>

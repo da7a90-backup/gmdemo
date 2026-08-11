@@ -2,6 +2,7 @@
 // Functions return objects in the demo's shapes so the admin desks + public pages
 // wire up with minimal change. Media URLs point at Shopify Files (CDN).
 import { query } from "./db";
+import { DEFAULT_PROMOS, type PromoTier } from "@/lib/promotions";
 
 type Row = Record<string, unknown>;
 
@@ -188,4 +189,24 @@ export async function updateLifetimeStats(s: Partial<LifetimeStats>): Promise<Li
     [JSON.stringify(next)],
   );
   return next;
+}
+
+// ───────────────────────────── promotions (server) ────────────────────────
+// Admin-configured promo tiers, stored server-side so edits reach every visitor
+// (not just the admin's browser). Merged over the code defaults.
+export async function getPromosServer(): Promise<PromoTier[]> {
+  const r = await query(`select value from site_settings where key = 'promotions'`);
+  const stored = r.rows[0]?.value as Partial<PromoTier>[] | undefined;
+  if (!Array.isArray(stored)) return DEFAULT_PROMOS;
+  return DEFAULT_PROMOS.map((d) => {
+    const o = stored.find((s) => s.id === d.id);
+    return o ? { ...d, ...o } : d;
+  });
+}
+export async function savePromosServer(promos: PromoTier[]): Promise<void> {
+  await query(
+    `insert into site_settings (key, value) values ('promotions', $1)
+     on conflict (key) do update set value = excluded.value, updated_at = now()`,
+    [JSON.stringify(promos)],
+  );
 }

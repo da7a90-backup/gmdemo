@@ -7,11 +7,13 @@ import { ticketTiers, membershipTiers } from "@/lib/mock-data";
 import { usePrizeCycle } from "@/lib/cycle-store";
 import { usd } from "@/lib/format";
 import { startTicketCheckout, startMembershipCheckout } from "@/lib/checkout";
+import { usePricing } from "@/lib/pricing-store";
 import { Label } from "@/components/sticker";
 import { Copy, useCopy } from "@/components/copy";
 
 export function PricingTiers() {
   const cp = useCopy();
+  const pricing = usePricing();
   const router = useRouter();
   const activeDraw = usePrizeCycle();
   const [mode, setMode] = useState<"once" | "monthly">("once");
@@ -98,7 +100,7 @@ export function PricingTiers() {
                 <h3 className="font-display font-bold text-3xl">{t.name}</h3>
                 <p className={`mt-1 text-[14px] font-serif italic ${t.popular ? "text-paper/70" : "text-ink-3"}`}>{t.blurb}</p>
                 <div className="mt-7 flex items-baseline gap-2">
-                  <span className="font-condensed numeral text-6xl leading-none font-semibold">{usd(t.priceUSD)}</span>
+                  <span className="font-condensed numeral text-6xl leading-none font-semibold">{usd(pricing.ticketPrice(t.entries) ?? t.priceUSD)}</span>
                   <span className={`${t.popular ? "text-paper/70" : "text-ink-2"} text-sm`}><Copy k="pricing.oneTime" /></span>
                 </div>
                 <p className={`mt-3 font-condensed uppercase tracking-[0.22em] text-[12px] ${t.popular ? "text-paper" : "text-ink"}`}>
@@ -143,7 +145,7 @@ export function PricingTiers() {
               </div>
               <h3 className="font-display font-bold text-3xl">{m.name}</h3>
               <div className="mt-5 flex items-baseline gap-2">
-                <span className="font-condensed numeral text-6xl leading-none font-semibold">{usd(m.monthlyUSD)}</span>
+                <span className="font-condensed numeral text-6xl leading-none font-semibold">{usd(pricing.membershipPrice(m.name) ?? m.monthlyUSD)}</span>
                 <span className={`${m.popular ? "text-paper-3/70" : "text-ink-3"} text-sm`}><Copy k="pricing.perMonth" /></span>
               </div>
               <p className={`mt-3 font-condensed uppercase tracking-[0.22em] text-[12px]`}>

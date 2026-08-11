@@ -6,6 +6,14 @@ import crypto from "node:crypto";
 import { pool } from "./db";
 import { shopifyAdmin } from "./shopify";
 import type { Body } from "./ticketing";
+import { MEMBERSHIP_PLANS } from "./shopify-membership";
+
+/** Monthly entry allotment for a membership line, matched by tier name in the line title. */
+function tierEntries(label: string): number | null {
+  const l = (label || "").toLowerCase();
+  const plan = MEMBERSHIP_PLANS.find((p) => l.includes(p.tier.toLowerCase()));
+  return plan ? plan.entries : null;
+}
 
 const webhookSecret = () => process.env.SHOPIFY_WEBHOOK_SECRET || process.env.SHOPIFY_API_SECRET || "";
 
@@ -32,7 +40,7 @@ export type OrderPayload = {
   customer?: { id?: number; email?: string | null; phone?: string | null; first_name?: string | null; last_name?: string | null; admin_graphql_api_id?: string | null };
   billing_address?: { name?: string | null } | null;
   shipping_address?: { name?: string | null } | null;
-  line_items?: { id: number; quantity?: number; properties?: Prop[]; selling_plan_allocation?: unknown }[];
+  line_items?: { id: number; quantity?: number; properties?: Prop[]; selling_plan_allocation?: unknown; variant_title?: string | null; title?: string | null; name?: string | null }[];
 };
 
 const prop = (props: Prop[] | undefined, name: string) =>
@@ -56,7 +64,10 @@ export function mapOrderToMintBody(webhookId: string, o: OrderPayload): Body | n
   const line_items = (o.line_items ?? [])
     .map((li) => {
       const perUnit = Number(prop(li.properties, "_entries") ?? prop(li.properties, "entries"));
-      const each = Number.isFinite(perUnit) && perUnit > 0 ? perUnit : 1;
+      // Fallback for subscription RENEWAL orders, whose lines may not carry the `_entries`
+      // cart attribute: derive the monthly allotment from the membership tier.
+      const membershipEach = li.selling_plan_allocation ? tierEntries(li.variant_title || li.title || li.name || "") : null;
+      const each = Number.isFinite(perUnit) && perUnit > 0 ? perUnit : membershipEach ?? 1;
       return { id: li.id, ticket_count: each * Math.max(1, li.quantity ?? 1) };
     })
     .filter((l) => l.id != null && l.ticket_count > 0);
