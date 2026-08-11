@@ -114,27 +114,43 @@ const contractCustomerGid = (c: ContractPayload): string | null =>
   c.customer?.admin_graphql_api_id ||
   (c.customer?.id ? `gid://shopify/Customer/${c.customer.id}` : c.customer_id ? `gid://shopify/Customer/${c.customer_id}` : null);
 
+/** The open cycle's code + prize label (for lifecycle emails). Empty when none. */
+export async function currentCyclePrize(): Promise<{ code: string; prize: string }> {
+  const r = await pool
+    .query(`select code, vehicle_label from cycles where status = 'open' order by code desc limit 1`)
+    .catch(() => null);
+  const row = r?.rows?.[0] as { code?: string | number; vehicle_label?: string } | undefined;
+  return { code: row?.code != null ? String(row.code) : "", prize: row?.vehicle_label ?? "" };
+}
+
+export type ContractTransition = "started" | "cancelled" | null;
+
 /**
  * Record a subscription contract and reflect membership. active/paused → member;
  * cancelled/expired/failed → member only if another active contract remains.
- * Idempotent on the contract GID. Never throws.
+ * Idempotent on the contract GID. Never throws. Returns the lifecycle transition
+ * (started/cancelled) + the resolved customer email, so the route can send the
+ * matching membership email.
  */
-export async function upsertSubscriptionContract(c: ContractPayload, status: string): Promise<void> {
+export async function upsertSubscriptionContract(c: ContractPayload, status: string): Promise<{ transition: ContractTransition; email: string | null }> {
   const gid = contractGid(c);
-  if (!gid) return;
+  if (!gid) return { transition: null, email: null };
   const custGid = contractCustomerGid(c);
-  const email = c.customer?.email ?? null;
+  let email = c.customer?.email ?? null;
   try {
+    const prior = (await pool.query(`select status from subscription_contracts where shopify_contract_gid = $1`, [gid])).rows[0]?.status as string | undefined;
+
     const userRow = (
       await pool.query(
-        `select id from users
+        `select id, email from users
          where ($1::text is not null and shopify_customer_gid = $1)
             or ($2::citext is not null and email = $2)
          limit 1`,
         [custGid, email],
       )
-    ).rows[0] as { id: number } | undefined;
+    ).rows[0] as { id: number; email: string | null } | undefined;
     const userId = userRow?.id ?? null;
+    if (!email) email = userRow?.email ?? null;
 
     await pool.query(
       `insert into subscription_contracts (shopify_contract_gid, user_id, shopify_customer_gid, status)
@@ -160,8 +176,14 @@ export async function upsertSubscriptionContract(c: ContractPayload, status: str
     } else if (custGid) {
       await pool.query(`update users set is_member = $2 where shopify_customer_gid = $1`, [custGid, active]).catch(() => {});
     }
+
+    const wasMember = prior === "active" || prior === "paused";
+    let transition: ContractTransition = null;
+    if (active && !wasMember) transition = "started";
+    else if (!active && wasMember && (status === "cancelled" || status === "expired")) transition = "cancelled";
+    return { transition, email };
   } catch {
-    /* best-effort */
+    return { transition: null, email };
   }
 }
 
@@ -187,7 +209,22 @@ const WEBHOOK_TOPICS: { topic: string; path: string }[] = [
   { topic: "REFUNDS_CREATE", path: "/api/webhooks/orders-void" },
   { topic: "SUBSCRIPTION_CONTRACTS_CREATE", path: "/api/webhooks/subscription-contracts" },
   { topic: "SUBSCRIPTION_CONTRACTS_UPDATE", path: "/api/webhooks/subscription-contracts" },
+  { topic: "SUBSCRIPTION_BILLING_ATTEMPTS_FAILURE", path: "/api/webhooks/subscription-billing-failure" },
 ];
+
+/** Resolve a subscriber email from a subscription contract gid (via our DB) — the
+ * billing-attempt-failure payload carries the contract id but not the email. */
+export async function resolveContractEmail(contractGid: string | null): Promise<string | null> {
+  if (!contractGid) return null;
+  const r = await pool
+    .query(
+      `select u.email from subscription_contracts sc join users u on u.id = sc.user_id
+       where sc.shopify_contract_gid = $1 limit 1`,
+      [contractGid],
+    )
+    .catch(() => null);
+  return (r?.rows?.[0]?.email as string | undefined) ?? null;
+}
 
 /** Register (idempotently) every consumed webhook topic against `base` (the
  * deployment's public HTTPS origin). "exists" when the topic+URL is already set. */

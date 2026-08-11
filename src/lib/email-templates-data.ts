@@ -51,6 +51,55 @@ export const EMAIL_TEMPLATES: EmailTemplateDef[] = [
 <p>You won the <strong>{{prize}}</strong> in Cycle {{cycle}}.</p>
 <p>Your entry also helped fund <strong>{{charity}}</strong>. We'll reach out shortly to arrange delivery and the handover on stream.</p>`,
   },
+  {
+    key: "newsletter_welcome",
+    metric: "Newsletter Welcome",
+    name: "Newsletter welcome",
+    description: "Sent once when someone subscribes to the newsletter (footer/popup).",
+    variables: [{ name: "prize", example: "2024 Chevrolet Corvette" }],
+    subject: "Welcome to Generous Motors",
+    body:
+      `<h1 style="font-family:Georgia,serif">Welcome to the club.</h1>
+<p>You're on the list — we'll send you cycle updates, winner stories, and the occasional bonus-entry offer.</p>
+<p>Right now we're giving away the <strong>{{prize}}</strong>. Every ticket is printed and pulled on a live stream, and every dollar funds the cause.</p>
+<p>See you in the drum.</p>`,
+  },
+  {
+    key: "membership_started",
+    metric: "Membership Started",
+    name: "Membership — welcome",
+    description: "Sent when a subscription first becomes active (subscription_contracts).",
+    variables: [{ name: "prize", example: "2024 Chevrolet Corvette" }, { name: "cycle", example: "1" }],
+    subject: "Your membership is live 🎉",
+    body:
+      `<h1 style="font-family:Georgia,serif">You're a member.</h1>
+<p>Your monthly entries are locked in — they'll be printed automatically every cycle, starting with Cycle {{cycle}} (the {{prize}}).</p>
+<p>Your loyalty multiplier grows the longer you stay. Thank you for funding the cause every single month.</p>`,
+  },
+  {
+    key: "membership_payment_failed",
+    metric: "Membership Payment Failed",
+    name: "Membership — payment failed",
+    description: "Sent when a subscription billing attempt fails (dunning).",
+    variables: [{ name: "prize", example: "2024 Chevrolet Corvette" }],
+    subject: "Action needed — your membership payment didn't go through",
+    body:
+      `<h1 style="font-family:Georgia,serif">We couldn't process your payment.</h1>
+<p>Your latest membership charge didn't go through, so this cycle's entries are on hold. Please update your payment method to keep your streak — and your loyalty multiplier — going.</p>
+<p>We'll retry automatically, or you can update your card from your account.</p>`,
+  },
+  {
+    key: "membership_cancelled",
+    metric: "Membership Cancelled",
+    name: "Membership — cancelled",
+    description: "Sent when a subscription is cancelled or expires.",
+    variables: [{ name: "prize", example: "2024 Chevrolet Corvette" }],
+    subject: "Your membership was cancelled",
+    body:
+      `<h1 style="font-family:Georgia,serif">Your membership has ended.</h1>
+<p>Your monthly entries have stopped and your loyalty multiplier is paused. We're sorry to see you go — thank you for everything you funded while you were a member.</p>
+<p>You can rejoin any time and pick your streak back up. One-time tickets are always open too.</p>`,
+  },
 ];
 
 export const emailTemplateDef = (key: string) => EMAIL_TEMPLATES.find((t) => t.key === key);

@@ -6,10 +6,13 @@ const KEY = process.env.KLAVIYO_API_KEY;
 const REVISION = "2024-10-15";
 // The Klaviyo list newsletter opt-ins are subscribed to (e.g. "Email List" = TDapB6).
 const NEWSLETTER_LIST_ID = process.env.KLAVIYO_NEWSLETTER_LIST_ID;
+// A separate list of active members, so campaigns can target members only.
+const MEMBERS_LIST_ID = process.env.KLAVIYO_MEMBERS_LIST_ID;
 const FROM_EMAIL = process.env.KLAVIYO_FROM_EMAIL || "hello@generousmotors.com";
 const FROM_LABEL = process.env.KLAVIYO_FROM_LABEL || "Generous Motors";
 export const klaviyoConfigured = () => !!KEY;
 export const newsletterListId = () => NEWSLETTER_LIST_ID;
+export const membersListId = () => MEMBERS_LIST_ID;
 
 const kHeaders = () => ({
   authorization: `Klaviyo-API-Key ${KEY}`,
@@ -69,6 +72,42 @@ export async function subscribeEmail(email: string, source = "website"): Promise
     if (!sub.ok) return sub;
   }
   return { ok: true, id };
+}
+
+/* ------------------------------ members list ------------------------------ */
+/** Look up a profile id by email (needed to remove it from a list). */
+async function getProfileId(email: string): Promise<string | null> {
+  try {
+    const res = await fetch(`https://a.klaviyo.com/api/profiles/?filter=${encodeURIComponent(`equals(email,"${email}")`)}`, { headers: kHeaders() });
+    if (!res.ok) return null;
+    const j = (await res.json().catch(() => ({}))) as { data?: { id?: string }[] };
+    return j.data?.[0]?.id ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Add an active member to the Members list (consented) so member-only campaigns reach them. */
+export async function addToMembersList(email: string): Promise<ProviderResult> {
+  if (!KEY || !MEMBERS_LIST_ID) return { ok: true, stubbed: true };
+  return subscribeToList(email, MEMBERS_LIST_ID);
+}
+
+/** Remove a (cancelled/expired) member from the Members list so campaigns stop reaching them. */
+export async function removeFromMembersList(email: string): Promise<ProviderResult> {
+  if (!KEY || !MEMBERS_LIST_ID) return { ok: true, stubbed: true };
+  const id = await getProfileId(email);
+  if (!id) return { ok: true }; // no profile / not on the list
+  try {
+    const res = await fetch(`https://a.klaviyo.com/api/lists/${MEMBERS_LIST_ID}/relationships/profiles/`, {
+      method: "DELETE",
+      headers: kHeaders(),
+      body: JSON.stringify({ data: [{ type: "profile", id }] }),
+    });
+    return res.ok ? { ok: true } : { ok: false, error: `klaviyo remove ${res.status}: ${await res.text().catch(() => "")}` };
+  } catch (e) {
+    return { ok: false, error: String(e) };
+  }
 }
 
 /**

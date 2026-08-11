@@ -6,6 +6,7 @@ import { subscribeEmail as klaviyoSubscribe } from "./providers/klaviyo";
 import { addSmsSubscriber as postscriptAdd, sendSms } from "./providers/postscript";
 import { klaviyoConfigured } from "./providers/klaviyo";
 import { postscriptConfigured } from "./providers/postscript";
+import { emitEmailEvent } from "./email-templates";
 
 export type SubResult = {
   id: number;
@@ -35,6 +36,10 @@ export async function subscribeEmail(email: string, source = "Footer"): Promise<
            consent_at = coalesce(consent_at, now()), updated_at = now() where id = $1`,
         [row.id, prov.id ?? null],
       );
+      // Welcome email — code renders the admin template into the Klaviyo event;
+      // uniqueId dedupes so a re-subscribe never re-triggers the welcome flow.
+      const cyc = (await c.query(`select vehicle_label from cycles where status = 'open' order by code desc limit 1`).catch(() => null))?.rows?.[0];
+      await emitEmailEvent("Newsletter Welcome", "newsletter_welcome", norm, { prize: cyc?.vehicle_label ?? "" }, `welcome-${norm}`).catch(() => {});
     }
     return { id: row.id, status, provider: prov };
   });

@@ -19,7 +19,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const g = requireAdmin(req); if (g) return g;
   const b = await readJson<{
-    id?: number; channel?: "email" | "sms"; subject?: string; body?: string; promoCode?: string; send?: boolean;
+    id?: number; channel?: "email" | "sms"; audience?: "newsletter" | "members"; subject?: string; body?: string; promoCode?: string; send?: boolean;
   }>(req);
   try {
     // Send an existing draft.
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     // Create a new draft (+ send now if requested).
     if (!b?.channel || typeof b.body !== "string" || !b.body.trim()) return fail("channel and body required");
     if (b.channel === "email" && !b.subject?.trim()) return fail("subject required for email");
-    const c = await saveCampaign({ channel: b.channel, subject: b.subject, body: b.body, promoCode: b.promoCode });
+    const c = await saveCampaign({ channel: b.channel, audience: b.audience, subject: b.subject, body: b.body, promoCode: b.promoCode });
     if (b.send) return ok(await sendCampaign(c.id, baseUrl(req)));
     return ok(c);
   } catch (e) {

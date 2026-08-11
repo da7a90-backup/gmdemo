@@ -17,6 +17,7 @@ export function CampaignDesk({ channel, recipients }: { channel: "email" | "sms"
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [promoCode, setPromoCode] = useState("");
+  const [audience, setAudience] = useState<"newsletter" | "members">("newsletter");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -54,12 +55,12 @@ export function CampaignDesk({ channel, recipients }: { channel: "email" | "sms"
   const onSaveDraft = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!body.trim() || (isEmail && !subject.trim())) return;
-    const c = await post({ channel, subject: isEmail ? subject : undefined, body, promoCode: promoCode || undefined, send: false });
+    const c = await post({ channel, audience: isEmail ? audience : undefined, subject: isEmail ? subject : undefined, body, promoCode: promoCode || undefined, send: false });
     if (c) reset();
   };
   const onSendNow = async () => {
     if (!body.trim() || (isEmail && !subject.trim())) return;
-    const c = await post({ channel, subject: isEmail ? subject : undefined, body, promoCode: promoCode || undefined, send: true });
+    const c = await post({ channel, audience: isEmail ? audience : undefined, subject: isEmail ? subject : undefined, body, promoCode: promoCode || undefined, send: true });
     if (c && c.status === "sent") reset();
   };
   const del = async (id: number) => {
@@ -74,9 +75,21 @@ export function CampaignDesk({ channel, recipients }: { channel: "email" | "sms"
       <div className="mt-7 border border-ink/10 bg-paper-4 rounded-2xl shadow-soft overflow-hidden">
         <div className="px-5 py-3 bg-paper-3 border-b border-ink/10 flex flex-wrap items-center justify-between gap-3">
           <p className="font-display font-bold text-ink">{isEmail ? "Compose an email campaign" : "Compose a text blast"}</p>
-          <span className="inline-flex items-center gap-1.5 dateline on-paper">
-            <Users size={12} /> goes to {recipients.toLocaleString("en-US")} subscriber{recipients === 1 ? "" : "s"}
-          </span>
+          <div className="inline-flex flex-wrap items-center gap-3">
+            {isEmail && (
+              <label className="inline-flex items-center gap-1.5">
+                <span className="dateline on-paper">Send to</span>
+                <select value={audience} onChange={(e) => setAudience(e.target.value as "newsletter" | "members")}
+                  className="border border-ink/10 bg-paper-3 rounded-full px-3 py-1 text-[12px] text-ink outline-none focus:border-accent">
+                  <option value="newsletter">Newsletter subscribers</option>
+                  <option value="members">Members only</option>
+                </select>
+              </label>
+            )}
+            <span className="inline-flex items-center gap-1.5 dateline on-paper">
+              <Users size={12} /> {isEmail && audience === "members" ? "goes to active members" : `goes to ${recipients.toLocaleString("en-US")} subscriber${recipients === 1 ? "" : "s"}`}
+            </span>
+          </div>
         </div>
         <form onSubmit={onSaveDraft} className="p-5 grid gap-4">
           {isEmail && (
