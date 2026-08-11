@@ -38,6 +38,7 @@ export default function AdminBlogPage() {
   const [err, setErr] = useState<string | null>(null);
   const [imgBusy, setImgBusy] = useState(false);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
+  const imgRef = useRef<HTMLInputElement>(null);
 
   const load = () => adminGet<Article[]>("/api/admin/articles").then(setArticles).catch((e) => setErr(String(e.message)));
   useEffect(() => { load(); }, []);
@@ -74,7 +75,6 @@ export default function AdminBlogPage() {
       applyBody(draft.body.slice(0, s) + snippet + draft.body.slice(s), [s + snippet.length, s + snippet.length]);
     } catch (e) { setErr(String((e as Error).message)); } finally { setImgBusy(false); }
   };
-  const imgRef = useRef<HTMLInputElement>(null);
   const TOOLBAR: { icon: typeof Bold; label: string; run: () => void }[] = [
     { icon: Bold, label: "Bold", run: () => surround("**", "**", "bold text") },
     { icon: Italic, label: "Italic", run: () => surround("*", "*", "italic text") },
