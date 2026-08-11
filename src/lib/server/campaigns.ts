@@ -1,8 +1,10 @@
 // Marketing campaigns (newsletter / SMS blasts) — stored in Postgres, sent as REAL
-// Klaviyo email campaigns. Promo variables ({{promo_link}}, {{promo_code}}, …) are
-// injected into the subject/body at send time. SMS sends are gated on Postscript.
+// Klaviyo email campaigns / Postscript SMS. Promo variables ({{promo_link}}, {{promo_code}},
+// …) are injected into the subject/body at send time.
 import { pool } from "./db";
 import { sendKlaviyoCampaign, deleteKlaviyoCampaign, newsletterListId, klaviyoConfigured } from "./providers/klaviyo";
+import { postscriptConfigured } from "./providers/postscript";
+import { smsBroadcast } from "./subscribers";
 import { fillVars } from "./email-templates";
 import { DEFAULT_PROMOS } from "@/lib/promotions";
 
@@ -58,9 +60,21 @@ export async function sendCampaign(id: number, origin: string): Promise<Campaign
   const c = row(cur);
 
   if (c.channel === "sms") {
-    const error = "SMS sending needs Postscript API access (plan-blocked).";
-    await pool.query(`update campaigns set status='failed', error=$2 where id=$1`, [id, error]);
-    return { ...c, status: "failed", error };
+    if (!postscriptConfigured()) {
+      const error = "Postscript not configured (POSTSCRIPT_API_KEY).";
+      await pool.query(`update campaigns set status='failed', error=$2 where id=$1`, [id, error]);
+      return { ...c, status: "failed", error };
+    }
+    // SMS body is plain text; promo vars still interpolate.
+    const text = fillVars(c.body, promoVars(c.promoCode, origin));
+    const r = await smsBroadcast(text, "promotional");
+    const status: Campaign["status"] = r.sent > 0 || r.recipients === 0 ? "sent" : "failed";
+    const error = r.failed ? `${r.failed}/${r.recipients} failed to queue` : null;
+    const updated = await pool.query(
+      `update campaigns set status=$2, recipients=$3, error=$4, sent_at=now() where id=$1 returning *`,
+      [id, status, r.sent, error],
+    );
+    return row(updated.rows[0]);
   }
 
   if (!klaviyoConfigured() || !newsletterListId()) {

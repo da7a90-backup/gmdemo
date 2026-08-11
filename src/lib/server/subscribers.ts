@@ -3,7 +3,7 @@
 // 'pending' for a later retry (docs/build/open-questions.md §C3).
 import { withClient, query } from "./db";
 import { subscribeEmail as klaviyoSubscribe } from "./providers/klaviyo";
-import { addSmsSubscriber as postscriptAdd } from "./providers/postscript";
+import { addSmsSubscriber as postscriptAdd, sendSms } from "./providers/postscript";
 import { klaviyoConfigured } from "./providers/klaviyo";
 import { postscriptConfigured } from "./providers/postscript";
 
@@ -77,20 +77,45 @@ export async function removeSmsSubscriber(id: number) {
   await query(`delete from sms_subscribers where id = $1`, [id]);
 }
 
-/** Compose + send a broadcast. Provider send is stubbed until keys/plan are live;
- * we always return the real subscribed-recipient count. */
+/** Queue an SMS to every subscribed number via Postscript (message_requests are per-
+ * subscriber; promotional sends obey the recipient's quiet hours). Returns per-send counts. */
+export async function smsBroadcast(
+  text: string,
+  category: "promotional" | "transactional" | "conversational" = "promotional",
+): Promise<{ recipients: number; sent: number; failed: number }> {
+  const phones = (await query(`select phone from sms_subscribers where status = 'subscribed'`)).rows as { phone: string }[];
+  let sent = 0;
+  let failed = 0;
+  for (const { phone } of phones) {
+    const r = await sendSms({ phone }, text, category);
+    if (r.ok) sent++;
+    else failed++;
+  }
+  return { recipients: phones.length, sent, failed };
+}
+
+/** Compose + send a broadcast. SMS → real Postscript sends. Email → routed through the
+ * Klaviyo campaign flow (CampaignDesk); this returns the subscribed-recipient count. */
 export async function broadcast(channel: "email" | "sms", body: string, subject?: string) {
   const table = channel === "email" ? "email_subscribers" : "sms_subscribers";
   const recipients = (await query(`select count(*)::int n from ${table} where status = 'subscribed'`)).rows[0].n as number;
-  const providerLive = channel === "email" ? klaviyoConfigured() : postscriptConfigured();
+
+  if (channel === "sms") {
+    if (!postscriptConfigured()) {
+      return { channel, recipients, subject: null, length: body.length, sent: false, delivered: 0, failed: 0, note: "Postscript not configured (POSTSCRIPT_API_KEY)" };
+    }
+    const r = await smsBroadcast(body, "promotional");
+    return {
+      channel, recipients: r.recipients, subject: null, length: body.length,
+      sent: r.sent > 0, delivered: r.sent, failed: r.failed,
+      note: `queued ${r.sent}/${r.recipients} SMS via Postscript${r.failed ? `, ${r.failed} failed` : ""}`,
+    };
+  }
+
   return {
-    channel,
-    recipients,
-    subject: subject ?? null,
-    length: body.length,
-    sent: false,
-    note: providerLive
-      ? `provider configured — wire the campaign API to actually send to ${recipients} recipients`
-      : `provider not live — would send to ${recipients} recipients once ${channel === "email" ? "Klaviyo" : "Postscript"} is configured`,
+    channel, recipients, subject: subject ?? null, length: body.length, sent: false, delivered: 0, failed: 0,
+    note: klaviyoConfigured()
+      ? `email → use the CampaignDesk (real Klaviyo campaign) to send to ${recipients} recipients`
+      : `provider not live — would send to ${recipients} recipients once Klaviyo is configured`,
   };
 }
