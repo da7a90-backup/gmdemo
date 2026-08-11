@@ -1,10 +1,10 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Eye, Code, Trash2, PenLine, Plus, ExternalLink, Search } from "lucide-react";
+import { Eye, Code, Trash2, PenLine, Plus, ExternalLink, Search, Bold, Italic, Heading2, List, Link2, ImagePlus, Loader2 } from "lucide-react";
 import { slugify, type Article, type ArticleTag } from "@/lib/blog-store";
 import { adminGet, adminSend } from "@/lib/admin-api";
-import { ImageUpload } from "@/components/admin/image-upload";
+import { ImageUpload, uploadFile } from "@/components/admin/image-upload";
 import { renderMarkdown } from "@/lib/markdown";
 import { niceDate } from "@/lib/format";
 import { Label } from "@/components/sticker";
@@ -36,6 +36,8 @@ export default function AdminBlogPage() {
   const [preview, setPreview] = useState(false);
   const [slugTouched, setSlugTouched] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [imgBusy, setImgBusy] = useState(false);
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
 
   const load = () => adminGet<Article[]>("/api/admin/articles").then(setArticles).catch((e) => setErr(String(e.message)));
   useEffect(() => { load(); }, []);
@@ -44,6 +46,42 @@ export default function AdminBlogPage() {
 
   const set = <K extends keyof Draft>(k: K) => (v: Draft[K]) =>
     setDraft((d) => ({ ...d, [k]: v }));
+
+  /* --- Markdown formatting toolbar: operate on the body textarea's selection --- */
+  const applyBody = (next: string, caret: [number, number]) => {
+    set("body")(next);
+    requestAnimationFrame(() => { const ta = bodyRef.current; if (ta) { ta.focus(); ta.setSelectionRange(caret[0], caret[1]); } });
+  };
+  const surround = (before: string, after: string, placeholder: string) => {
+    const ta = bodyRef.current; if (!ta) return;
+    const s = ta.selectionStart, e = ta.selectionEnd, val = draft.body;
+    const sel = val.slice(s, e) || placeholder;
+    applyBody(val.slice(0, s) + before + sel + after + val.slice(e), [s + before.length, s + before.length + sel.length]);
+  };
+  const prefixLine = (prefix: string) => {
+    const ta = bodyRef.current; if (!ta) return;
+    const s = ta.selectionStart, val = draft.body;
+    const lineStart = val.lastIndexOf("\n", s - 1) + 1;
+    applyBody(val.slice(0, lineStart) + prefix + val.slice(lineStart), [s + prefix.length, s + prefix.length]);
+  };
+  const insertImage = async (file?: File) => {
+    if (!file) return;
+    setImgBusy(true); setErr(null);
+    try {
+      const url = await uploadFile(file);
+      const ta = bodyRef.current, s = ta?.selectionStart ?? draft.body.length;
+      const snippet = `\n![](${url})\n`;
+      applyBody(draft.body.slice(0, s) + snippet + draft.body.slice(s), [s + snippet.length, s + snippet.length]);
+    } catch (e) { setErr(String((e as Error).message)); } finally { setImgBusy(false); }
+  };
+  const imgRef = useRef<HTMLInputElement>(null);
+  const TOOLBAR: { icon: typeof Bold; label: string; run: () => void }[] = [
+    { icon: Bold, label: "Bold", run: () => surround("**", "**", "bold text") },
+    { icon: Italic, label: "Italic", run: () => surround("*", "*", "italic text") },
+    { icon: Heading2, label: "Heading", run: () => prefixLine("## ") },
+    { icon: List, label: "List item", run: () => prefixLine("- ") },
+    { icon: Link2, label: "Link", run: () => surround("[", "](https://)", "link text") },
+  ];
 
   const save = async (published: boolean) => {
     if (!draft.title.trim() || !draft.body.trim()) return;
@@ -153,13 +191,29 @@ export default function AdminBlogPage() {
             <input value={draft.excerpt} onChange={(e) => set("excerpt")(e.target.value)} className={input} /></label>
 
           {!preview ? (
-            <label className="block"><span className="dateline on-paper">Body — {draft.format === "markdown" ? "Markdown (## heading, **bold**, [link](url), - list)" : "raw HTML"}</span>
+            <label className="block"><span className="dateline on-paper">Body — {draft.format === "markdown" ? "write normally; use the buttons to format" : "raw HTML"}</span>
+              {draft.format === "markdown" && (
+                <div className="mt-1.5 flex flex-wrap items-center gap-1 border border-ink/10 border-b-0 rounded-t-lg bg-paper-4 px-2 py-1.5">
+                  {TOOLBAR.map((b) => (
+                    <button key={b.label} type="button" onClick={b.run} title={b.label} aria-label={b.label}
+                      className="p-1.5 rounded-md text-ink hover:bg-ink hover:text-paper transition-colors"><b.icon size={15} /></button>
+                  ))}
+                  <span className="mx-1 h-4 w-px bg-ink/15" />
+                  <button type="button" onClick={() => imgRef.current?.click()} disabled={imgBusy} title="Insert image" aria-label="Insert image"
+                    className="p-1.5 rounded-md text-ink hover:bg-ink hover:text-paper transition-colors disabled:opacity-50">
+                    {imgBusy ? <Loader2 size={15} className="animate-spin" /> : <ImagePlus size={15} />}
+                  </button>
+                  <input ref={imgRef} type="file" accept="image/*" className="hidden"
+                    onChange={(e) => { insertImage(e.target.files?.[0] ?? undefined); e.target.value = ""; }} />
+                </div>
+              )}
               <textarea
+                ref={bodyRef}
                 rows={12}
                 value={draft.body}
                 onChange={(e) => set("body")(e.target.value)}
                 placeholder={draft.format === "markdown" ? "## The drum gets bigger\n\nEvery entry still gets printed…" : "<h2>The drum gets bigger</h2>\n<p>Every entry still gets printed…</p>"}
-                className="mt-1.5 w-full border border-ink/10 bg-paper-3 rounded-lg px-3 py-3 text-[14px] text-ink outline-none focus:border-accent leading-relaxed font-mono"
+                className={`w-full border border-ink/10 bg-paper-3 px-3 py-3 text-[14px] text-ink outline-none focus:border-accent leading-relaxed font-mono ${draft.format === "markdown" ? "rounded-b-lg" : "mt-1.5 rounded-lg"}`}
               /></label>
           ) : (
             <div>

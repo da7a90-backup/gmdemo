@@ -2,7 +2,7 @@
 import { useRef, useState } from "react";
 import { UploadCloud, X, Loader2 } from "lucide-react";
 
-async function uploadFile(file: File): Promise<string> {
+export async function uploadFile(file: File): Promise<string> {
   const fd = new FormData();
   fd.append("file", file);
   const r = await fetch("/api/admin/upload", { method: "POST", body: fd });
