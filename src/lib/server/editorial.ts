@@ -1,6 +1,7 @@
 // Admin-managed editorial content in Supabase (partners, winners, articles, cycle).
 // Functions return objects in the demo's shapes so the admin desks + public pages
 // wire up with minimal change. Media URLs point at Shopify Files (CDN).
+import crypto from "node:crypto";
 import { query } from "./db";
 import { DEFAULT_PROMOS, type PromoTier } from "@/lib/promotions";
 
@@ -51,6 +52,49 @@ export async function createWinner(w: Omit<Winner, "id">): Promise<Winner> {
   );
   return toWinner(r.rows[0]);
 }
+/**
+ * Draw a winner from a cycle's real entries — crypto-random, weighted by entry count
+ * (each entry = one chance). Defaults to the open cycle. Returns the winning buyer's
+ * contact + ticket, or null if there are no entries. Does NOT record anything.
+ */
+export async function drawWinner(cycleCode?: string): Promise<{ email: string | null; fullName: string; ticket: string; cycleCode: string; prize: string } | null> {
+  const cyc = (
+    cycleCode
+      ? await query(`select id, code, vehicle_label from cycles where code = $1`, [cycleCode])
+      : await query(`select id, code, vehicle_label from cycles where status = 'open' order by id limit 1`)
+  ).rows[0] as { id: number; code: string; vehicle_label: string | null } | undefined;
+  if (!cyc) return null;
+
+  const blocks = (
+    await query(
+      `select eb.seq_start, eb.seq_end, u.email, o.order_token, coalesce(o.full_name, '') as name
+       from entry_blocks eb
+       join users u on u.id = eb.user_id
+       join orders o on o.id = eb.order_id
+       where eb.cycle_id = $1 and not eb.voided`,
+      [cyc.id],
+    )
+  ).rows as { seq_start: number; seq_end: number; email: string | null; order_token: string; name: string }[];
+
+  const weighted = blocks.map((b) => ({ ...b, entries: Math.max(0, b.seq_end - b.seq_start + 1) }));
+  const total = weighted.reduce((s, b) => s + b.entries, 0);
+  if (total <= 0) return null;
+
+  let k = crypto.randomInt(1, total + 1);
+  let win = weighted[0];
+  for (const b of weighted) {
+    if (k <= b.entries) { win = b; break; }
+    k -= b.entries;
+  }
+  return {
+    email: win.email ?? null,
+    fullName: win.name || (win.email ? win.email.split("@")[0] : "Winner"),
+    ticket: `GM${String(cyc.code).padStart(2, "0")}-${win.order_token}`,
+    cycleCode: String(cyc.code),
+    prize: cyc.vehicle_label ?? "",
+  };
+}
+
 export async function deleteWinner(id: number) {
   await query(`delete from winners where id = $1`, [id]);
 }
