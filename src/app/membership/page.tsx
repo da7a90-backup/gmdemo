@@ -4,20 +4,17 @@ import { usd } from "@/lib/format";
 import { Check, ArrowRight } from "lucide-react";
 import { Announce } from "@/components/marquee";
 import { Label } from "@/components/sticker";
-import { listMembershipPerks } from "@/lib/server/content-lists";
-import { DEFAULT_MEMBERSHIP_PERKS, MEMBERSHIP_BASE_ENTRIES } from "@/lib/membership-data";
 import { getContentServer } from "@/lib/server/copy";
 import { getMembershipVariants } from "@/lib/server/cart";
 import { MembershipJoinButton } from "@/components/membership-join";
 
 export const metadata = { title: "Membership — Generous Motors" };
 
-// Rendered per-request so Kevin's Shopify edits to the loyalty ladder show up.
+// Rendered per-request so admin/Shopify edits (prices, copy) show up live.
 export const dynamic = "force-dynamic";
 
 export default async function MembershipPage() {
-  const [fetchedPerks, copy, variants] = await Promise.all([listMembershipPerks(), getContentServer(), getMembershipVariants().catch(() => [])]);
-  const perks = fetchedPerks.length ? fetchedPerks : DEFAULT_MEMBERSHIP_PERKS;
+  const [copy, variants] = await Promise.all([getContentServer(), getMembershipVariants().catch(() => [])]);
   const priceByTier: Record<string, number> = Object.fromEntries(variants.map((v) => [v.tier.toLowerCase(), v.price]));
   return (
     <div className="bg-paper-3 text-ink">
@@ -67,7 +64,7 @@ export default async function MembershipPage() {
                 <span className={`${m.popular ? "text-paper-3/70" : "text-ink-3"} text-sm`}>{copy["mem.perMonth"]}</span>
               </div>
               <p className={`mt-3 font-condensed uppercase tracking-[0.22em] text-[12px]`}>
-                <span className="numeral text-base">{m.monthlyEntries}</span> {copy["mem.entriesMeta"]} {m.multiplierStart.toFixed(2)}×
+                <span className="numeral text-base">{m.monthlyEntries}</span> {copy["mem.entriesMeta"]}
               </p>
               <ul className="mt-7 space-y-3">
                 {m.perks.map((p) => (
@@ -92,31 +89,6 @@ export default async function MembershipPage() {
             </article>
           ))}
         </div>
-      </section>
-
-      <section className="bg-paper-2 border-y border-ink/10">
-        <div className="mx-auto max-w-3xl px-5 py-20 text-center border-b border-rule-soft">
-          <p className="section-eyebrow section-eyebrow-rule">{copy["mem.loyalty.eyebrow"]}</p>
-          <h2 className="mt-4 hero-headline" style={{ fontSize: "clamp(2rem,4vw,3.25rem)" }}>
-            {copy["mem.loyalty.h.lead"]} <span className="accent-serif">{copy["mem.loyalty.h.accent"]}</span>
-          </h2>
-          <p className="mt-6 text-ink-2 font-serif">
-            {copy["mem.loyalty.body"]}
-          </p>
-        </div>
-
-        <ol className="max-w-3xl mx-auto px-5 grid grid-cols-2 sm:grid-cols-4 gap-0 rounded-xl overflow-hidden border-x border-ink/10 mt-0 divide-x divide-ink/10">
-          {perks.map((step, i) => {
-            const mult = Number(step.multiplier) || 0;
-            return (
-              <li key={i} className="bg-paper-3 p-5 border-b border-ink/10">
-                <p className="font-condensed uppercase tracking-[0.22em] text-[11px] text-ink-3">{copy["mem.loyalty.monthPrefix"]} {step.month}</p>
-                <p className="mt-2 font-condensed numeral font-semibold text-5xl text-charity leading-[0.9]">{mult.toFixed(2)}×</p>
-                <p className="mt-2 dateline">{Math.round(MEMBERSHIP_BASE_ENTRIES * mult)} {copy["mem.loyalty.entriesSuffix"]}</p>
-              </li>
-            );
-          })}
-        </ol>
       </section>
     </div>
   );

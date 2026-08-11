@@ -13,7 +13,6 @@ const KINDS = [
   { kind: "rules", label: "Rules" },
   { kind: "legal", label: "Legal docs" },
   { kind: "about", label: "About steps" },
-  { kind: "perks", label: "Loyalty ladder" },
 ] as const;
 type Kind = (typeof KINDS)[number]["kind"];
 
