@@ -1,5 +1,5 @@
 "use client";
-import { PDFDocument, StandardFonts, rgb, degrees, PDFFont, PDFPage } from "pdf-lib";
+import { PDFDocument, StandardFonts, rgb, PDFFont, PDFPage } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
 import { generateTicketIDs, type TicketID } from "@/lib/ticket-gen";
 import { ticketNo } from "@/lib/ticket-format";
@@ -65,7 +65,7 @@ function drawTicket(opts: {
     height: 18,
     color: rgb(22 / 255, 22 / 255, 26 / 255),
   });
-  page.drawText("GENEROUS MOTORS · OFFICIAL RAFFLE TICKET", {
+  page.drawText("GENEROUS MOTORS · OFFICIAL TICKET", {
     x: x + 18,
     y: y + h - 22,
     size: 7,
@@ -154,31 +154,6 @@ function drawTicket(opts: {
     color: SUBTLE,
   });
 
-  // Decorative stub pattern (right column)
-  const stubX = x + w - 50;
-  page.drawLine({
-    start: { x: stubX, y: y + 6 },
-    end: { x: stubX, y: y + h - 6 },
-    thickness: 0.5,
-    color: DIVIDER,
-    dashArray: [2, 2],
-  });
-  page.drawText("STUB", {
-    x: stubX + 12,
-    y: y + h / 2 + 10,
-    size: 8,
-    font: fontSansBold,
-    color: SUBTLE,
-    rotate: degrees(90),
-  });
-  page.drawText(id.userHash + "-" + String(id.index).padStart(4, "0"), {
-    x: stubX + 24,
-    y: y + h / 2 - 30,
-    size: 7,
-    font: fontSans,
-    color: MUTED,
-    rotate: degrees(90),
-  });
 }
 
 export async function buildTicketsPdf(opts: {
@@ -334,14 +309,14 @@ function drawMonoTicket(opts: {
   w: number;
   h: number;
   ticketNumber: string;
-  subLabel: string;
   purchase: AdminTicketBlock;
   drawDateLabel: string;
   fontSans: PDFFont;
   fontSansBold: PDFFont;
   fontSerif: PDFFont;
 }) {
-  const { page, x, y, w, h, ticketNumber, subLabel, purchase, drawDateLabel, fontSans, fontSansBold, fontSerif } = opts;
+  const { page, x, y, w, h, ticketNumber, purchase, drawDateLabel, fontSans, fontSansBold, fontSerif } = opts;
+  const R = x + w - 12; // right content edge — full ticket width now that the stub is gone
 
   page.drawRectangle({ x, y, width: w, height: h, color: WHITE, borderColor: BLACK, borderWidth: 1 });
 
@@ -350,11 +325,11 @@ function drawMonoTicket(opts: {
   page.drawText("GENEROUS MOTORS", {
     x: x + 44, y: y + h - 24, size: 9.5, font: fontSansBold, color: BLACK,
   });
-  page.drawText(`OFFICIAL RAFFLE TICKET · CYCLE ${String(purchase.drawCycle).padStart(2, "0")}`, {
+  page.drawText(`OFFICIAL TICKET · CYCLE ${String(purchase.drawCycle).padStart(2, "0")}`, {
     x: x + 44, y: y + h - 33, size: 5.5, font: fontSans, color: GREY,
   });
   page.drawLine({
-    start: { x: x + 12, y: y + h - 40 }, end: { x: x + w - 58, y: y + h - 40 },
+    start: { x: x + 12, y: y + h - 40 }, end: { x: R, y: y + h - 40 },
     thickness: 0.75, color: BLACK,
   });
 
@@ -367,27 +342,15 @@ function drawMonoTicket(opts: {
   page.drawText(purchase.fullName.toUpperCase(), { x: x + 12, y: y + 34, size: 9, font: fontSansBold, color: BLACK });
   page.drawText(purchase.phone, { x: x + 12, y: y + 24, size: 8, font: fontSans, color: BLACK });
 
-  // Footer row — draw date + order
+  // Footer row — draw date + order (full width)
   page.drawLine({
-    start: { x: x + 12, y: y + 18 }, end: { x: x + w - 58, y: y + 18 },
+    start: { x: x + 12, y: y + 18 }, end: { x: R, y: y + 18 },
     thickness: 0.5, color: LIGHT,
   });
   page.drawText(`DRAW ${drawDateLabel.toUpperCase()}`, { x: x + 12, y: y + 9, size: 6, font: fontSans, color: GREY });
-  page.drawText(purchase.orderToken, {
-    x: x + w - 62 - fontSans.widthOfTextAtSize(purchase.orderToken, 6), y: y + 9, size: 6, font: fontSans, color: GREY,
-  });
-
-  // Stub — dashed tear line + short id, rotated
-  const stubX = x + w - 50;
-  page.drawLine({
-    start: { x: stubX, y: y + 6 }, end: { x: stubX, y: y + h - 6 },
-    thickness: 0.5, color: BLACK, dashArray: [3, 3],
-  });
-  page.drawText("STUB", {
-    x: stubX + 14, y: y + 12, size: 7, font: fontSansBold, color: BLACK, rotate: degrees(90),
-  });
-  page.drawText(subLabel, {
-    x: stubX + 26, y: y + 12, size: 7, font: fontSans, color: GREY, rotate: degrees(90),
+  const orderText = `ORDER ${purchase.orderToken}`;
+  page.drawText(orderText, {
+    x: R - fontSans.widthOfTextAtSize(orderText, 6), y: y + 9, size: 6, font: fontSans, color: GREY,
   });
 }
 
@@ -416,14 +379,14 @@ export async function buildCycleSheetsPdf(opts: {
   blocks: AdminTicketBlock[];
   fonts?: SheetFonts;
 }): Promise<Uint8Array> {
-  const jobs: { number: string; sub: string; block: AdminTicketBlock }[] = [];
+  const jobs: { number: string; block: AdminTicketBlock }[] = [];
   const perOrder = new Map<string, number>(); // running ticket index within each order
   for (const b of opts.blocks) {
     for (let seq = b.seqStart; seq <= b.seqEnd; seq++) {
       const idx = (perOrder.get(b.orderToken) ?? 0) + 1;
       perOrder.set(b.orderToken, idx);
       const number = ticketNo(b.drawCycle, b.orderToken, idx); // GM-<cycle><order><ticket>
-      jobs.push({ number, sub: number.slice(3), block: b });
+      jobs.push({ number, block: b });
     }
   }
 
@@ -434,8 +397,12 @@ export async function buildCycleSheetsPdf(opts: {
   const fontSansBold = await pdf.embedFont(gs.semibold, { subset: true });
   const fontSerif = await pdf.embedFont(gs.bold, { subset: true }); // ticket number face
 
-  const cellW = (A3_W - PAGE_MARGIN * 2 - GUTTER * (COLS - 1)) / COLS;
-  const cellH = (A3_H - PAGE_MARGIN * 2 - GUTTER * (ROWS - 1)) / ROWS;
+  // Fill the sheet: a tiny printer-safe margin and NO gutter, so tickets tile
+  // edge-to-edge — adjacent borders share a single cut line, so there are no
+  // wasted strips of paper between tickets when they're guillotined apart.
+  const M = 14;
+  const cellW = (A3_W - M * 2) / COLS;
+  const cellH = (A3_H - M * 2) / ROWS;
   const perPage = COLS * ROWS;
 
   let page: PDFPage | null = null;
@@ -447,12 +414,11 @@ export async function buildCycleSheetsPdf(opts: {
     const row = Math.floor(pos / COLS);
     drawMonoTicket({
       page: page!,
-      x: PAGE_MARGIN + col * (cellW + GUTTER),
-      y: A3_H - PAGE_MARGIN - (row + 1) * cellH - row * GUTTER,
+      x: M + col * cellW,
+      y: A3_H - M - (row + 1) * cellH,
       w: cellW,
       h: cellH,
       ticketNumber: jobs[i].number,
-      subLabel: jobs[i].sub,
       purchase: jobs[i].block,
       drawDateLabel: opts.drawDateLabel,
       fontSans, fontSansBold, fontSerif,
