@@ -1,39 +1,32 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { verifyAdminToken, ADMIN_COOKIE } from "@/lib/server/admin-session";
 
-// Gate the admin UI + admin API behind HTTP Basic Auth when ADMIN_PASSWORD is set.
-// The browser attaches the credentials to every same-origin request after one prompt, so
-// this protects both the /admin pages AND their /api/admin fetches with no login-page code.
-// Unset ADMIN_PASSWORD → open (local dev). Webhooks (/api/webhooks/*) and crons
-// (/api/cron/*, guarded by CRON_SECRET) are not matched.
+// Gate /admin + /api/admin behind a cookie session (set at /admin/login) when ADMIN_PASSWORD
+// is configured. Unset → open (local dev). A valid `gm_admin` cookie is required for every
+// /admin page and /api/admin write; missing → redirect to the login page (pages) or 401 (API).
 export const config = { matcher: ["/admin/:path*", "/api/admin/:path*"] };
 
-// A few admin GET endpoints double as the storefront's public data source (the live cycle
-// /prize/countdown, lifetime stats, partners, winners). Those GETs stay open; everything
-// else under /api/admin — all writes, and sensitive reads (subscribers, campaigns, email
-// templates, webhooks, upload) — plus every /admin page requires auth. Block-by-default.
+// A few admin GETs double as the storefront's public data source — kept open.
 const PUBLIC_ADMIN_GETS = ["/api/admin/stats", "/api/admin/cycle", "/api/admin/partners", "/api/admin/winners"];
+// The login flow itself must be reachable without a session.
+const OPEN_PATHS = ["/admin/login", "/api/admin/login", "/api/admin/logout"];
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const pass = process.env.ADMIN_PASSWORD;
   if (!pass) return NextResponse.next(); // no password configured → open
 
   const { pathname } = req.nextUrl;
+  if (OPEN_PATHS.includes(pathname)) return NextResponse.next();
   if (req.method === "GET" && PUBLIC_ADMIN_GETS.includes(pathname)) return NextResponse.next();
 
-  const user = process.env.ADMIN_USER || "admin";
-  const hdr = req.headers.get("authorization") || "";
-  if (hdr.startsWith("Basic ")) {
-    try {
-      const decoded = atob(hdr.slice(6));
-      const i = decoded.indexOf(":");
-      if (decoded.slice(0, i) === user && decoded.slice(i + 1) === pass) return NextResponse.next();
-    } catch {
-      /* malformed header → fall through to 401 */
-    }
+  if (await verifyAdminToken(req.cookies.get(ADMIN_COOKIE)?.value)) return NextResponse.next();
+
+  if (pathname.startsWith("/api/")) {
+    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
-  return new NextResponse("Authentication required.", {
-    status: 401,
-    headers: { "WWW-Authenticate": 'Basic realm="Generous Motors admin", charset="UTF-8"' },
-  });
+  const url = req.nextUrl.clone();
+  url.pathname = "/admin/login";
+  url.searchParams.set("next", pathname);
+  return NextResponse.redirect(url);
 }

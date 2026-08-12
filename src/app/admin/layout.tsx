@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Megaphone, PenLine, Trophy, Printer, MessageSquareText, Mail, MailPlus, ChartNoAxesColumn, Newspaper, RefreshCw, ListChecks } from "lucide-react";
+import { Megaphone, PenLine, Trophy, Printer, MessageSquareText, Mail, MailPlus, ChartNoAxesColumn, Newspaper, RefreshCw, ListChecks, LogOut } from "lucide-react";
 import { Label } from "@/components/sticker";
 
 const SECTIONS = [
@@ -20,6 +20,9 @@ const SECTIONS = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+
+  // The login page renders on its own, without the admin chrome.
+  if (pathname === "/admin/login") return <>{children}</>;
 
   return (
     <div className="bg-paper text-ink relative overflow-hidden grain min-h-screen">
@@ -48,6 +51,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </Link>
               );
             })}
+            <a
+              href="/api/admin/logout"
+              className="mt-2 inline-flex items-center gap-2.5 px-4 py-2.5 rounded-full font-condensed uppercase tracking-[0.18em] text-[11px] font-semibold whitespace-nowrap border border-ink/10 bg-paper-4 text-ink hover:bg-accent hover:text-paper hover:border-accent transition-colors"
+            >
+              <LogOut size={14} /> Log out
+            </a>
           </nav>
         </aside>
 
