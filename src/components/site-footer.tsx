@@ -97,13 +97,6 @@ export function SiteFooter() {
             <p className="font-serif text-[15px] text-fg-2 leading-relaxed">
               <Copy k="footer.mission" />
             </p>
-            <button
-              type="button"
-              onClick={() => { if (typeof window !== "undefined") window.dispatchEvent(new Event("gm:open-popup")); }}
-              className="mt-5 inline-flex items-center gap-2 bg-accent-bright text-ink px-4 py-2.5 border border-paper font-condensed uppercase tracking-[0.22em] text-[11px] font-bold hover:bg-paper hover:text-ink btn-poly"
-            >
-              <Mail size={14} /> <Copy k="footer.alertsCta" />
-            </button>
             <div className="mt-5 flex gap-1.5">
               {[Youtube, Facebook, Instagram].map((I, i) => (
                 <a key={i} aria-label="Social" className="inline-flex h-10 w-10 items-center justify-center border border-fg/30 text-fg hover:bg-accent-bright hover:border-accent-bright hover:text-ink transition rounded-full" href="#">

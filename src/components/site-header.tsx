@@ -22,13 +22,15 @@ export function SiteHeader() {
   const activeDraw = usePrizeCycle();
   const [open, setOpen] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     let alive = true;
     const load = async () => {
-      if (getUser()) { setSignedIn(true); return; } // demo session
-      const me = await fetch("/api/auth/me").then((r) => r.json()).catch(() => null); // real OTP session
-      if (alive) setSignedIn(!!me?.data?.signedIn);
+      const me = await fetch("/api/auth/me").then((r) => r.json()).catch(() => null);
+      if (!alive) return;
+      setSignedIn(!!me?.data?.signedIn || !!getUser());
+      setIsAdmin(!!me?.data?.admin); // admin logged in → hide the customer sign-in
     };
     load();
     window.addEventListener(SESSION_EVENT, load);
@@ -66,14 +68,16 @@ export function SiteHeader() {
         </Link>
 
         <div className="flex items-center gap-2">
-          <Link
-            href="/account"
-            aria-label="Your account"
-            className="inline-flex h-11 items-center gap-2 px-3.5 border border-ink/10 bg-paper text-ink rounded-full hover:bg-ink hover:text-paper transition-colors font-condensed uppercase tracking-[0.18em] text-[11px] font-semibold"
-          >
-            <CircleUserRound size={18} />
-            <span suppressHydrationWarning>{signedIn ? <Copy k="header.account" /> : <Copy k="header.signin" />}</span>
-          </Link>
+          {!isAdmin && (
+            <Link
+              href="/account"
+              aria-label="Your account"
+              className="inline-flex h-11 items-center gap-2 px-3.5 border border-ink/10 bg-paper text-ink rounded-full hover:bg-ink hover:text-paper transition-colors font-condensed uppercase tracking-[0.18em] text-[11px] font-semibold"
+            >
+              <CircleUserRound size={18} />
+              <span suppressHydrationWarning>{signedIn ? <Copy k="header.account" /> : <Copy k="header.signin" />}</span>
+            </Link>
+          )}
           <Link
             href="/tickets"
             className="hidden md:inline-flex items-center gap-2 bg-accent-bright text-ink px-6 py-2.5 font-condensed uppercase tracking-[0.24em] text-[12px] font-bold border border-ink/10 btn-poly hover:bg-accent hover:text-paper-3 transition-colors"

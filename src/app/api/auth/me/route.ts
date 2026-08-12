@@ -2,6 +2,7 @@
 // plus whether they're an active member (users.is_member) for the member multiplier.
 import { ok } from "@/lib/server/http";
 import { sessionFromRequest, customerAuthConfigured } from "@/lib/server/customer-auth";
+import { verifyAdminToken, ADMIN_COOKIE } from "@/lib/server/admin-session";
 import { pool } from "@/lib/server/db";
 
 export const runtime = "nodejs";
@@ -9,6 +10,9 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   const s = sessionFromRequest(req);
+  // Is an admin signed in? (httpOnly cookie — the client can't read it directly.)
+  const adminCookie = req.headers.get("cookie")?.match(new RegExp(`${ADMIN_COOKIE}=([^;]+)`))?.[1];
+  const admin = await verifyAdminToken(adminCookie);
   let isMember = false;
   if (s && (s.email || s.phone || s.customerGid)) {
     const r = await pool
@@ -30,5 +34,6 @@ export async function GET(req: Request) {
     phone: s?.phone ?? null,
     customerGid: s?.customerGid ?? null,
     isMember,
+    admin,
   });
 }
