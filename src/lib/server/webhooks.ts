@@ -101,6 +101,25 @@ const buyerName = (o: OrderPayload): string | null => {
   return n || o.shipping_address?.name || o.billing_address?.name || null;
 };
 
+/** Record the buyer's minted ticket number(s) on the Shopify order as a note
+ * attribute (visible in the admin order + available on the order-status page /
+ * order emails). Merges with the order's existing note attributes so the cart's
+ * attribution/_entries aren't clobbered. Best-effort; needs write_orders scope. */
+export async function setOrderTicketNumbers(orderId: number, ticketNumbers: string): Promise<void> {
+  const gid = `gid://shopify/Order/${orderId}`;
+  const cur = await shopifyAdmin<{ order: { customAttributes: { key: string; value: string }[] } | null }>(
+    `query($id: ID!) { order(id: $id) { customAttributes { key value } } }`,
+    { id: gid },
+  ).catch(() => null);
+  const existing = (cur?.order?.customAttributes ?? []).filter((a) => a.key !== "Ticket numbers");
+  const res = await shopifyAdmin<{ orderUpdate: { userErrors: { message: string }[] } }>(
+    `mutation($input: OrderInput!) { orderUpdate(input: $input) { userErrors { message field } } }`,
+    { input: { id: gid, customAttributes: [...existing, { key: "Ticket numbers", value: ticketNumbers }] } },
+  ).catch((e) => ({ orderUpdate: { userErrors: [{ message: String(e) }] } }));
+  const err = res.orderUpdate?.userErrors?.[0]?.message;
+  if (err) console.error(`[order-note] ${orderId}: ${err}`);
+}
+
 /** After a successful mint, backfill the order's holder name and link the buyer
  * to their Shopify customer / member flag. Best-effort; never throws. */
 export async function applyOrderMeta(o: OrderPayload, member: boolean): Promise<void> {

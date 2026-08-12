@@ -7,8 +7,9 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import {
   verifyShopifyHmac, webhookSecretConfigured, mapOrderToMintBody,
-  isMembershipOrder, applyOrderMeta, type OrderPayload,
+  isMembershipOrder, applyOrderMeta, setOrderTicketNumbers, type OrderPayload,
 } from "@/lib/server/webhooks";
+import { ticketRange } from "@/lib/ticket-format";
 import { mintOne } from "@/lib/server/ticketing";
 import { pool } from "@/lib/server/db";
 import { emitEmailEvent } from "@/lib/server/email-templates";
@@ -46,6 +47,13 @@ export async function POST(req: Request) {
   if (result.ok) {
     // Best-effort: holder name on the order + member link on the user.
     await applyOrderMeta(payload, isMembershipOrder(payload));
+    // Record the minted ticket number(s) on the Shopify order as a note attribute.
+    if (result.status === "minted" && result.cycle_code && result.order_token && result.entries) {
+      await setOrderTicketNumbers(
+        body.order.id,
+        ticketRange(result.cycle_code, result.order_token, result.entries),
+      ).catch(() => {});
+    }
     // "You're in" receipt — only on a FRESH mint (not a duplicate delivery), after
     // the tickets exist, so the email can include them. Code renders the admin
     // template and injects subject + body_html into the Klaviyo event.
