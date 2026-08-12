@@ -397,25 +397,27 @@ export async function buildCycleSheetsPdf(opts: {
   const fontSansBold = await pdf.embedFont(gs.semibold, { subset: true });
   const fontSerif = await pdf.embedFont(gs.bold, { subset: true }); // ticket number face
 
-  // Fill the sheet: a tiny printer-safe margin and NO gutter, so tickets tile
-  // edge-to-edge — adjacent borders share a single cut line, so there are no
-  // wasted strips of paper between tickets when they're guillotined apart.
-  const M = 14;
-  const cellW = (A3_W - M * 2) / COLS;
-  const cellH = (A3_H - M * 2) / ROWS;
-  const perPage = COLS * ROWS;
+  // Fill the ENTIRE sheet: 4 tickets per row, NO margin and NO gutter, so tickets
+  // tile corner to corner with zero wasted paper. Adjacent tickets share a single
+  // border = a single cut line. (On non-borderless printers the very outer border
+  // may clip by a millimetre or two — the text stays safely inset.)
+  const SHEET_COLS = 4;
+  const SHEET_ROWS = 5;
+  const cellW = A3_W / SHEET_COLS;
+  const cellH = A3_H / SHEET_ROWS;
+  const perPage = SHEET_COLS * SHEET_ROWS;
 
   let page: PDFPage | null = null;
 
   for (let i = 0; i < jobs.length; i++) {
     const pos = i % perPage;
     if (pos === 0) page = pdf.addPage([A3_W, A3_H]);
-    const col = pos % COLS;
-    const row = Math.floor(pos / COLS);
+    const col = pos % SHEET_COLS;
+    const row = Math.floor(pos / SHEET_COLS);
     drawMonoTicket({
       page: page!,
-      x: M + col * cellW,
-      y: A3_H - M - (row + 1) * cellH,
+      x: col * cellW,
+      y: A3_H - (row + 1) * cellH,
       w: cellW,
       h: cellH,
       ticketNumber: jobs[i].number,
