@@ -15,18 +15,29 @@ function tierEntries(label: string): number | null {
   return plan ? plan.entries : null;
 }
 
-const webhookSecret = () => process.env.SHOPIFY_WEBHOOK_SECRET || process.env.SHOPIFY_API_SECRET || "";
+// Candidate signing secrets. Shopify signs webhooks created in the admin UI
+// (Settings → Notifications) with the store's WEBHOOK signing secret, but signs
+// webhooks created via the Admin API with the APP's client secret. We may run a
+// mix of both (orders/paid made in the UI, subscription topics registered via the
+// API), so accept a signature that matches EITHER.
+const webhookSecrets = (): string[] =>
+  [process.env.SHOPIFY_WEBHOOK_SECRET, process.env.SHOPIFY_API_SECRET].filter(
+    (s): s is string => !!s,
+  );
 
-export const webhookSecretConfigured = () => !!webhookSecret();
+export const webhookSecretConfigured = () => webhookSecrets().length > 0;
 
-/** Constant-time verify of the X-Shopify-Hmac-Sha256 header against the raw body. */
+/** Constant-time verify of the X-Shopify-Hmac-Sha256 header against the raw body,
+ * accepting the signature if it matches any configured secret. */
 export function verifyShopifyHmac(rawBody: string, hmacHeader: string | null): boolean {
-  const secret = webhookSecret();
-  if (!secret || !hmacHeader) return false;
-  const digest = crypto.createHmac("sha256", secret).update(rawBody, "utf8").digest("base64");
-  const a = Buffer.from(digest);
+  if (!hmacHeader) return false;
   const b = Buffer.from(hmacHeader);
-  return a.length === b.length && crypto.timingSafeEqual(a, b);
+  for (const secret of webhookSecrets()) {
+    const digest = crypto.createHmac("sha256", secret).update(rawBody, "utf8").digest("base64");
+    const a = Buffer.from(digest);
+    if (a.length === b.length && crypto.timingSafeEqual(a, b)) return true;
+  }
+  return false;
 }
 
 /* ------------------------------ order payload ------------------------------ */
