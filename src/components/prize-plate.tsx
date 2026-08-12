@@ -65,6 +65,7 @@ export function PrizePlate({
         alt={`${v.year} ${v.make} ${v.model}`}
         fill
         priority
+        fetchPriority="high"
         sizes="100vw"
         className="object-cover transition-opacity duration-300"
         style={{ opacity: active ? 0 : 1 }}
