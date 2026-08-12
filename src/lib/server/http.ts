@@ -2,7 +2,12 @@
 import { NextResponse } from "next/server";
 
 export const ok = <T>(data: T, status = 200) => NextResponse.json({ ok: true, data }, { status });
-export const fail = (error: string, status = 400) => NextResponse.json({ ok: false, error }, { status });
+export const fail = (error: string, status = 400) => {
+  // Surface real server errors (5xx) in the Vercel function logs — the JSON body
+  // alone was invisible in the backend, which hid the DB pool-exhaustion outage.
+  if (status >= 500) console.error(`[api ${status}] ${error}`);
+  return NextResponse.json({ ok: false, error }, { status });
+};
 
 export async function readJson<T>(req: Request): Promise<T | null> {
   try {

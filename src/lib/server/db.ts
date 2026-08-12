@@ -7,11 +7,18 @@ import { join } from "node:path";
 
 // Serverless-friendly pool: small per-instance cap + short idle timeout so many
 // concurrent Vercel functions (webhook/cron bursts) don't exhaust Postgres connections.
+//
+// IMPORTANT: use the TRANSACTION-mode pooler (Supabase port 6543, DATABASE_URL),
+// NOT the session-mode pooler (port 5432, DIRECT_URL). Session mode pins one server
+// connection per client for its whole lifetime and is capped at 15 — under Vercel's
+// per-instance concurrency it exhausts almost immediately (EMAXCONNSESSION). The
+// transaction pooler hands a connection back after each statement/txn, so it scales.
+// DIRECT_URL stays reserved for out-of-band migrations (DDL / multi-statement).
 const g = globalThis as unknown as { __gmPool?: Pool };
 export const pool: Pool =
   g.__gmPool ??
   (g.__gmPool = new Pool({
-    connectionString: process.env.DIRECT_URL,
+    connectionString: process.env.DATABASE_URL ?? process.env.DIRECT_URL,
     max: 5,
     idleTimeoutMillis: 10_000,
   }));
