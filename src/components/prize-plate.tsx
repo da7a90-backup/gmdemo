@@ -1,12 +1,24 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
 import { usePrizeCycle } from "@/lib/cycle-store";
+
+// Darkening gradient — pulled out of the old CSS `background-image` so the photo
+// itself can be a real <Image> (priority + responsive srcset) with the gradient
+// layered on top.
+const GRADIENT =
+  "linear-gradient(to bottom, rgba(22,17,15,0.18) 0%, rgba(22,17,15,0.05) 35%, rgba(22,17,15,0.75) 100%)";
 
 /**
  * Home-page prize plate.
  *  - Desktop (mouse): pure hover swap (mouseenter / mouseleave).
  *  - Mobile (touch): tap-and-hold swap (pointerdown filtered by pointerType, pointerup).
  *  - Pen / stylus: treated like touch (press-and-hold).
+ *
+ * The primary photo is the page's LCP element, so it renders through next/image
+ * with `priority` — fetchpriority=high, eager, discoverable, and (crucially on
+ * mobile) served as a right-sized webp via the responsive srcset instead of the
+ * full-resolution file.
  */
 export function PrizePlate({
   minimal = false,
@@ -47,27 +59,32 @@ export function PrizePlate({
       onPointerCancel={() => setActive(false)}
       onContextMenu={(e) => e.preventDefault()}
     >
-      <div
-        className="absolute inset-0 transition-opacity duration-300"
-        style={{
-          opacity: active ? 0 : 1,
-          backgroundImage: `linear-gradient(to bottom, rgba(22,17,15,0.18) 0%, rgba(22,17,15,0.05) 35%, rgba(22,17,15,0.75) 100%), url(${primary})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
+      {/* Primary photo — LCP: high priority, eager, right-sized on mobile */}
+      <Image
+        src={primary}
+        alt={`${v.year} ${v.make} ${v.model}`}
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover transition-opacity duration-300"
+        style={{ opacity: active ? 0 : 1 }}
       />
-      <div
-        className="absolute inset-0 transition-opacity duration-300"
-        style={{
-          opacity: active ? 1 : 0,
-          backgroundImage: everActive
-            ? `linear-gradient(to bottom, rgba(22,17,15,0.18) 0%, rgba(22,17,15,0.05) 35%, rgba(22,17,15,0.75) 100%), url(${alt})`
-            : undefined,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-        aria-hidden
-      />
+
+      {/* Hover/press "other angle" — mounted only after the first interaction */}
+      {everActive && (
+        <Image
+          src={alt}
+          alt=""
+          fill
+          sizes="100vw"
+          className="object-cover transition-opacity duration-300"
+          style={{ opacity: active ? 1 : 0 }}
+          aria-hidden
+        />
+      )}
+
+      {/* Darkening gradient on top of the photo(s), under the labels */}
+      <div aria-hidden className="absolute inset-0 pointer-events-none" style={{ backgroundImage: GRADIENT }} />
 
       <span className="absolute top-3 left-3 bg-brass text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border border-ink/10 z-10 rounded-md">
         {v.year} · {v.make}
