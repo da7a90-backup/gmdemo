@@ -3,17 +3,18 @@
 // mock activeDraw; countdowns and charity sections pick them up live.
 
 import { useEffect, useState } from "react";
-import { activeDraw, lifetimeStats as mockStats, type Draw } from "@/lib/mock-data";
+import { activeDraw, zeroStats, type Draw } from "@/lib/mock-data";
 import { getPartners, type Partner } from "@/lib/partners-store";
 
-/** Lifetime stats from Supabase (site_settings), with the mock as fallback. */
-export function useLifetimeStats(): typeof mockStats {
-  const [s, setS] = useState(mockStats);
+/** Lifetime stats from the DB (site_settings), starting from an honest zero
+ * baseline — no invented figures before the real data loads. */
+export function useLifetimeStats(): typeof zeroStats {
+  const [s, setS] = useState(zeroStats);
   useEffect(() => {
     let alive = true;
     fetch("/api/admin/stats")
       .then((r) => r.json())
-      .then((j) => { if (alive && j.ok && j.data) setS(j.data); })
+      .then((j) => { if (alive && j.ok && j.data) setS({ ...zeroStats, ...j.data }); })
       .catch(() => {});
     return () => { alive = false; };
   }, []);

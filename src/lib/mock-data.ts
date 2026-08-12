@@ -450,6 +450,17 @@ export const lifetimeStats = {
   ticketsCounted: 423191,
 };
 
+// Honest zero baseline — used as the fallback for the real DB stats so pages
+// never invent payout/donation/car figures before there's real data.
+export const zeroStats: typeof lifetimeStats = {
+  carsGivenAway: 0,
+  lifetimePayoutUSD: 0,
+  totalDonatedUSD: 0,
+  cyclesRun: 0,
+  charitiesFunded: 0,
+  ticketsCounted: 0,
+};
+
 // Purchase ledger for admin ticket printing — one row per completed order.
 export type Purchase = {
   orderId: string;

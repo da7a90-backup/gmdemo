@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { lifetimeStats as mockStats } from "@/lib/mock-data";
+import { zeroStats } from "@/lib/mock-data";
 import { Drum, Tv2, HeartHandshake, ShieldCheck, FileText, ArrowRight } from "lucide-react";
 import { Announce } from "@/components/marquee";
 import { Label } from "@/components/sticker";
@@ -19,7 +19,7 @@ const STEP_ICONS = [<Drum key="0" />, <Tv2 key="1" />, <HeartHandshake key="2" /
 export default async function AboutPage() {
   const [fetched, copy, dbStats] = await Promise.all([listAboutSteps(), getContentServer(), getLifetimeStats().catch(() => null)]);
   const steps = fetched.length ? fetched : DEFAULT_ABOUT_STEPS;
-  const lifetimeStats = { ...mockStats, ...(dbStats ?? {}) }; // real over mock (no missing fields)
+  const lifetimeStats = { ...zeroStats, ...(dbStats ?? {}) }; // real over an honest zero baseline (no invented figures)
   return (
     <div className="bg-paper-3 text-ink">
       <section className="relative border-b border-ink/10 overflow-hidden grain">

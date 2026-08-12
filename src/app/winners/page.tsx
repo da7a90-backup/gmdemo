@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { WinnerCard } from "@/components/winners-gallery";
 import { AnimatedCounter } from "@/components/animated-counter";
-import { lifetimeStats as mockStats } from "@/lib/mock-data";
+import { zeroStats } from "@/lib/mock-data";
 import { ArrowRight } from "lucide-react";
 import { Announce } from "@/components/marquee";
 import { Label } from "@/components/sticker";
@@ -18,7 +18,7 @@ export default async function WinnersPage() {
   // deployed demo without a DB still renders); stats merged over mock so no field is missing.
   const [copy, dbWinners, dbStats] = await Promise.all([getContentServer(), listWinners().catch(() => []), getLifetimeStats().catch(() => null)]);
   const winners = dbWinners; // real winners only — no mock fallback
-  const lifetimeStats = { ...mockStats, ...(dbStats ?? {}) };
+  const lifetimeStats = { ...zeroStats, ...(dbStats ?? {}) }; // real over an honest zero baseline (no invented figures)
   return (
     <div className="bg-paper-3 text-ink">
       <section className="relative border-b border-ink/10 overflow-hidden grain">
