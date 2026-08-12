@@ -465,6 +465,7 @@ export const CONTENT_FIELDS: ContentField[] = [
   { key: "lookup.th.outcome", page: "Lookup", group: "Table", label: "Header — outcome", def: "Outcome" },
   { key: "lookup.card.active", page: "Lookup", group: "Active card", label: "Active card badge", def: "Active" },
   { key: "lookup.card.tickets", page: "Lookup", group: "Active card", label: "Active card — tickets label", def: "Tickets" },
+  { key: "lookup.card.ticketNo", page: "Lookup", group: "Active card", label: "Active card — ticket number label", def: "Ticket no." },
   { key: "lookup.card.draw", page: "Lookup", group: "Active card", label: "Active card — draw label", def: "Draw" },
   { key: "lookup.outcome.won", page: "Lookup", group: "Outcome", label: "Won badge", def: "Won" },
   { key: "lookup.outcome.missed", page: "Lookup", group: "Outcome", label: "Missed badge", def: "Missed" },

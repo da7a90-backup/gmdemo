@@ -375,6 +375,7 @@ export type Entry = {
   drawSlug: string;
   vehicle: string;
   ticketCount: number;
+  ticketNumbers?: string; // e.g. "GM12-0007" or "GM12-0007 – GM12-0011"
   status: "active" | "won" | "did-not-win";
   purchasedAtISO: string;
   drawDateISO: string;

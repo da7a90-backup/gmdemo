@@ -189,7 +189,10 @@ export function LookupClient() {
                     {record.past.map((e) => (
                       <tr key={e.id}>
                         <td className="px-5 py-4 font-condensed text-base text-ink">№{String(e.drawCycle).padStart(2, "0")}</td>
-                        <td className="px-5 py-4 text-ink-2 font-serif">{e.vehicle}</td>
+                        <td className="px-5 py-4 text-ink-2 font-serif">
+                          {e.vehicle}
+                          {e.ticketNumbers && <span className="block dateline mt-0.5 numeral">{e.ticketNumbers}</span>}
+                        </td>
                         <td className="px-5 py-4 text-right numeral font-condensed">{intl(e.ticketCount)}</td>
                         <td className="px-5 py-4 text-ink-2 dateline">{niceDate(e.drawDateISO)}</td>
                         <td className="px-5 py-4">
@@ -234,7 +237,13 @@ function ActiveCard({ entry }: { entry: Entry }) {
           <Label tone="accent" variant="outline" size="sm"><Copy k="lookup.card.active" /></Label>
         </div>
         <p className="mt-1 font-display font-bold text-xl text-ink">{entry.vehicle}</p>
-        <div className="mt-5 grid grid-cols-2 gap-4 text-[14px]">
+        {entry.ticketNumbers && (
+          <div className="mt-4 rounded-lg border border-ink/10 bg-paper-2 px-3 py-2">
+            <p className="dateline"><Copy k="lookup.card.ticketNo" /></p>
+            <p className="mt-0.5 font-condensed numeral font-semibold text-lg text-ink tracking-wide break-all">{entry.ticketNumbers}</p>
+          </div>
+        )}
+        <div className="mt-4 grid grid-cols-2 gap-4 text-[14px]">
           <div>
             <p className="dateline"><Copy k="lookup.card.tickets" /></p>
             <p className="font-condensed numeral font-semibold text-4xl text-ink leading-[0.9]">{entry.ticketCount}</p>
