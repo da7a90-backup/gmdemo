@@ -1,10 +1,9 @@
-import Link from "next/link";
 import { Countdown } from "@/components/countdown";
 import { activeDraw } from "@/lib/mock-data";
 import { getCurrentCycle } from "@/lib/server/editorial";
 import { getContentServer } from "@/lib/server/copy";
-import { niceDateTime, intl } from "@/lib/format";
-import { Tv2, Facebook, Youtube } from "lucide-react";
+import { niceDateTime } from "@/lib/format";
+import { Facebook, Youtube } from "lucide-react";
 import { Label } from "@/components/sticker";
 
 export const metadata = { title: "Live draw — Generous Motors" };
@@ -16,7 +15,6 @@ export default async function LivePage() {
   const [c, copy] = await Promise.all([getCurrentCycle(), getContentServer()]);
   const cycle = c?.cycle ?? activeDraw.cycle;
   const drawDateISO = c?.drawDateISO || activeDraw.drawDateISO;
-  const ticketsSold = c?.ticketsSold ?? activeDraw.ticketsSold;
   const charityName = c?.charity.name || activeDraw.charity.name;
   const fb = c?.livestreamFacebook || "#";
   const yt = c?.livestreamYoutube || "#";
@@ -61,31 +59,9 @@ export default async function LivePage() {
 
         <aside className="lg:col-span-5 space-y-5">
           <div className="relative rounded-xl border border-paper bg-paper/5 p-6">
-            <p className="section-eyebrow !text-paper/60">{copy["live.counter.eyebrow"]}</p>
-            <div className="mt-5 grid grid-cols-2 gap-5 pb-6 border-b border-paper/15">
-              <div>
-                <p className="font-condensed numeral font-semibold text-5xl leading-[0.9]">{intl(ticketsSold)}</p>
-                <p className="font-condensed uppercase tracking-[0.22em] text-[11px] text-paper/60 mt-3">{copy["live.counter.paid"]}</p>
-              </div>
-              <div>
-                <p className="font-condensed numeral font-semibold text-5xl text-brass leading-[0.9]">+412</p>
-                <p className="font-condensed uppercase tracking-[0.22em] text-[11px] text-paper/60 mt-3">{copy["live.counter.bonus"]}</p>
-              </div>
-            </div>
-            <div className="mt-6">
-              <p className="font-condensed uppercase tracking-[0.22em] text-[11px] text-paper/60">{copy["live.charity.label"]}</p>
-              <p className="font-display font-bold text-2xl">{charityName}</p>
-              <p className="dateline !text-paper/60 mt-2">{copy["live.charity.note"]}</p>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-paper/30 bg-paper/5 p-6 flex items-start gap-3">
-            <Tv2 className="mt-0.5 text-brass" size={20} />
-            <div>
-              <p className="font-display font-bold text-lg">{copy["live.reminder.title"]}</p>
-              <p className="mt-1 text-[14px] text-paper/70 font-serif">{copy["live.reminder.body"]}</p>
-              <Link href="/lookup" className="mt-3 inline-flex font-serif italic text-base text-brass underline underline-offset-4">{copy["live.reminder.link"]}</Link>
-            </div>
+            <p className="font-condensed uppercase tracking-[0.22em] text-[11px] text-paper/60">{copy["live.charity.label"]}</p>
+            <p className="font-display font-bold text-2xl mt-1">{charityName}</p>
+            <p className="dateline !text-paper/60 mt-2">{copy["live.charity.note"]}</p>
           </div>
         </aside>
       </div>

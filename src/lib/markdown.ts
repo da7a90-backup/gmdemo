@@ -12,6 +12,8 @@ function inline(s: string): string {
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/(^|[^*])\*([^*]+)\*/g, "$1<em>$2</em>")
     .replace(/`([^`]+)`/g, "<code>$1</code>")
+    // Images (`![alt](url)`) — must run BEFORE the link rule.
+    .replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, '<img src="$2" alt="$1" loading="lazy" style="max-width:100%;height:auto;border-radius:8px;margin:1rem 0" />')
     .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
 }
 

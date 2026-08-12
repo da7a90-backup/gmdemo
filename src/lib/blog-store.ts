@@ -83,7 +83,7 @@ export function getMergedPosts(): MergedPost[] {
 }
 
 export function useMergedPosts(): MergedPost[] {
-  const [list, setList] = useState<MergedPost[]>(blogPosts);
+  const [list, setList] = useState<MergedPost[]>([]);
   useEffect(() => {
     let alive = true;
     fetch("/api/blog") // public endpoint (metaobjects + built-ins); not behind the admin gate

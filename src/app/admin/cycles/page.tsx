@@ -7,10 +7,12 @@ import { ImageUpload, GalleryUpload } from "@/components/admin/image-upload";
 import { PartnerMark } from "@/components/partner-mark";
 import { Label } from "@/components/sticker";
 
+type HSpec = { label: string; value: number; suffix: string; decimals?: number };
+type SGroup = { title: string; rows: { k: string; v: string }[] };
 type CycleContent = {
   id: string; cycle: number; vehicleLabel: string; drawDateISO: string;
   charityPartnerId?: string; charityBlurb?: string;
-  vehicle: { year: number; make: string; model: string; trim: string; valueUSD: number; images: string[] };
+  vehicle: { year: number; make: string; model: string; trim: string; valueUSD: number; images: string[]; headlineSpecs?: HSpec[]; specGroups?: SGroup[] };
   pricePerTicketUSD: number; ticketsSold: number;
   livestreamFacebook?: string; livestreamYoutube?: string;
 };
@@ -57,6 +59,8 @@ export default function AdminCyclesPage() {
         images: config.vehicle.images,
         livestreamFacebook: config.livestreamFacebook ?? "",
         livestreamYoutube: config.livestreamYoutube ?? "",
+        headlineSpecs: config.vehicle.headlineSpecs ?? [],
+        specGroups: config.vehicle.specGroups ?? [],
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
@@ -97,6 +101,12 @@ export default function AdminCyclesPage() {
       loadConfig();
     } catch (e) { setErr(String((e as Error).message)); }
   };
+
+  // Spec-sheet editors
+  const updSpecs = (fn: (s: HSpec[]) => HSpec[]) => setConfig((c) => ({ ...c!, vehicle: { ...c!.vehicle, headlineSpecs: fn(c!.vehicle.headlineSpecs ?? []) } }));
+  const updGroups = (fn: (g: SGroup[]) => SGroup[]) => setConfig((c) => ({ ...c!, vehicle: { ...c!.vehicle, specGroups: fn(c!.vehicle.specGroups ?? []) } }));
+  const headlineSpecs = config.vehicle.headlineSpecs ?? [];
+  const specGroups = config.vehicle.specGroups ?? [];
 
   return (
     <main>
@@ -198,14 +208,48 @@ export default function AdminCyclesPage() {
             <input type="number" value={config.vehicle.valueUSD}
               onChange={(e) => setConfig((c) => ({ ...c!, vehicle: { ...c!.vehicle, valueUSD: Number(e.target.value) || 0 } }))}
               className={`${input} numeral`} /></label>
-          <label className="block"><span className="dateline on-paper">Price per ticket (USD)</span>
-            <input type="number" value={config.pricePerTicketUSD}
-              onChange={(e) => setConfig((c) => ({ ...c!, pricePerTicketUSD: Number(e.target.value) || 0 }))}
-              className={`${input} numeral`} /></label>
           <label className="block sm:col-span-2 lg:col-span-4"><span className="dateline on-paper">Prize gallery — first image is the primary (uploads to Shopify Files)</span>
             <GalleryUpload value={config.vehicle.images} onChange={(urls) => setConfig((c) => ({ ...c!, vehicle: { ...c!.vehicle, images: urls } }))} /></label>
         </div>
-        <p className="px-5 pb-4 dateline on-paper">Spec-sheet rows are seeded from the current data; image URLs point at Shopify Files CDN.</p>
+        <div className="px-5 pb-5 space-y-6 border-t border-ink/10 pt-5">
+          <div>
+            <p className="dateline on-paper mb-2 font-semibold">Headline stats (the big numbers on /tickets)</p>
+            <div className="space-y-2">
+              {headlineSpecs.map((s, i) => (
+                <div key={i} className="flex flex-wrap items-center gap-2">
+                  <input placeholder="Label (e.g. Horsepower)" value={s.label} onChange={(e) => updSpecs((a) => a.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))} className={`${input} !mt-0 flex-1 min-w-[140px]`} />
+                  <input type="number" placeholder="Value" value={s.value} onChange={(e) => updSpecs((a) => a.map((x, j) => (j === i ? { ...x, value: Number(e.target.value) || 0 } : x)))} className={`${input} !mt-0 numeral w-24`} />
+                  <input placeholder="Suffix (hp, s, mph)" value={s.suffix} onChange={(e) => updSpecs((a) => a.map((x, j) => (j === i ? { ...x, suffix: e.target.value } : x)))} className={`${input} !mt-0 w-28`} />
+                  <button type="button" aria-label="Remove stat" onClick={() => updSpecs((a) => a.filter((_, j) => j !== i))} className="p-2 rounded-full border border-ink/10 bg-paper-3 hover:bg-accent hover:text-paper transition-colors"><Trash2 size={13} /></button>
+                </div>
+              ))}
+            </div>
+            <button type="button" onClick={() => updSpecs((a) => [...a, { label: "", value: 0, suffix: "" }])} className="mt-2 inline-flex items-center gap-1.5 border border-ink/10 bg-paper-3 px-3 py-1.5 rounded-full dateline on-paper hover:bg-ink hover:text-paper transition-colors"><Plus size={12} /> Add stat</button>
+          </div>
+
+          <div>
+            <p className="dateline on-paper mb-2 font-semibold">Detailed spec table (grouped)</p>
+            {specGroups.map((g, gi) => (
+              <div key={gi} className="border border-ink/10 rounded-lg p-3 mb-3 bg-paper-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <input placeholder="Group title (e.g. Performance)" value={g.title} onChange={(e) => updGroups((a) => a.map((x, j) => (j === gi ? { ...x, title: e.target.value } : x)))} className={`${input} !mt-0 flex-1 font-semibold`} />
+                  <button type="button" aria-label="Remove group" onClick={() => updGroups((a) => a.filter((_, j) => j !== gi))} className="p-2 rounded-full border border-ink/10 bg-paper-4 hover:bg-accent hover:text-paper transition-colors"><Trash2 size={13} /></button>
+                </div>
+                <div className="space-y-1.5">
+                  {g.rows.map((row, ri) => (
+                    <div key={ri} className="flex items-center gap-2">
+                      <input placeholder="Spec" value={row.k} onChange={(e) => updGroups((a) => a.map((x, j) => (j === gi ? { ...x, rows: x.rows.map((r, k) => (k === ri ? { ...r, k: e.target.value } : r)) } : x)))} className={`${input} !mt-0 flex-1`} />
+                      <input placeholder="Value" value={row.v} onChange={(e) => updGroups((a) => a.map((x, j) => (j === gi ? { ...x, rows: x.rows.map((r, k) => (k === ri ? { ...r, v: e.target.value } : r)) } : x)))} className={`${input} !mt-0 flex-1`} />
+                      <button type="button" aria-label="Remove row" onClick={() => updGroups((a) => a.map((x, j) => (j === gi ? { ...x, rows: x.rows.filter((_, k) => k !== ri) } : x)))} className="p-1.5 rounded-full border border-ink/10 bg-paper-4 hover:bg-accent hover:text-paper transition-colors"><Trash2 size={12} /></button>
+                    </div>
+                  ))}
+                </div>
+                <button type="button" onClick={() => updGroups((a) => a.map((x, j) => (j === gi ? { ...x, rows: [...x.rows, { k: "", v: "" }] } : x)))} className="mt-2 inline-flex items-center gap-1.5 border border-ink/10 bg-paper-4 px-3 py-1 rounded-full dateline on-paper hover:bg-ink hover:text-paper transition-colors"><Plus size={11} /> Add row</button>
+              </div>
+            ))}
+            <button type="button" onClick={() => updGroups((a) => [...a, { title: "", rows: [] }])} className="inline-flex items-center gap-1.5 border border-ink/10 bg-paper-3 px-3 py-1.5 rounded-full dateline on-paper hover:bg-ink hover:text-paper transition-colors"><Plus size={12} /> Add group</button>
+          </div>
+        </div>
       </div>
 
       {/* Partner registry */}

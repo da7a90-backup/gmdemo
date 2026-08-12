@@ -66,7 +66,7 @@ export function VehicleGallery() {
 
         {v.images.length > 1 && (
           <div className="hidden md:grid md:border-l border-ink/10 bg-paper-3 md:grid-cols-1 md:w-[90px]">
-            {v.images.slice(0, 4).map((src, i) => {
+            {v.images.map((src, i) => {
               const selected = i === activeImage;
               return (
                 <button

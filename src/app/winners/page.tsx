@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { WinnerCard } from "@/components/winners-gallery";
 import { AnimatedCounter } from "@/components/animated-counter";
-import { winners as mockWinners, lifetimeStats as mockStats } from "@/lib/mock-data";
+import { lifetimeStats as mockStats } from "@/lib/mock-data";
 import { ArrowRight } from "lucide-react";
 import { Announce } from "@/components/marquee";
 import { Label } from "@/components/sticker";
@@ -17,7 +17,7 @@ export default async function WinnersPage() {
   // Real winners + lifetime stats from the DB, with the mock as fallback (so the
   // deployed demo without a DB still renders); stats merged over mock so no field is missing.
   const [copy, dbWinners, dbStats] = await Promise.all([getContentServer(), listWinners().catch(() => []), getLifetimeStats().catch(() => null)]);
-  const winners = dbWinners.length ? dbWinners : mockWinners;
+  const winners = dbWinners; // real winners only — no mock fallback
   const lifetimeStats = { ...mockStats, ...(dbStats ?? {}) };
   return (
     <div className="bg-paper-3 text-ink">
@@ -66,13 +66,20 @@ export default async function WinnersPage() {
       />
 
       <section className="mx-auto max-w-[1400px] px-5 py-16">
-        <ul className="grid rounded-xl overflow-hidden border border-ink/10 bg-paper-3 sm:grid-cols-2 lg:grid-cols-3 divide-y divide-ink/10 lg:divide-y-0 lg:divide-x">
-          {winners.map((w, i) => (
-            <li key={w.id} className={i >= 3 && i < 6 ? "lg:border-t lg:border-ink/10" : i >= 6 ? "lg:border-t lg:border-ink/10" : ""}>
-              <WinnerCard winner={w} />
-            </li>
-          ))}
-        </ul>
+        {winners.length === 0 ? (
+          <div className="rounded-xl border border-ink/10 bg-paper-3 p-12 text-center">
+            <p className="font-display font-bold text-2xl text-ink">No winners announced yet</p>
+            <p className="mt-3 text-ink-2 font-serif">Winners appear here after each live draw.</p>
+          </div>
+        ) : (
+          <ul className="grid rounded-xl overflow-hidden border border-ink/10 bg-paper-3 sm:grid-cols-2 lg:grid-cols-3 divide-y divide-ink/10 lg:divide-y-0 lg:divide-x">
+            {winners.map((w, i) => (
+              <li key={w.id} className={i >= 3 && i < 6 ? "lg:border-t lg:border-ink/10" : i >= 6 ? "lg:border-t lg:border-ink/10" : ""}>
+                <WinnerCard winner={w} />
+              </li>
+            ))}
+          </ul>
+        )}
 
         <div className="mt-16 rounded-2xl border border-ink/10 bg-brass p-10 text-center">
           <p className="section-eyebrow">{copy["winners.cta.eyebrow"]}</p>

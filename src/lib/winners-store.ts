@@ -44,12 +44,12 @@ export function removeWinner(id: string) {
 import { useEffect, useState } from "react";
 
 export function useWinners(): Winner[] {
-  const [list, setList] = useState<Winner[]>(baseWinners);
+  const [list, setList] = useState<Winner[]>([]);
   useEffect(() => {
     let alive = true;
     fetch("/api/admin/winners")
       .then((r) => r.json())
-      .then((j) => { if (alive && j.ok && (j.data as Winner[]).length) setList(j.data as Winner[]); })
+      .then((j) => { if (alive && j.ok) setList(j.data as Winner[]); }) // real list only (empty when none)
       .catch(() => {});
     return () => { alive = false; };
   }, []);

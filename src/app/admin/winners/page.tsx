@@ -23,7 +23,6 @@ export default function AdminWinnersPage() {
   const [list, setList] = useState<Winner[] | null>(null);
   const [form, setForm] = useState(EMPTY);
   const [err, setErr] = useState<string | null>(null);
-  const [drawing, setDrawing] = useState(false);
 
   const load = () => adminGet<Winner[]>("/api/admin/winners").then(setList).catch((e) => setErr(String(e.message)));
   useEffect(() => { load(); }, []);
@@ -60,18 +59,6 @@ export default function AdminWinnersPage() {
     catch (e) { setErr(String((e as Error).message)); }
   };
 
-  const drawWinnerNow = async () => {
-    if (!confirm("Run a random draw from the OPEN cycle's real entries? This records a winner and emails them.")) return;
-    setErr(null);
-    setDrawing(true);
-    try {
-      const res = await adminSend<{ winner: Winner; ticket: string; email: string | null }>("/api/admin/winners/draw", "POST", {});
-      load();
-      alert(`🎉 Winner: ${res.winner.firstName} ${res.winner.lastInitial} — ticket ${res.ticket}${res.email ? ` (emailed ${res.email})` : ""}`);
-    } catch (e) { setErr(String((e as Error).message)); }
-    finally { setDrawing(false); }
-  };
-
   const input = "mt-1.5 w-full h-11 border border-ink/10 bg-paper-3 rounded-lg px-3 text-[15px] text-ink outline-none focus:border-accent";
 
   return (
@@ -80,18 +67,9 @@ export default function AdminWinnersPage() {
         Winners <span className="accent-serif">wall.</span>
       </h1>
       <p className="mt-3 max-w-2xl text-[15px] text-ink-2 font-serif">
-        Add the newest winner here — they immediately become the featured &ldquo;Latest winner&rdquo; on the
-        homepage and tickets page, and join the public archive.
+        After the physical draw, record the winner here — they immediately become the featured
+        &ldquo;Latest winner&rdquo; on the homepage and tickets page, and join the public archive.
       </p>
-
-      <button
-        type="button"
-        onClick={drawWinnerNow}
-        disabled={drawing}
-        className="mt-5 inline-flex items-center gap-2 bg-ink text-brass px-5 py-2.5 rounded-full font-condensed uppercase tracking-[0.22em] text-[11px] font-bold border border-ink hover:bg-accent hover:text-paper hover:border-accent transition-colors disabled:opacity-60"
-      >
-        <Trophy size={14} /> {drawing ? "Drawing…" : "Draw a winner (open cycle)"}
-      </button>
 
       {/* Add form */}
       <form onSubmit={onAdd} className="mt-7 border border-ink/10 bg-paper-4 rounded-2xl shadow-soft overflow-hidden">

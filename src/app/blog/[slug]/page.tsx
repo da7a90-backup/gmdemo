@@ -1,8 +1,8 @@
-import { blogPosts } from "@/lib/mock-data";
 import { BlogPostClient } from "./post-client";
 
+// Articles are admin-managed (Shopify metaobjects) and fetched client-side; render on demand.
 export async function generateStaticParams() {
-  return blogPosts.map((p) => ({ slug: p.slug }));
+  return [];
 }
 
 export default async function BlogPost({

@@ -9,6 +9,7 @@ import { Copy } from "@/components/copy";
 export function LatestWinnerCard() {
   const winners = useWinners();
   const latest = winners[0];
+  if (!latest) return null; // no winners yet → show nothing (no mock)
 
   return (
     <article className="grid md:grid-cols-12 border border-ink/10 bg-paper-4 rounded-2xl overflow-hidden shadow-soft">

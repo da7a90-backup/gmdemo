@@ -98,7 +98,7 @@ export const CONTENT_FIELDS: ContentField[] = [
 
   { key: "tickets.charity.eyebrow", page: "Tickets — charity & trust", group: "Charity", label: "Eyebrow", def: "Giving back · this cycle's partner" },
   { key: "tickets.charity.h", page: "Tickets — charity & trust", group: "Charity", label: "Heading ({cycle} = cycle no.; charity name follows)", def: "10% of cycle {cycle} goes to" },
-  { key: "tickets.charity.body", page: "Tickets — charity & trust", group: "Charity", label: "Body", long: true, def: "Paid first — before the car is bought, before payroll, before any expense. Receipt is wired within seven business days of the close and published on the blog." },
+  { key: "tickets.charity.body", page: "Tickets — charity & trust", group: "Charity", label: "Body", long: true, def: "Paid first — before the car is bought, before payroll, before any expense. The charity's share comes off the top of every ticket." },
   { key: "tickets.charity.cta1", page: "Tickets — charity & trust", group: "Charity", label: "Primary CTA", def: "How the funds flow" },
   { key: "tickets.charity.cta2", page: "Tickets — charity & trust", group: "Charity", label: "Secondary CTA", def: "Why we picked them" },
   { key: "tickets.charity.statsEyebrow", page: "Tickets — charity & trust", group: "Charity stats", label: "Stats eyebrow", def: "Lifetime · all cycles" },
@@ -347,7 +347,7 @@ export const CONTENT_FIELDS: ContentField[] = [
   { key: "live.counter.paid", page: "Live", group: "Counter", label: "Paid-entries label", def: "paid entries" },
   { key: "live.counter.bonus", page: "Live", group: "Counter", label: "Bonus-entries label", def: "bonus entries" },
   { key: "live.charity.label", page: "Live", group: "Counter", label: "Charity label", def: "This cycle's charity" },
-  { key: "live.charity.note", page: "Live", group: "Counter", label: "Charity note", def: "10%. Wired within 7 business days of close." },
+  { key: "live.charity.note", page: "Live", group: "Counter", label: "Charity note", def: "10% of every ticket funds the charity partner." },
   { key: "live.reminder.title", page: "Live", group: "Reminder", label: "Reminder title", def: "Set a reminder" },
   { key: "live.reminder.body", page: "Live", group: "Reminder", label: "Reminder body", def: "We'll send a 30-minute heads-up to your email." },
   { key: "live.reminder.link", page: "Live", group: "Reminder", label: "Reminder link", def: "use my entries to subscribe" },
