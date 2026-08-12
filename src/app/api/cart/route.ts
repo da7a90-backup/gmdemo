@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     if (!Number.isFinite(entries) || entries <= 0) return fail("bad entries", 400);
     const quantity = Math.max(1, Math.floor(Number(body?.quantity) || 1));
     const multiplier = Math.max(1, Math.floor(Number(body?.multiplier) || 1));
-    return ok(await createTicketCart({ entries, quantity, attributes: attrList(attribution, [{ key: "_multiplier", value: String(multiplier) }]) }));
+    return ok(await createTicketCart({ entries, quantity, multiplier, attributes: attrList(attribution, [{ key: "_multiplier", value: String(multiplier) }]) }));
   } catch (e) {
     return fail(errMsg(e), 502);
   }

@@ -58,11 +58,26 @@ export type CartAttr = { key: string; value: string };
 export async function createTicketCart(opts: {
   entries: number;
   quantity?: number;
+  multiplier?: number;
   attributes: CartAttr[];
 }): Promise<{ cartId: string; checkoutUrl: string }> {
   const variants = await getTicketVariants();
   const v = variants.find((x) => x.entries === opts.entries);
   if (!v) throw new Error(`no ticket variant for ${opts.entries} entries`);
+
+  const quantity = Math.max(1, Math.floor(opts.quantity ?? 1));
+  const multiplier = Math.max(1, Math.floor(opts.multiplier ?? 1));
+  const totalEntries = opts.entries * quantity * multiplier;
+
+  // Line-item properties. `_entries` stays hidden (leading underscore) for the
+  // orders/paid webhook. When a promo multiplier is active we ALSO add a VISIBLE
+  // property (no underscore → Shopify shows it in the hosted checkout + order
+  // summary) so the shopper actually sees the boosted entry count they're getting,
+  // not just the "1 Ticket" bundle name at the base price.
+  const lineAttributes: CartAttr[] = [{ key: "_entries", value: String(opts.entries) }];
+  if (multiplier > 1) {
+    lineAttributes.push({ key: "Entries", value: `${totalEntries} (${multiplier}× promo bonus)` });
+  }
 
   const res = await shopifyStorefront<{
     cartCreate: { cart: { id: string; checkoutUrl: string } | null; userErrors: { message: string }[] };
@@ -75,8 +90,8 @@ export async function createTicketCart(opts: {
         lines: [
           {
             merchandiseId: v.variantId,
-            quantity: Math.max(1, Math.floor(opts.quantity ?? 1)),
-            attributes: [{ key: "_entries", value: String(opts.entries) }],
+            quantity,
+            attributes: lineAttributes,
           },
         ],
         attributes: opts.attributes,
