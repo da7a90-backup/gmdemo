@@ -85,6 +85,26 @@ async function summarize(productId: string, status: "created" | "exists") {
   };
 }
 
+/** Mark every variant of a product as NOT requiring shipping, so Shopify's hosted
+ * checkout skips the delivery/shipping step — tickets & memberships are digital.
+ * Idempotent; only writes the variants that are still flagged physical. */
+export async function setVariantsNoShipping(productId: string) {
+  const v = await shopifyAdmin<{
+    product: { variants: { nodes: { inventoryItem: { id: string; requiresShipping: boolean } }[] } };
+  }>(
+    `query($id: ID!) { product(id: $id) { variants(first: 50) { nodes { inventoryItem { id requiresShipping } } } } }`,
+    { id: productId },
+  ).catch(() => null);
+  for (const n of v?.product.variants.nodes ?? []) {
+    if (n.inventoryItem.requiresShipping) {
+      await shopifyAdmin(
+        `mutation($id: ID!) { inventoryItemUpdate(id: $id, input: { requiresShipping: false }) { userErrors { message } } }`,
+        { id: n.inventoryItem.id },
+      ).catch(() => {});
+    }
+  }
+}
+
 /** Publish the product to every sales channel/publication so the Storefront API
  * (used by the cart) can see it. Idempotent; needs write_publications scope. */
 export async function publishEverywhere(productId: string) {
@@ -128,6 +148,7 @@ export async function ensureTicketsProduct() {
       { p: { id: existing, title: "Tickets", productType: "Tickets" } },
     ).catch(() => {});
     await setBaseEntries(existing); // idempotent — (re)sets base_entries metafields
+    await setVariantsNoShipping(existing); // digital → no shipping step at checkout
     await publishEverywhere(existing); // ensure Storefront (cart) can see it
     return summarize(existing, "exists");
   }
@@ -154,6 +175,7 @@ export async function ensureTicketsProduct() {
   if (set.productSet.userErrors?.length) throw new Error("productSet: " + JSON.stringify(set.productSet.userErrors));
   const productId = set.productSet.product!.id;
   await setBaseEntries(productId);
+  await setVariantsNoShipping(productId); // digital → no shipping step at checkout
   await publishEverywhere(productId); // ensure Storefront (cart) can see it
   return summarize(productId, "created");
 }

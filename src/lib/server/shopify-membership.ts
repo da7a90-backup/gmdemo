@@ -6,7 +6,7 @@
 // (Ongoing recurring billing — subscription billing attempts — is a separate
 // production concern and is NOT scheduled here.)
 import { shopifyAdmin } from "./shopify";
-import { publishEverywhere } from "./shopify-products";
+import { publishEverywhere, setVariantsNoShipping } from "./shopify-products";
 
 const HANDLE = "membership";
 const MERCHANT_CODE = "gm-membership-monthly";
@@ -105,6 +105,7 @@ export async function ensureMembershipProduct() {
     ).catch(() => {});
   }
   const sellingPlanId = await ensureSellingPlanGroup(productId);
+  await setVariantsNoShipping(productId); // digital subscription → no shipping step at checkout
   await publishEverywhere(productId);
   return summarize(productId, sellingPlanId, status);
 }
