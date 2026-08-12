@@ -13,6 +13,7 @@ import { Copy } from "@/components/copy";
  */
 export function WinnersCarousel() {
   const winners = useWinners();
+  if (winners.length === 0) return null; // no winners yet → hide the whole band (no mock)
   const row = [...winners, ...winners]; // duplicate for seamless -50% loop
 
   return (

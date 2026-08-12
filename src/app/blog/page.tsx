@@ -36,6 +36,14 @@ export default function BlogPage() {
       />
 
       <section className="mx-auto max-w-[1400px] px-5 py-16">
+        {!featured ? (
+          <div className="rounded-2xl border border-ink/10 bg-paper-3 p-12 text-center">
+            <p className="dateline">Journal</p>
+            <h2 className="mt-3 font-display font-bold text-2xl text-ink">No stories published yet</h2>
+            <p className="mt-3 text-ink-2 font-serif italic">New writing from the shop is on the way — check back soon.</p>
+          </div>
+        ) : (
+        <>
         {/* FEATURED */}
         <Link
           href={`/blog/${featured.slug}`}
@@ -91,6 +99,8 @@ export default function BlogPage() {
             </li>
           ))}
         </ul>
+        </>
+        )}
       </section>
     </div>
   );
