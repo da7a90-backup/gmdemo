@@ -269,7 +269,7 @@ export async function getCycleTicketBlocks(cycleCode: string, from?: string, to?
   const rows = (await pool.query(
     `select o.order_token, cy.code as cycle_code,
             coalesce(o.full_name, u.email::text, '—') as full_name,
-            coalesce(u.phone, '') as phone,
+            coalesce(nullif(o.phone, ''), u.phone, '') as phone,
             eb.seq_start, eb.seq_end
      from entry_blocks eb
      join orders o on o.id = eb.order_id

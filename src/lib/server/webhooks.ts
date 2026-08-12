@@ -4,6 +4,7 @@
 // override it. All order→ticket minting goes through the idempotent mintOne().
 import crypto from "node:crypto";
 import { pool } from "./db";
+import { normalizePhone } from "./http";
 import { shopifyAdmin } from "./shopify";
 import type { Body } from "./ticketing";
 import { MEMBERSHIP_PLANS } from "./shopify-membership";
@@ -51,8 +52,8 @@ export type OrderPayload = {
   total_price?: string | null;
   current_total_price?: string | null;
   customer?: { id?: number; email?: string | null; phone?: string | null; first_name?: string | null; last_name?: string | null; admin_graphql_api_id?: string | null };
-  billing_address?: { name?: string | null } | null;
-  shipping_address?: { name?: string | null } | null;
+  billing_address?: { name?: string | null; phone?: string | null } | null;
+  shipping_address?: { name?: string | null; phone?: string | null } | null;
   line_items?: { id: number; quantity?: number; properties?: Prop[]; selling_plan_allocation?: unknown; variant_title?: string | null; title?: string | null; name?: string | null }[];
 };
 
@@ -101,6 +102,15 @@ const buyerName = (o: OrderPayload): string | null => {
   return n || o.shipping_address?.name || o.billing_address?.name || null;
 };
 
+/** The buyer's phone, in the order Shopify tends to populate it. Crucially includes
+ * the BILLING/SHIPPING address phone — for many checkouts that's the only place a
+ * phone is captured (o.phone / customer.phone stay null). Normalized to E.164. */
+const buyerPhone = (o: OrderPayload): string | null => {
+  const raw = o.phone || o.customer?.phone || o.billing_address?.phone || o.shipping_address?.phone;
+  if (!raw) return null;
+  return normalizePhone(raw) ?? raw.trim() ?? null;
+};
+
 /** Record the buyer's minted ticket number(s) on the Shopify order as a note
  * attribute (visible in the admin order + available on the order-status page /
  * order emails). Merges with the order's existing note attributes so the cart's
@@ -125,10 +135,18 @@ export async function setOrderTicketNumbers(orderId: number, ticketNumbers: stri
 export async function applyOrderMeta(o: OrderPayload, member: boolean): Promise<void> {
   const email = orderEmail(o);
   const name = buyerName(o);
+  const phone = buyerPhone(o);
   const gid = customerGid(o);
   if (name) {
     await pool
       .query(`update orders set full_name = $2 where shopify_order_id = $1 and (full_name is null or full_name = '')`, [o.id, name])
+      .catch(() => {});
+  }
+  // Per-order buyer phone → printed on the A3 ticket sheet. Stored on the order (not
+  // just the user) because each order can carry a different checkout phone.
+  if (phone) {
+    await pool
+      .query(`update orders set phone = $2 where shopify_order_id = $1 and (phone is null or phone = '')`, [o.id, phone])
       .catch(() => {});
   }
   if (email && (gid || member)) {
@@ -139,9 +157,8 @@ export async function applyOrderMeta(o: OrderPayload, member: boolean): Promise<
       )
       .catch(() => {});
   }
-  // Capture the buyer's phone so phone-based login can find their tickets (best-effort;
-  // phone is unique on users, so ignore conflicts).
-  const phone = o.phone || o.customer?.phone || null;
+  // Also mirror the phone onto the user so phone-based login can find their tickets
+  // (best-effort; phone is unique on users, so ignore conflicts).
   if (email && phone) {
     await pool
       .query(`update users set phone = $2 where email = $1 and (phone is null or phone = '')`, [email, phone])

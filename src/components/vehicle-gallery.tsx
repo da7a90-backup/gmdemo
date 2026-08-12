@@ -1,94 +1,100 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { usePrizeCycle } from "@/lib/cycle-store";
 
 /**
- * Prize image gallery — shared by the public tickets page and the member
- * tickets page. Desktop: vertical thumbnail strip. Mobile: swipe + transparent
- * chevrons, no thumbs.
+ * Prize image carousel — shared by the public + member tickets pages. One large
+ * full-width image (no thumbnail strip, so the photo is bigger), translucent
+ * prev/next buttons, dot indicators, and gentle auto-advance that pauses on
+ * hover / touch (and respects prefers-reduced-motion). Swipe on mobile.
  */
 export function VehicleGallery() {
   const activeDraw = usePrizeCycle();
   const v = activeDraw.vehicle;
-  const [activeImage, setActiveImage] = useState(0);
+  const images = v.images.length ? v.images : [v.image];
+  const [i, setI] = useState(0);
+  const [paused, setPaused] = useState(false);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
 
-  const prevImage = () => setActiveImage((i) => (i - 1 + v.images.length) % v.images.length);
-  const nextImage = () => setActiveImage((i) => (i + 1) % v.images.length);
+  const go = (n: number) => setI(((n % images.length) + images.length) % images.length);
+
+  // Gentle auto-advance; pauses while hovered/touched or when the user prefers
+  // reduced motion.
+  useEffect(() => {
+    if (paused || images.length <= 1) return;
+    if (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    const id = setInterval(() => setI((c) => (c + 1) % images.length), 4500);
+    return () => clearInterval(id);
+  }, [paused, images.length]);
+
+  const navBtn =
+    "absolute top-1/2 -translate-y-1/2 z-10 h-11 w-11 inline-flex items-center justify-center rounded-full bg-ink/25 text-paper backdrop-blur-sm hover:bg-ink/45 active:bg-ink/50 transition-colors";
 
   return (
-    <div className="border-heavy bg-paper-3 relative rounded-xl overflow-hidden">
-      <div className="flex flex-col md:flex-row">
-        <div
-          className="relative md:flex-1 aspect-[16/10] overflow-hidden transition-[background-image] duration-300 touch-pan-y"
-          onTouchStart={(e) => {
-            touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-          }}
-          onTouchEnd={(e) => {
-            const start = touchStart.current;
-            touchStart.current = null;
-            if (!start) return;
-            const dx = e.changedTouches[0].clientX - start.x;
-            const dy = e.changedTouches[0].clientY - start.y;
-            if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
-              if (dx < 0) nextImage(); else prevImage();
-            }
-          }}
-          style={{
-            backgroundImage: `linear-gradient(to bottom, rgba(22,17,15,0.1) 0%, rgba(22,17,15,0.05) 35%, rgba(22,17,15,0.55) 100%), url(${v.images[activeImage] ?? v.image})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          <span className="absolute bottom-2.5 right-2.5 bg-ink/25 text-paper backdrop-blur-[1px] font-condensed uppercase tracking-[0.22em] text-[10px] px-2 py-1 rounded-md">
-            {activeImage + 1} / {v.images.length}
-          </span>
+    <div
+      className="border-heavy bg-paper-3 relative rounded-xl overflow-hidden"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <div
+        className="relative aspect-[4/3] sm:aspect-[16/10] touch-pan-y select-none"
+        onTouchStart={(e) => {
+          setPaused(true);
+          touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }}
+        onTouchEnd={(e) => {
+          const start = touchStart.current;
+          touchStart.current = null;
+          window.setTimeout(() => setPaused(false), 6000); // resume auto-advance shortly after a swipe
+          if (!start) return;
+          const dx = e.changedTouches[0].clientX - start.x;
+          const dy = e.changedTouches[0].clientY - start.y;
+          if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? i + 1 : i - 1);
+        }}
+      >
+        {/* Crossfade slides */}
+        {images.map((src, idx) => (
+          <div
+            key={src + idx}
+            aria-hidden={idx !== i}
+            className="absolute inset-0 transition-opacity duration-700 ease-out"
+            style={{
+              opacity: idx === i ? 1 : 0,
+              backgroundImage: `linear-gradient(to bottom, rgba(22,17,15,0.1) 0%, rgba(22,17,15,0.05) 35%, rgba(22,17,15,0.55) 100%), url(${src})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          />
+        ))}
 
-          {/* Mobile: transparent chevrons page through the gallery */}
-          <button
-            type="button"
-            aria-label="Previous image"
-            onClick={prevImage}
-            className="md:hidden absolute left-1.5 top-1/2 -translate-y-1/2 h-10 w-10 inline-flex items-center justify-center rounded-full bg-ink/25 text-paper backdrop-blur-[1px] active:bg-ink/40"
-          >
-            <ChevronLeft size={24} strokeWidth={2.5} />
-          </button>
-          <button
-            type="button"
-            aria-label="Next image"
-            onClick={nextImage}
-            className="md:hidden absolute right-1.5 top-1/2 -translate-y-1/2 h-10 w-10 inline-flex items-center justify-center rounded-full bg-ink/25 text-paper backdrop-blur-[1px] active:bg-ink/40"
-          >
-            <ChevronRight size={24} strokeWidth={2.5} />
-          </button>
-        </div>
+        {images.length > 1 && (
+          <>
+            <button type="button" aria-label="Previous image" onClick={() => go(i - 1)} className={`${navBtn} left-2 sm:left-3`}>
+              <ChevronLeft size={22} strokeWidth={2.5} />
+            </button>
+            <button type="button" aria-label="Next image" onClick={() => go(i + 1)} className={`${navBtn} right-2 sm:right-3`}>
+              <ChevronRight size={22} strokeWidth={2.5} />
+            </button>
 
-        {v.images.length > 1 && (
-          <div className="hidden md:grid md:border-l border-ink/10 bg-paper-3 md:grid-cols-1 md:w-[90px]">
-            {v.images.map((src, i) => {
-              const selected = i === activeImage;
-              return (
+            <span className="absolute top-2.5 right-2.5 z-10 bg-ink/25 text-paper backdrop-blur-sm font-condensed uppercase tracking-[0.22em] text-[10px] px-2 py-1 rounded-md">
+              {i + 1} / {images.length}
+            </span>
+
+            {/* Dot indicators — click to jump; active dot elongates */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5">
+              {images.map((_, idx) => (
                 <button
-                  key={src + i}
+                  key={idx}
                   type="button"
-                  aria-pressed={selected}
-                  aria-label={`View image ${i + 1}`}
-                  onClick={() => setActiveImage(i)}
-                  className={`relative aspect-[4/3] md:aspect-auto md:flex-1 border-r md:border-r-0 md:border-b last:border-r-0 md:last:border-b-0 border-ink/10 overflow-hidden transition ${
-                    selected ? "ring-2 ring-inset ring-accent" : "hover:opacity-90"
-                  }`}
-                  style={{
-                    backgroundImage: `url(${src})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }}
-                >
-                  <span className="sr-only">Image {i + 1}</span>
-                </button>
-              );
-            })}
-          </div>
+                  aria-label={`Go to image ${idx + 1}`}
+                  aria-current={idx === i}
+                  onClick={() => go(idx)}
+                  className={`h-1.5 rounded-full transition-all ${idx === i ? "w-5 bg-paper" : "w-1.5 bg-paper/50 hover:bg-paper/80"}`}
+                />
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>
