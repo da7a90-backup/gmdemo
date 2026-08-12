@@ -7,7 +7,7 @@ import { getUser } from "@/lib/session";
 import { ticketTiers } from "@/lib/mock-data";
 import { usePrizeCycle } from "@/lib/cycle-store";
 import { getPromoConfig, PROMOS_EVENT, isPromoLive, type PromoTier } from "@/lib/promotions";
-import { trackVisit, track } from "@/lib/analytics";
+import { trackVisit } from "@/lib/analytics";
 import { usdc, intl, niceWeekday } from "@/lib/format";
 import { CountdownBar } from "@/components/countdown";
 import { VehicleGallery } from "@/components/vehicle-gallery";
@@ -50,15 +50,6 @@ export default function MemberTicketsPage() {
 
   const onBuy = async (tierId: string) => {
     const tier = ticketTiers.find((t) => t.id === tierId);
-    track({
-      type: "purchase",
-      source: "member",
-      channel: "Members",
-      trigger: "member login",
-      page: "/account/tickets",
-      item: tier?.name ?? tierId,
-      amountUSD: tier?.priceUSD,
-    });
     setRedirecting(true);
     if (tier) {
       const redirected = await startTicketCheckout({

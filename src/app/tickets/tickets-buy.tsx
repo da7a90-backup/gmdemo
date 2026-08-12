@@ -17,7 +17,7 @@ import { FAQAccordion } from "@/components/faq-accordion";
 import { LatestWinnerCard } from "@/components/latest-winner-card";
 import { PromoBanner } from "@/components/promo-banner";
 import { resolvePromo, getPromoConfig, isPromoLive, PROMOS_EVENT, type PromoTier } from "@/lib/promotions";
-import { trackVisit, track, describeTrigger } from "@/lib/analytics";
+import { trackVisit, describeTrigger } from "@/lib/analytics";
 import { VehicleGallery } from "@/components/vehicle-gallery";
 import { startTicketCheckout, startMembershipCheckout, utmAttrs } from "@/lib/checkout";
 import { Copy, useCopy } from "@/components/copy";
@@ -67,15 +67,6 @@ export function TicketsBuy() {
     const item = type === "once"
       ? ticketTiers.find((t) => t.id === tierId)
       : membershipTiers.find((m) => m.id === tierId);
-    track({
-      type: "purchase",
-      source: promo?.id ?? "organic",
-      channel: promo?.label ?? "Organic",
-      trigger: describeTrigger(searchParams, promo?.id === "member"),
-      page: "/tickets",
-      item: item ? ("name" in item ? item.name : tierId) : tierId,
-      amountUSD: item ? ("priceUSD" in item ? item.priceUSD : item.monthlyUSD) : undefined,
-    });
     setRedirecting(true);
 
     // Real Shopify checkout for one-time ticket bundles (membership = selling plan,

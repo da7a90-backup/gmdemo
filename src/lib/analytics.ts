@@ -44,13 +44,18 @@ export function track(e: Omit<TrackedEvent, "id" | "ts">) {
   window.dispatchEvent(new Event(ANALYTICS_EVENT));
 }
 
-/** Log a visit once per browser session per page+source, so refreshes don't stack. */
+/** Record a REAL visit server-side (Attribution desk), deduped once per browser session
+ * per page+source so refreshes don't stack. */
 export function trackVisit(e: { source: string; channel: string; trigger?: string; page: string }) {
   if (typeof window === "undefined") return;
   const dedupeKey = `gm:visited:${e.page}:${e.source}`;
   if (window.sessionStorage.getItem(dedupeKey)) return;
   window.sessionStorage.setItem(dedupeKey, "1");
-  track({ ...e, type: "visit" });
+  fetch("/api/track/visit", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ source: e.source, channel: e.channel, page: e.page }),
+  }).catch(() => {});
 }
 
 export function clearEvents() {

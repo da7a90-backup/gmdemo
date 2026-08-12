@@ -37,6 +37,8 @@ export type OrderPayload = {
   contact_email?: string | null;
   note_attributes?: Prop[];
   phone?: string | null;
+  total_price?: string | null;
+  current_total_price?: string | null;
   customer?: { id?: number; email?: string | null; phone?: string | null; first_name?: string | null; last_name?: string | null; admin_graphql_api_id?: string | null };
   billing_address?: { name?: string | null } | null;
   shipping_address?: { name?: string | null } | null;
@@ -115,6 +117,13 @@ export async function applyOrderMeta(o: OrderPayload, member: boolean): Promise<
       .query(`update users set phone = $2 where email = $1 and (phone is null or phone = '')`, [email, phone])
       .catch(() => {});
   }
+
+  // Real attribution: record the order's channel + revenue for the Attribution desk.
+  const channel = prop(o.note_attributes, "attr_channel") || prop(o.note_attributes, "attr_source") || "Organic";
+  const revenue = Number(o.total_price ?? o.current_total_price ?? 0) || 0;
+  await pool
+    .query(`update orders set channel = coalesce(channel, $2), revenue_usd = coalesce(revenue_usd, $3) where shopify_order_id = $1`, [o.id, channel, revenue])
+    .catch(() => {});
 }
 
 /* -------------------------- subscription contracts ------------------------- */
