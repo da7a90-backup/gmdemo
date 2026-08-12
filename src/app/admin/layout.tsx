@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Megaphone, PenLine, Trophy, Printer, MessageSquareText, Mail, MailPlus, ChartNoAxesColumn, Newspaper, RefreshCw, ListChecks, LogOut } from "lucide-react";
+import { Megaphone, PenLine, Trophy, Printer, MessageSquareText, Mail, MailPlus, ChartNoAxesColumn, Newspaper, RefreshCw, ListChecks, Gauge, LogOut } from "lucide-react";
 import { Label } from "@/components/sticker";
 
 const SECTIONS = [
@@ -13,6 +13,7 @@ const SECTIONS = [
   { href: "/admin/blog", label: "Blog", icon: Newspaper },
   { href: "/admin/cycles", label: "Cycle & partners", icon: RefreshCw },
   { href: "/admin/winners", label: "Winners", icon: Trophy },
+  { href: "/admin/stats", label: "Lifetime stats", icon: Gauge },
   { href: "/admin/tickets", label: "Print tickets", icon: Printer },
   { href: "/admin/sms", label: "SMS list", icon: MessageSquareText },
   { href: "/admin/newsletter", label: "Newsletter", icon: Mail },
