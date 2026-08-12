@@ -142,7 +142,7 @@ export const CONTENT_FIELDS: ContentField[] = [
   { key: "popup.skip", page: "SMS popup", group: "Popup", label: "Dismiss link", def: "No thanks, take me back" },
   {
     key: "popup.success.body", page: "SMS popup", group: "Popup", label: "Success body ({phone} = the number entered)", long: true,
-    def: "We just texted {phone}. Reply Y to confirm your spot — that's it.",
+    def: "You're on the list. We just texted {phone} — drawing alerts are on the way.",
   },
 
   /* ------------------------------- Footer ------------------------------- */

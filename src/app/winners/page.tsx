@@ -72,7 +72,11 @@ export default async function WinnersPage() {
             <p className="mt-3 text-ink-2 font-serif">Winners appear here after each live draw.</p>
           </div>
         ) : (
-          <ul className="grid rounded-xl overflow-hidden border border-ink/10 bg-paper-3 sm:grid-cols-2 lg:grid-cols-3 divide-y divide-ink/10 lg:divide-y-0 lg:divide-x">
+          <ul className={`grid rounded-xl overflow-hidden border border-ink/10 bg-paper-3 divide-y divide-ink/10 lg:divide-y-0 lg:divide-x ${
+            winners.length === 1 ? "max-w-md mx-auto"
+              : winners.length === 2 ? "sm:grid-cols-2 max-w-3xl mx-auto"
+              : "sm:grid-cols-2 lg:grid-cols-3"
+          }`}>
             {winners.map((w, i) => (
               <li key={w.id} className={i >= 3 && i < 6 ? "lg:border-t lg:border-ink/10" : i >= 6 ? "lg:border-t lg:border-ink/10" : ""}>
                 <WinnerCard winner={w} />

@@ -14,7 +14,10 @@ import { Copy } from "@/components/copy";
 export function WinnersCarousel() {
   const winners = useWinners();
   if (winners.length === 0) return null; // no winners yet → hide the whole band (no mock)
-  const row = [...winners, ...winners]; // duplicate for seamless -50% loop
+  // The featured (latest) winner is shown in LatestWinnerCard above; the marquee
+  // shows the OTHERS, so nobody appears twice. Hidden entirely when there are none.
+  const rest = winners.slice(1);
+  const row = [...rest, ...rest]; // duplicate the rest for the seamless -50% loop
 
   return (
     <section className="bg-paper-3 text-ink border-y border-ink/10 py-12 overflow-hidden">
@@ -38,6 +41,7 @@ export function WinnersCarousel() {
         <LatestWinnerCard />
       </div>
 
+      {rest.length > 0 && (
       <div className="relative">
         {/* Edge fade overlays — guide the eye without hiding content */}
         <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-16 z-10" style={{ background: "linear-gradient(to right, var(--color-paper-3), transparent)" }} />
@@ -51,19 +55,25 @@ export function WinnersCarousel() {
             >
               <div
                 className="relative aspect-[5/3] border-b border-ink/10"
-                style={{ background: "linear-gradient(135deg, #16110f 0%, #2e261f 60%, #3d2e1d 100%)" }}
+                style={w.photo
+                  ? { backgroundImage: `url(${w.photo})`, backgroundSize: "cover", backgroundPosition: "center" }
+                  : { background: "linear-gradient(135deg, #16110f 0%, #2e261f 60%, #3d2e1d 100%)" }}
               >
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="h-16 w-16 border border-paper-3/40 flex items-center justify-center font-condensed font-bold text-2xl text-paper-3 rounded-full">
-                    {w.firstName[0]}{w.lastInitial}
+                {!w.photo && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="h-16 w-16 border border-paper-3/40 flex items-center justify-center font-condensed font-bold text-2xl text-paper-3 rounded-full">
+                      {w.firstName[0]}{w.lastInitial}
+                    </div>
                   </div>
-                </div>
+                )}
                 <span className="absolute top-2 left-2 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[9px] px-2 py-0.5 border border-ink/10 rounded-md">
                   <Copy k="winners.cardCycle" />{String(w.drawCycle).padStart(2, "0")}
                 </span>
-                <button aria-label="Watch reveal" className="absolute right-2 bottom-2 inline-flex items-center gap-1 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[9px] px-2 py-1 border border-ink/10 rounded-full">
-                  <PlayCircle size={10} /> <Copy k="winners.reveal" />
-                </button>
+                {w.videoClipUrl && (
+                  <a href={w.videoClipUrl} target="_blank" rel="noopener noreferrer" aria-label="Watch reveal" className="absolute right-2 bottom-2 inline-flex items-center gap-1 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[9px] px-2 py-1 border border-ink/10 rounded-full">
+                    <PlayCircle size={10} /> <Copy k="winners.reveal" />
+                  </a>
+                )}
               </div>
               <div className="p-4">
                 <p className="font-display font-bold text-ink leading-tight">{w.firstName} {w.lastInitial}.</p>
@@ -75,6 +85,7 @@ export function WinnersCarousel() {
           ))}
         </div>
       </div>
+      )}
     </section>
   );
 }

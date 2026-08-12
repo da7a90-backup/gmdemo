@@ -70,6 +70,12 @@ export async function POST(req: Request) {
           cycle: result.cycle_code ?? "",
           prize,
           ticket_prefix: result.ticket_prefix ?? "",
+          // Full ticket number(s) for the confirmation email template + a lookup link.
+          ticket_numbers:
+            result.cycle_code && result.order_token && result.entries
+              ? ticketRange(result.cycle_code, result.order_token, result.entries)
+              : "",
+          lookup_url: `https://www.generousmotors.org/lookup?email=${encodeURIComponent(body.order.email)}`,
           order_token: result.order_token ?? "",
           shopify_order_id: body.order.id,
         },

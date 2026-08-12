@@ -327,19 +327,25 @@ export function TicketsBuy() {
                 <li key={w.id} className="w-[280px] shrink-0 border border-ink/10 bg-paper-4 rounded-xl overflow-hidden">
                   <div
                     className="relative aspect-[5/3] border-b border-ink/10"
-                    style={{ background: "linear-gradient(135deg, #16110f 0%, #2e261f 60%, #3d2e1d 100%)" }}
+                    style={w.photo
+                      ? { backgroundImage: `url(${w.photo})`, backgroundSize: "cover", backgroundPosition: "center" }
+                      : { background: "linear-gradient(135deg, #16110f 0%, #2e261f 60%, #3d2e1d 100%)" }}
                   >
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="h-16 w-16 border border-paper-3/40 rounded-full flex items-center justify-center font-condensed font-bold text-2xl text-paper-3">
-                        {w.firstName[0]}{w.lastInitial}
+                    {!w.photo && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="h-16 w-16 border border-paper-3/40 rounded-full flex items-center justify-center font-condensed font-bold text-2xl text-paper-3">
+                          {w.firstName[0]}{w.lastInitial}
+                        </div>
                       </div>
-                    </div>
+                    )}
                     <span className="absolute top-2 left-2 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[9px] px-2 py-0.5 border border-ink/10 rounded-md">
                       <Copy k="winners.cardCycle" />{String(w.drawCycle).padStart(2, "0")}
                     </span>
-                    <button aria-label="Watch reveal" className="absolute right-2 bottom-2 inline-flex items-center gap-1 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[9px] px-2 py-1 border border-ink/10 hover:bg-accent-bright rounded-full">
-                      <PlayCircle size={10} /> <Copy k="winners.reveal" />
-                    </button>
+                    {w.videoClipUrl && (
+                      <a href={w.videoClipUrl} target="_blank" rel="noopener noreferrer" aria-label="Watch reveal" className="absolute right-2 bottom-2 inline-flex items-center gap-1 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[9px] px-2 py-1 border border-ink/10 hover:bg-accent-bright rounded-full">
+                        <PlayCircle size={10} /> <Copy k="winners.reveal" />
+                      </a>
+                    )}
                   </div>
                   <div className="p-4">
                     <p className="font-display font-bold text-ink leading-tight">{w.firstName} {w.lastInitial}.</p>
