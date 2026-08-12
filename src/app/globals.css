@@ -1,5 +1,15 @@
-@import url('https://api.fontshare.com/v2/css?f[]=general-sans@200,300,400,500,600,700&display=swap');
 @import "tailwindcss";
+
+/* Self-hosted General Sans (woff2 in /public/fonts) — replaces the render-blocking,
+   third-party fontshare.com @import (which was on the critical path and throwing
+   intermittent 5xx). font-display: swap so text paints immediately in the system
+   fallback and swaps in when the face loads. */
+@font-face { font-family: "General Sans"; font-style: normal; font-weight: 200; font-display: swap; src: url("/fonts/general-sans-200.woff2") format("woff2"); }
+@font-face { font-family: "General Sans"; font-style: normal; font-weight: 300; font-display: swap; src: url("/fonts/general-sans-300.woff2") format("woff2"); }
+@font-face { font-family: "General Sans"; font-style: normal; font-weight: 400; font-display: swap; src: url("/fonts/general-sans-400.woff2") format("woff2"); }
+@font-face { font-family: "General Sans"; font-style: normal; font-weight: 500; font-display: swap; src: url("/fonts/general-sans-500.woff2") format("woff2"); }
+@font-face { font-family: "General Sans"; font-style: normal; font-weight: 600; font-display: swap; src: url("/fonts/general-sans-600.woff2") format("woff2"); }
+@font-face { font-family: "General Sans"; font-style: normal; font-weight: 700; font-display: swap; src: url("/fonts/general-sans-700.woff2") format("woff2"); }
 
 @theme {
   /* CREAM-FIRST MAXIMALIST with GM teal as accent */

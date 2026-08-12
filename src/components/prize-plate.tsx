@@ -22,17 +22,21 @@ export function PrizePlate({
   const primary = v.images[0];
   const alt = v.images[1] ?? v.images[0];
   const [active, setActive] = useState(false);
+  // The hover/press "other angle" image is deferred until the first interaction so
+  // its file never competes with the LCP hero image on initial paint.
+  const [everActive, setEverActive] = useState(false);
+  const activate = () => { setActive(true); setEverActive(true); };
 
   return (
     <div
       className={`relative ${aspect} overflow-hidden border-b border-ink/10 select-none`}
       style={{ WebkitTouchCallout: "none", WebkitUserSelect: "none" }}
-      onMouseEnter={() => setActive(true)}
+      onMouseEnter={activate}
       onMouseLeave={() => setActive(false)}
       onPointerDown={(e) => {
         if (e.pointerType === "touch" || e.pointerType === "pen") {
           e.currentTarget.setPointerCapture?.(e.pointerId);
-          setActive(true);
+          activate();
         }
       }}
       onPointerUp={(e) => {
@@ -56,7 +60,9 @@ export function PrizePlate({
         className="absolute inset-0 transition-opacity duration-300"
         style={{
           opacity: active ? 1 : 0,
-          backgroundImage: `linear-gradient(to bottom, rgba(22,17,15,0.18) 0%, rgba(22,17,15,0.05) 35%, rgba(22,17,15,0.75) 100%), url(${alt})`,
+          backgroundImage: everActive
+            ? `linear-gradient(to bottom, rgba(22,17,15,0.18) 0%, rgba(22,17,15,0.05) 35%, rgba(22,17,15,0.75) 100%), url(${alt})`
+            : undefined,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
