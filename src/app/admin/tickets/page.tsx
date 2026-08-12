@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Printer, FileDown } from "lucide-react";
 import { buildCycleSheetsPdf, downloadPdf, type AdminTicketBlock } from "@/lib/pdf";
+import { ticketNo } from "@/lib/ticket-format";
 import { adminGet } from "@/lib/admin-api";
 import { niceDate, intl } from "@/lib/format";
 import { Label } from "@/components/sticker";
@@ -42,13 +43,11 @@ export default function AdminTicketsPage() {
   const orders = useMemo(() => {
     const m = new Map<string, { orderToken: string; fullName: string; phone: string; tickets: number; first: string; last: string }>();
     for (const b of blocks) {
-      const cyc = String(b.drawCycle).padStart(2, "0");
       const g = m.get(b.orderToken) ?? { orderToken: b.orderToken, fullName: b.fullName, phone: b.phone, tickets: 0, first: "", last: "" };
-      const first = `GM${cyc}-${b.orderToken}-${String(b.seqStart).padStart(4, "0")}`;
-      const last = `GM${cyc}-${b.orderToken}-${String(b.seqEnd).padStart(4, "0")}`;
-      if (!g.first) g.first = first;
-      g.last = last;
       g.tickets += b.seqEnd - b.seqStart + 1;
+      // Ticket numbers count up within the order: 0001 … <tickets>.
+      g.first = ticketNo(b.drawCycle, b.orderToken, 1);
+      g.last = ticketNo(b.drawCycle, b.orderToken, g.tickets);
       m.set(b.orderToken, g);
     }
     return [...m.values()];

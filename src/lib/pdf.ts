@@ -2,6 +2,7 @@
 import { PDFDocument, StandardFonts, rgb, degrees, PDFFont, PDFPage } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
 import { generateTicketIDs, type TicketID } from "@/lib/ticket-gen";
+import { ticketNo } from "@/lib/ticket-format";
 
 export type PdfBuyer = { firstName: string; lastInitial: string; city: string; state: string };
 export type PdfTicketBatch = {
@@ -291,8 +292,9 @@ export function downloadPdf(bytes: Uint8Array, filename: string) {
 /* ------------------------------------------------------------------ */
 
 // A contiguous range of real entries for one order line (from Supabase entry_blocks).
-// The A3 sheet expands [seqStart..seqEnd] into individual tickets numbered
-// GM{cycle:02}-{orderToken}-{seq:04} — the exact number stored in the database.
+// The A3 sheet expands [seqStart..seqEnd] into individual tickets, each numbered
+// GM-<cycle2><order4><ticket4> (e.g. cycle 5, order 53, ticket 1 → GM-0500530001),
+// where the ticket block counts up within the order.
 export type AdminTicketBlock = {
   orderToken: string;   // '0001' — the middle part
   drawCycle: number;    // 1
@@ -415,11 +417,13 @@ export async function buildCycleSheetsPdf(opts: {
   fonts?: SheetFonts;
 }): Promise<Uint8Array> {
   const jobs: { number: string; sub: string; block: AdminTicketBlock }[] = [];
+  const perOrder = new Map<string, number>(); // running ticket index within each order
   for (const b of opts.blocks) {
-    const cyc = String(b.drawCycle).padStart(2, "0");
     for (let seq = b.seqStart; seq <= b.seqEnd; seq++) {
-      const seqPad = String(seq).padStart(4, "0");
-      jobs.push({ number: `GM${cyc}-${b.orderToken}-${seqPad}`, sub: `${b.orderToken}-${seqPad}`, block: b });
+      const idx = (perOrder.get(b.orderToken) ?? 0) + 1;
+      perOrder.set(b.orderToken, idx);
+      const number = ticketNo(b.drawCycle, b.orderToken, idx); // GM-<cycle><order><ticket>
+      jobs.push({ number, sub: number.slice(3), block: b });
     }
   }
 

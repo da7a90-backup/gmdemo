@@ -10,14 +10,6 @@ export const dynamic = "force-dynamic";
 
 type Row = { id: string; drawCycle: number; vehicle: string; ticketCount: number; ticketNumbers: string; drawDateISO: string; status: "won" | "did-not-win" | "active" };
 
-/** Human-readable ticket number(s): GM<cycle>-<seq>, a range when >1 ticket. */
-function ticketNumbers(cycle: string, seqStart: number, seqEnd: number): string {
-  const cc = String(cycle).padStart(2, "0");
-  const fmt = (n: number) => `GM${cc}-${String(n).padStart(4, "0")}`;
-  if (!seqStart) return "";
-  return seqEnd > seqStart ? `${fmt(seqStart)} – ${fmt(seqEnd)}` : fmt(seqStart);
-}
-
 export async function GET(req: Request) {
   const u = new URL(req.url);
   const emailRaw = u.searchParams.get("email");
@@ -28,12 +20,12 @@ export async function GET(req: Request) {
 
   try {
     const entries = await listCustomerEntries({ email, phone });
-    const map = (e: { cycle: string; orderToken: string; vehicle: string; tickets: number; drawDateISO: string; seqStart: number; seqEnd: number }, active: boolean): Row => ({
+    const map = (e: { cycle: string; orderToken: string; vehicle: string; tickets: number; drawDateISO: string; ticketPrefix: string }, active: boolean): Row => ({
       id: `${e.cycle}-${e.orderToken}`,
       drawCycle: Number(e.cycle) || 0,
       vehicle: e.vehicle,
       ticketCount: e.tickets,
-      ticketNumbers: ticketNumbers(e.cycle, e.seqStart, e.seqEnd),
+      ticketNumbers: e.ticketPrefix, // GM-<cycle><order><ticket>, a range when >1
       drawDateISO: e.drawDateISO,
       status: active ? "active" : "did-not-win",
     });
