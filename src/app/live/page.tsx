@@ -2,7 +2,7 @@ import { Countdown } from "@/components/countdown";
 import { activeDraw } from "@/lib/mock-data";
 import { getCurrentCycle } from "@/lib/server/editorial";
 import { getContentServer } from "@/lib/server/copy";
-import { niceDateTime } from "@/lib/format";
+import { LocalTime } from "@/components/local-time";
 import { Facebook, Youtube } from "lucide-react";
 import { Label } from "@/components/sticker";
 
@@ -45,7 +45,7 @@ export default async function LivePage() {
             <Countdown targetISO={drawDateISO} />
           </div>
           <p className="mt-8 text-paper/80 max-w-xl text-lg font-serif">
-            {copy["live.body.pre"]} <strong className="text-paper font-condensed uppercase tracking-[0.04em]">{niceDateTime(drawDateISO)}</strong> {copy["live.body.post"]}
+            {copy["live.body.pre"]} <strong className="text-paper font-condensed uppercase tracking-[0.04em]"><LocalTime iso={drawDateISO} kind="datetime" /></strong> {copy["live.body.post"]}
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href={fb} target="_blank" rel="noopener" className="inline-flex h-12 items-center gap-2 rounded-full bg-paper text-ink border border-paper px-5 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-brass">

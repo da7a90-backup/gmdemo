@@ -4,7 +4,8 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Search, Mail, Phone, Ticket, ArrowRight, CircleCheckBig, CircleX } from "lucide-react";
 import { type EntryRecord, type Entry } from "@/lib/mock-data";
-import { niceDate, niceDateTime, intl } from "@/lib/format";
+import { niceDate, intl } from "@/lib/format";
+import { LocalTime } from "@/components/local-time";
 import { Label } from "@/components/sticker";
 import { Copy, useCopy } from "@/components/copy";
 
@@ -232,7 +233,7 @@ function ActiveCard({ entry }: { entry: Entry }) {
           </div>
           <div>
             <p className="dateline"><Copy k="lookup.card.draw" /></p>
-            <p className="text-ink mt-1 font-serif">{niceDateTime(entry.drawDateISO)}</p>
+            <p className="text-ink mt-1 font-serif"><LocalTime iso={entry.drawDateISO} kind="datetime" /></p>
           </div>
         </div>
       </div>

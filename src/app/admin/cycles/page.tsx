@@ -6,6 +6,7 @@ import { adminGet, adminSend } from "@/lib/admin-api";
 import { ImageUpload, GalleryUpload } from "@/components/admin/image-upload";
 import { PartnerMark } from "@/components/partner-mark";
 import { Label } from "@/components/sticker";
+import { isoToMiamiInput, miamiInputToISO } from "@/lib/format";
 
 type HSpec = { label: string; value: number; suffix: string; decimals?: number };
 type SGroup = { title: string; rows: { k: string; v: string }[] };
@@ -17,12 +18,6 @@ type CycleContent = {
   livestreamFacebook?: string; livestreamYoutube?: string;
 };
 
-function toLocalInput(iso: string): string {
-  const d = new Date(iso);
-  if (isNaN(+d)) return "";
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
-}
 
 const EMPTY_PARTNER = { name: "", kind: "charity" as Partner["kind"], logoUrl: "", url: "", blurb: "" };
 
@@ -154,9 +149,9 @@ export default function AdminCyclesPage() {
             <input type="text" value={config.vehicleLabel}
               onChange={(e) => setConfig((c) => ({ ...c!, vehicleLabel: e.target.value }))}
               className={input} /></label>
-          <label className="block"><span className="dateline on-paper">Live draw date &amp; time</span>
-            <input type="datetime-local" value={toLocalInput(config.drawDateISO)}
-              onChange={(e) => e.target.value && setConfig((c) => ({ ...c!, drawDateISO: new Date(e.target.value).toISOString() }))}
+          <label className="block"><span className="dateline on-paper">Live draw date &amp; time <span className="text-ink-3">(Miami · ET)</span></span>
+            <input type="datetime-local" value={isoToMiamiInput(config.drawDateISO)}
+              onChange={(e) => { const iso = miamiInputToISO(e.target.value); if (iso) setConfig((c) => ({ ...c!, drawDateISO: iso })); }}
               className={input} /></label>
           <label className="block sm:col-span-2"><span className="dateline on-paper">Charity partner (10% of every cycle)</span>
             <select value={config.charityPartnerId ?? ""}

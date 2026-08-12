@@ -6,15 +6,7 @@ import {
   getPromoConfig, savePromoConfig, resetPromoConfig, isPromoLive, type PromoTier,
 } from "@/lib/promotions";
 import { Label } from "@/components/sticker";
-
-/** ISO → value usable by <input type="datetime-local"> (local wall time). */
-function toLocalInput(iso?: string): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (isNaN(+d)) return "";
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
-}
+import { isoToMiamiInput, miamiInputToISO } from "@/lib/format";
 
 export default function AdminPage() {
   const [promos, setPromos] = useState<PromoTier[] | null>(null);
@@ -140,12 +132,12 @@ export default function AdminPage() {
                     className="w-full h-11 border border-ink/10 bg-paper-3 rounded-lg px-3 font-condensed lowercase tracking-[0.04em] text-ink outline-none focus:border-accent disabled:opacity-50"
                   />
                 </Field>
-                <Field label="Promo ends (own countdown)">
+                <Field label="Promo ends — Miami · ET (own countdown)">
                   <div className="flex items-center gap-2">
                     <input
                       type="datetime-local"
-                      value={toLocalInput(t.endISO)}
-                      onChange={(e) => update(t.id, { endISO: e.target.value ? new Date(e.target.value).toISOString() : undefined })}
+                      value={isoToMiamiInput(t.endISO)}
+                      onChange={(e) => update(t.id, { endISO: miamiInputToISO(e.target.value) })}
                       className="w-full h-11 border border-ink/10 bg-paper-3 rounded-lg px-2.5 text-[13px] text-ink outline-none focus:border-accent"
                     />
                     <label className="inline-flex items-center gap-1.5 dateline on-paper cursor-pointer shrink-0" title="Show countdown in the promo banner">

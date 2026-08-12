@@ -9,7 +9,8 @@ import { ticketTiers, membershipTiers } from "@/lib/mock-data";
 import { usePrizeCycle, useLifetimeStats } from "@/lib/cycle-store";
 import { usePricing } from "@/lib/pricing-store";
 import { useWinners } from "@/lib/winners-store";
-import { usdc, intl, niceWeekday, niceDate, usd } from "@/lib/format";
+import { usdc, intl, niceDate, usd } from "@/lib/format";
+import { LocalTime } from "@/components/local-time";
 import { Label } from "@/components/sticker";
 import { AnimatedCounter } from "@/components/animated-counter";
 import { CountdownBar } from "@/components/countdown";
@@ -129,7 +130,7 @@ export function TicketsBuy() {
               {v.year} {v.make} {v.model}
             </h1>
             <p className="mt-1 dateline on-paper">
-              <Copy k="tickets.drawnLivePrefix" /> {niceWeekday(activeDraw.drawDateISO)}
+              <Copy k="tickets.drawnLivePrefix" /> <LocalTime iso={activeDraw.drawDateISO} kind="weekday" />
             </p>
           </div>
 
