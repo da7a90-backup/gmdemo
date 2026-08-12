@@ -8,6 +8,10 @@ export type ContentField = {
   group: string;
   label: string;
   long?: boolean;
+  /** Render an image upload (→ Shopify Files) instead of a text box in /admin/content. */
+  image?: boolean;
+  /** Render an icon picker (see ICON_SET) instead of a text box. */
+  icon?: boolean;
   def: string;
 };
 
@@ -36,7 +40,7 @@ export const CONTENT_FIELDS: ContentField[] = [
   { key: "home.how.step4.label", page: "Homepage", group: "How it works", label: "Step 4 — label", def: "Drive It Away" },
   { key: "home.how.step4.body", page: "Homepage", group: "How it works", label: "Step 4 — body", long: true, def: "Winner picks delivery or cash equivalent. The charity check is presented on the next stream." },
   { key: "home.how.videoUrl", page: "Homepage", group: "How it works", label: "Explainer video — YouTube URL", def: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
-  { key: "home.how.poster", page: "Homepage", group: "How it works", label: "Explainer video — poster image URL", def: "/vehicles/drum-poster.jpg" },
+  { key: "home.how.poster", page: "Homepage", group: "How it works", label: "Explainer video — cover image", image: true, def: "/vehicles/drum-poster.jpg" },
 
   { key: "home.pricing.eyebrow", page: "Homepage", group: "Pricing section", label: "Eyebrow", def: "Pick a bundle" },
   { key: "home.pricing.h.lead", page: "Homepage", group: "Pricing section", label: "Heading — lead", def: "Pick a tier." },
@@ -92,9 +96,12 @@ export const CONTENT_FIELDS: ContentField[] = [
   { key: "tickets.entriesPerCycle", page: "Tickets page", group: "Buy box", label: "Membership entries label", def: "entries / cycle" },
   { key: "tickets.perMo", page: "Tickets page", group: "Buy box", label: "Per-month suffix", def: "/mo" },
   { key: "tickets.savePrefix", page: "Tickets page", group: "Buy box", label: "Save badge (before %)", def: "Save" },
-  { key: "tickets.pillar.secure", page: "Tickets page", group: "Buy box", label: "Pillar — secure", def: "Secure" },
-  { key: "tickets.pillar.nonprofit", page: "Tickets page", group: "Buy box", label: "Pillar — nonprofit", def: "501(c)(3)" },
-  { key: "tickets.pillar.charity", page: "Tickets page", group: "Buy box", label: "Pillar — charity", def: "10% → charity" },
+  { key: "tickets.pillar.secure", page: "Tickets page", group: "Buy box", label: "Pillar 1 — label", def: "Secure" },
+  { key: "tickets.pillar.secure.icon", page: "Tickets page", group: "Buy box", label: "Pillar 1 — icon", icon: true, def: "lock" },
+  { key: "tickets.pillar.nonprofit", page: "Tickets page", group: "Buy box", label: "Pillar 2 — label", def: "501(c)(3)" },
+  { key: "tickets.pillar.nonprofit.icon", page: "Tickets page", group: "Buy box", label: "Pillar 2 — icon", icon: true, def: "shield" },
+  { key: "tickets.pillar.charity", page: "Tickets page", group: "Buy box", label: "Pillar 3 — label", def: "10% → charity" },
+  { key: "tickets.pillar.charity.icon", page: "Tickets page", group: "Buy box", label: "Pillar 3 — icon", icon: true, def: "heart" },
 
   { key: "tickets.charity.eyebrow", page: "Tickets — charity & trust", group: "Charity", label: "Eyebrow", def: "Giving back · this cycle's partner" },
   { key: "tickets.charity.h", page: "Tickets — charity & trust", group: "Charity", label: "Heading ({cycle} = cycle no.; charity name follows)", def: "10% of cycle {cycle} goes to" },

@@ -87,6 +87,14 @@ html {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-size-adjust: 100%;
+  /* Kill the few-pixel sideways "wobble" on mobile from off-canvas decorative
+     elements (giant display-mega numerals, glows). `clip` (not `hidden`) doesn't
+     create a scroll container, so position: sticky keeps working. */
+  overflow-x: clip;
+}
+
+body {
+  overflow-x: clip;
 }
 
 body {

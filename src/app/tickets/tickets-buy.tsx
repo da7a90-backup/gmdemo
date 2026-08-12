@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
-  ShieldCheck, Tv2, HeartHandshake, Lock, Drum, ArrowRight, PlayCircle,
+  Tv2, HeartHandshake, Drum, ArrowRight, PlayCircle,
 } from "lucide-react";
+import { iconFor } from "@/lib/pillar-icons";
 import { ticketTiers, membershipTiers } from "@/lib/mock-data";
 import { usePrizeCycle, useLifetimeStats } from "@/lib/cycle-store";
 import { usePricing } from "@/lib/pricing-store";
@@ -259,9 +260,14 @@ export function TicketsBuy() {
 
             <div className="px-4 py-2.5">
               <div className="grid grid-cols-3 gap-1.5">
-                <Pillar icon={<Lock size={11} />} label={t("tickets.pillar.secure")} />
-                <Pillar icon={<ShieldCheck size={11} />} label={t("tickets.pillar.nonprofit")} />
-                <Pillar icon={<HeartHandshake size={11} />} label={t("tickets.pillar.charity")} />
+                {([
+                  ["tickets.pillar.secure", "tickets.pillar.secure.icon"],
+                  ["tickets.pillar.nonprofit", "tickets.pillar.nonprofit.icon"],
+                  ["tickets.pillar.charity", "tickets.pillar.charity.icon"],
+                ] as const).map(([labelKey, iconKey]) => {
+                  const Icon = iconFor(t(iconKey));
+                  return <Pillar key={labelKey} icon={<Icon size={11} />} label={t(labelKey)} />;
+                })}
               </div>
             </div>
           </div>

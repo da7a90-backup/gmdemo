@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Save, RotateCcw, Check, Loader2, AlertTriangle } from "lucide-react";
 import { CONTENT_FIELDS, CONTENT_DEFAULTS, getContent, saveContent, resetContent, contentDefault } from "@/lib/content";
 import { Label } from "@/components/sticker";
+import { ImageUpload } from "@/components/admin/image-upload";
+import { ICON_NAMES, iconFor } from "@/lib/pillar-icons";
 
 export default function AdminContentPage() {
   const [values, setValues] = useState<Record<string, string> | null>(null);
@@ -133,7 +135,7 @@ export default function AdminContentPage() {
               {fields.map((f) => {
                 const dirty = values[f.key] !== f.def;
                 return (
-                  <label key={f.key} className={`block ${f.long ? "sm:col-span-2" : ""}`}>
+                  <label key={f.key} className={`block ${f.long || f.image ? "sm:col-span-2" : ""}`}>
                     <span className="flex items-center justify-between">
                       <span className="dateline on-paper">{f.label}</span>
                       {dirty && (
@@ -146,7 +148,22 @@ export default function AdminContentPage() {
                         </button>
                       )}
                     </span>
-                    {f.long ? (
+                    {f.image ? (
+                      <div className="mt-1.5">
+                        <ImageUpload value={values[f.key] ?? ""} onChange={(url) => setValues((v) => ({ ...v!, [f.key]: url }))} />
+                      </div>
+                    ) : f.icon ? (
+                      <div className="mt-1.5 flex items-center gap-2">
+                        {(() => { const Ico = iconFor(values[f.key]); return <span className="inline-flex h-11 w-11 items-center justify-center border border-ink/10 bg-paper-3 rounded-lg shrink-0"><Ico size={18} /></span>; })()}
+                        <select
+                          value={values[f.key] ?? ""}
+                          onChange={(e) => setValues((v) => ({ ...v!, [f.key]: e.target.value }))}
+                          className={`w-full h-11 border bg-paper-3 rounded-lg px-3 text-[15px] text-ink outline-none focus:border-accent capitalize ${dirty ? "border-brass" : "border-ink/10"}`}
+                        >
+                          {ICON_NAMES.map((n) => <option key={n} value={n}>{n}</option>)}
+                        </select>
+                      </div>
+                    ) : f.long ? (
                       <textarea
                         value={values[f.key] ?? ""}
                         rows={3}

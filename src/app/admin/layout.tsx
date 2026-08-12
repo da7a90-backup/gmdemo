@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Megaphone, PenLine, Trophy, Printer, MessageSquareText, Mail, MailPlus, ChartNoAxesColumn, Newspaper, RefreshCw, ListChecks, Gauge, LogOut } from "lucide-react";
+import { Megaphone, PenLine, Trophy, Printer, MessageSquareText, Mail, MailPlus, ChartNoAxesColumn, Newspaper, RefreshCw, ListChecks, Gauge, ExternalLink, LogOut } from "lucide-react";
 import { Label } from "@/components/sticker";
 
 const SECTIONS = [
@@ -53,8 +53,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               );
             })}
             <a
+              href="/"
+              className="mt-2 inline-flex items-center gap-2.5 px-4 py-2.5 rounded-full font-condensed uppercase tracking-[0.18em] text-[11px] font-semibold whitespace-nowrap border border-ink/10 bg-paper-4 text-ink hover:bg-ink hover:text-paper transition-colors"
+            >
+              <ExternalLink size={14} /> View site
+            </a>
+            <a
               href="/api/admin/logout"
-              className="mt-2 inline-flex items-center gap-2.5 px-4 py-2.5 rounded-full font-condensed uppercase tracking-[0.18em] text-[11px] font-semibold whitespace-nowrap border border-ink/10 bg-paper-4 text-ink hover:bg-accent hover:text-paper hover:border-accent transition-colors"
+              className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-full font-condensed uppercase tracking-[0.18em] text-[11px] font-semibold whitespace-nowrap border border-ink/10 bg-paper-4 text-ink hover:bg-accent hover:text-paper hover:border-accent transition-colors"
             >
               <LogOut size={14} /> Log out
             </a>
