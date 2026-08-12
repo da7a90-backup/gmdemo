@@ -17,6 +17,7 @@ const EMPTY = {
   quote: "",
   drawDateISO: new Date().toISOString().slice(0, 10),
   photo: "",
+  videoClipUrl: "",
 };
 
 export default function AdminWinnersPage() {
@@ -47,6 +48,7 @@ export default function AdminWinnersPage() {
         quote: form.quote.trim(),
         drawDateISO: new Date(`${form.drawDateISO}T19:00:00-04:00`).toISOString(),
         photo: form.photo,
+        videoClipUrl: form.videoClipUrl.trim(),
       });
       setForm(EMPTY);
       load();
@@ -99,6 +101,9 @@ export default function AdminWinnersPage() {
               className="mt-1.5 w-full border border-ink/10 bg-paper-3 rounded-lg px-3 py-2.5 text-[15px] text-ink outline-none focus:border-accent leading-relaxed" /></label>
           <label className="block sm:col-span-2 lg:col-span-3"><span className="dateline on-paper">Winner photo</span>
             <ImageUpload value={form.photo} onChange={(url) => setForm((f) => ({ ...f, photo: url }))} /></label>
+          <label className="block sm:col-span-2 lg:col-span-3"><span className="dateline on-paper">Live drawing / reveal video URL</span>
+            <input type="url" inputMode="url" value={form.videoClipUrl} onChange={set("videoClipUrl")} placeholder="https://youtube.com/watch?v=…  (the recorded live draw)" className={input} />
+            <span className="mt-1.5 block text-[12px] text-ink-3 font-serif italic">Powers the “Watch the reveal” button on the winner’s card (home, tickets, and the winners wall). Leave blank to hide it.</span></label>
         </div>
         <div className="px-5 pb-5">
           <button

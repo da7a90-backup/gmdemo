@@ -37,11 +37,6 @@ export function LookupClient() {
     doLookup(mode, value);
   };
 
-  const onDemo = () => {
-    setMode("email");
-    setValue("buyer1@example.com");
-    doLookup("email", "buyer1@example.com");
-  };
 
   return (
     <div className="bg-paper-3 text-ink">
@@ -96,13 +91,6 @@ export function LookupClient() {
                 <Copy k="lookup.find" />
               </button>
             </label>
-            <button
-              type="button"
-              onClick={onDemo}
-              className="mt-4 font-serif italic text-base text-ink-3 hover:text-accent underline underline-offset-4"
-            >
-              <Copy k="lookup.tryDemo" />
-            </button>
           </form>
         </div>
       </section>
@@ -123,12 +111,6 @@ export function LookupClient() {
             <p className="mt-3 text-ink-2 font-serif">
               <Copy k="lookup.noneBody" />
             </p>
-            <button
-              onClick={onDemo}
-              className="mt-6 inline-flex items-center gap-2 border border-ink/10 bg-paper-2 px-5 py-2.5 font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper-3 rounded-full"
-            >
-              <Copy k="lookup.tryDemoBtn" />
-            </button>
           </div>
         )}
 

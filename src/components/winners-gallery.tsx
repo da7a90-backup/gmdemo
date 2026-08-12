@@ -57,35 +57,43 @@ export function WinnerCard({ winner: w }: { winner: Winner }) {
     <article className="group block bg-paper-3">
       <div
         className="relative aspect-[5/3] overflow-hidden border-b border-ink/10"
-        style={{
-          background:
-            "linear-gradient(135deg, #0f0f10 0%, #211814 60%, #392617 100%)",
-        }}
+        style={w.photo
+          ? { backgroundImage: `linear-gradient(to top, rgba(15,15,16,0.35), rgba(15,15,16,0) 45%), url(${w.photo})`, backgroundSize: "cover", backgroundPosition: "center" }
+          : { background: "linear-gradient(135deg, #0f0f10 0%, #211814 60%, #392617 100%)" }}
       >
-        <div
-          aria-hidden
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(400px 160px at 50% 90%, rgba(255,242,0,0.4), transparent 60%)",
-          }}
-        />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="h-24 w-24 border border-paper-3/40 bg-paper-3/10 flex items-center justify-center font-condensed font-semibold text-3xl text-paper-3 rounded-full">
-            {w.firstName[0]}{w.lastInitial}
-          </div>
-        </div>
+        {!w.photo && (
+          <>
+            <div
+              aria-hidden
+              className="absolute inset-0"
+              style={{
+                background:
+                  "radial-gradient(400px 160px at 50% 90%, rgba(255,242,0,0.4), transparent 60%)",
+              }}
+            />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="h-24 w-24 border border-paper-3/40 bg-paper-3/10 flex items-center justify-center font-condensed font-semibold text-3xl text-paper-3 rounded-full">
+                {w.firstName[0]}{w.lastInitial}
+              </div>
+            </div>
+          </>
+        )}
 
         <span className="absolute top-3 left-3">
           <Label tone="paper"><Copy k="winners.cardCycle" />{String(w.drawCycle).padStart(2, "0")}</Label>
         </span>
 
-        <button
-          aria-label="Watch reveal clip"
-          className="absolute right-3 bottom-3 inline-flex items-center gap-1.5 bg-paper-3 text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-3 py-1.5 border border-ink/10 hover:bg-brass rounded-full"
-        >
-          <PlayCircle size={12} /> <Copy k="winners.reveal" />
-        </button>
+        {w.videoClipUrl && (
+          <a
+            href={w.videoClipUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Watch reveal clip"
+            className="absolute right-3 bottom-3 inline-flex items-center gap-1.5 bg-paper-3 text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-3 py-1.5 border border-ink/10 hover:bg-brass rounded-full"
+          >
+            <PlayCircle size={12} /> <Copy k="winners.reveal" />
+          </a>
+        )}
       </div>
       <div className="p-5">
         <p className="dateline">{niceDate(w.drawDateISO)} · {w.city}, {w.state}</p>

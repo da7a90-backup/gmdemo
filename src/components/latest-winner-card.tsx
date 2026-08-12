@@ -15,22 +15,28 @@ export function LatestWinnerCard() {
     <article className="grid md:grid-cols-12 border border-ink/10 bg-paper-4 rounded-2xl overflow-hidden shadow-soft">
       <div
         className="relative md:col-span-5 aspect-[5/3] md:aspect-auto md:min-h-[240px] border-b md:border-b-0 md:border-r border-ink/10"
-        style={{ background: "linear-gradient(135deg, #16110f 0%, #2e261f 60%, #3d2e1d 100%)" }}
+        style={latest.photo
+          ? { backgroundImage: `linear-gradient(to top, rgba(22,17,15,0.35), rgba(22,17,15,0) 45%), url(${latest.photo})`, backgroundSize: "cover", backgroundPosition: "center" }
+          : { background: "linear-gradient(135deg, #16110f 0%, #2e261f 60%, #3d2e1d 100%)" }}
       >
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="h-24 w-24 border-2 border-brass flex items-center justify-center font-condensed font-bold text-4xl text-paper-3 rounded-full">
-            {latest.firstName[0]}{latest.lastInitial}
+        {!latest.photo && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="h-24 w-24 border-2 border-brass flex items-center justify-center font-condensed font-bold text-4xl text-paper-3 rounded-full">
+              {latest.firstName[0]}{latest.lastInitial}
+            </div>
           </div>
-        </div>
+        )}
         <span className="absolute top-3 left-3">
           <Label tone="brass" variant="solid"><Copy k="winners.latestBadge" /></Label>
         </span>
         <span className="absolute top-3 right-3 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[9px] px-2 py-0.5 border border-ink/10 rounded-md">
           <Copy k="winners.cardCycle" />{String(latest.drawCycle).padStart(2, "0")}
         </span>
-        <button aria-label="Watch reveal" className="absolute right-3 bottom-3 inline-flex items-center gap-1 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border border-ink/10 hover:bg-brass rounded-full">
-          <PlayCircle size={12} /> <Copy k="winners.watchReveal" />
-        </button>
+        {latest.videoClipUrl && (
+          <a href={latest.videoClipUrl} target="_blank" rel="noopener noreferrer" aria-label="Watch reveal" className="absolute right-3 bottom-3 inline-flex items-center gap-1 bg-paper text-ink font-condensed uppercase tracking-[0.22em] text-[10px] px-2.5 py-1 border border-ink/10 hover:bg-brass rounded-full">
+            <PlayCircle size={12} /> <Copy k="winners.watchReveal" />
+          </a>
+        )}
       </div>
 
       <div className="md:col-span-7 p-6 md:p-7 flex flex-col">
