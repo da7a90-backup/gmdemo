@@ -46,7 +46,7 @@ export default function AccountPage() {
         }
       }
       const u = getUser();
-      if (!u) { if (alive) router.replace("/account/login"); return; }
+      if (!u) { if (alive) router.replace("/beta/account/login"); return; }
       const rec = entryDB[0];
       if (alive) setView({ email: u.email, active: rec.active.map(fromMock), past: rec.past.map(fromMock), real: false });
     })();
@@ -73,7 +73,7 @@ export default function AccountPage() {
           </div>
           <button
             type="button"
-            onClick={() => { if (view.real) { window.location.href = "/api/auth/logout"; } else { signOut(); router.push("/"); } }}
+            onClick={() => { if (view.real) { window.location.href = "/api/auth/logout"; } else { signOut(); router.push("/beta"); } }}
             className="inline-flex items-center gap-2 border border-ink/10 bg-paper-3 px-4 py-2 rounded-full font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper transition-colors"
           >
             <LogOut size={13} /> <Copy k="acc.signOut" />

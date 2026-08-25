@@ -31,7 +31,7 @@ export function WinnersGallery({
               <Copy k="winners.gallery.side" />
             </p>
             <Link
-              href="/winners"
+              href="/beta/winners"
               className="inline-flex items-center gap-2 border border-ink/10 bg-paper-3 px-5 py-2.5 font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper-3 transition rounded-full"
             >
               <Copy k="winners.fullArchive" /> <ArrowRight size={14} />

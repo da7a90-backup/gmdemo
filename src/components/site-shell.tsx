@@ -11,7 +11,11 @@ import { SiteFooter } from "@/components/site-footer";
  */
 export function SiteShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const bare = pathname?.startsWith("/checkout") || pathname?.startsWith("/admin");
+  const path = pathname ?? "/";
+  // The public site renders under /beta/* — strip the prefix before deciding chrome.
+  const rel = path === "/beta" ? "/" : path.startsWith("/beta/") ? path.slice(5) : path;
+  // "/" is the coming-soon teaser; checkout + admin carry their own chrome.
+  const bare = path === "/" || rel.startsWith("/checkout") || path.startsWith("/admin");
 
   if (bare) {
     return <main className="flex-1">{children}</main>;

@@ -34,7 +34,7 @@ export function LiveDrawBlock() {
 
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                href="/live"
+                href="/beta/live"
                 className="inline-flex h-12 items-center gap-2 bg-paper text-ink px-5 border border-paper font-condensed uppercase tracking-[0.22em] text-[12px] font-bold hover:bg-brass rounded-full"
               >
                 <Copy k="home.live.cta" /> <ArrowRight size={14} />

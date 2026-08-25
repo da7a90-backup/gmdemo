@@ -75,7 +75,7 @@ export function SiteFooter() {
       <div className="relative mx-auto max-w-[1400px] px-5 py-16">
         {/* MASTHEAD */}
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between border-b border-fg/15 pb-10">
-          <Link href="/" className="inline-flex items-center" aria-label="Generous Motors">
+          <Link href="/beta" className="inline-flex items-center" aria-label="Generous Motors">
             <Logo
               height={42}
               markColor="var(--color-accent-bright)"
@@ -107,22 +107,22 @@ export function SiteFooter() {
           </div>
 
           <FooterCol titleKey="footer.col.draws.title" links={[
-            ["/tickets", "footer.col.draws.l1"],
-            ["/winners", "footer.col.draws.l2"],
-            ["/lookup", "footer.col.draws.l3"],
+            ["/beta/tickets", "footer.col.draws.l1"],
+            ["/beta/winners", "footer.col.draws.l2"],
+            ["/beta/lookup", "footer.col.draws.l3"],
           ]} />
           <FooterCol titleKey="footer.col.trust.title" links={[
-            ["/about", "footer.col.trust.l1"],
-            ["/partners", "footer.col.trust.l2"],
-            ["/blog", "footer.col.trust.l3"],
-            ["/rules", "footer.col.trust.l4"],
+            ["/beta/about", "footer.col.trust.l1"],
+            ["/beta/partners", "footer.col.trust.l2"],
+            ["/beta/blog", "footer.col.trust.l3"],
+            ["/beta/rules", "footer.col.trust.l4"],
           ]} />
           <FooterCol titleKey="footer.col.help.title" links={[
-            ["/contact", "footer.col.help.l1"],
-            ["/legal/privacy", "footer.col.help.l2"],
-            ["/legal/terms", "footer.col.help.l3"],
-            ["/legal/play", "footer.col.help.l4"],
-            ["/legal/accessibility", "footer.col.help.l5"],
+            ["/beta/contact", "footer.col.help.l1"],
+            ["/beta/legal/privacy", "footer.col.help.l2"],
+            ["/beta/legal/terms", "footer.col.help.l3"],
+            ["/beta/legal/play", "footer.col.help.l4"],
+            ["/beta/legal/accessibility", "footer.col.help.l5"],
           ]} />
         </div>
 

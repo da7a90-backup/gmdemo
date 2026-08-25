@@ -35,13 +35,13 @@ export function CharityBand() {
 
           <div className="mt-9 flex flex-wrap gap-3">
             <Link
-              href="/about#charity"
+              href="/beta/about#charity"
               className="inline-flex items-center gap-2 bg-brass text-ink px-5 py-3 border border-brass font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper-3 hover:border-paper-3 transition rounded-full"
             >
               <Copy k="charity.band.cta1" /> <ArrowRight size={14} />
             </Link>
             <Link
-              href="/blog/cycle-12-corvette-charity-pick"
+              href="/beta/blog/cycle-12-corvette-charity-pick"
               className="inline-flex items-center gap-2 border border-paper-3 bg-transparent px-5 py-3 font-condensed uppercase tracking-[0.22em] text-[12px] hover:bg-paper-3 hover:text-ink transition rounded-full"
             >
               <FileText size={14} /> <Copy k="charity.band.cta2" />

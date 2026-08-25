@@ -12,7 +12,7 @@ export function MembershipJoinButton({
   const router = useRouter();
   const onClick = async () => {
     const redirected = await startMembershipCheckout(tier, { attr_source: "organic", attr_channel: "Organic", attr_page: "/membership" });
-    if (!redirected) router.push(`/checkout?tier=${id}&type=monthly`);
+    if (!redirected) router.push(`/beta/checkout?tier=${id}&type=monthly`);
   };
   return (
     <button type="button" onClick={onClick} className={className}>

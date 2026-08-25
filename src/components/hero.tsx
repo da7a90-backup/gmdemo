@@ -32,7 +32,7 @@ export function Hero() {
         </div>
 
         <Link
-          href="/tickets"
+          href="/beta/tickets"
           className="pointer-events-auto mt-5 inline-flex h-12 sm:h-14 items-center gap-3 bg-brass px-10 text-ink border border-ink/10 font-condensed uppercase tracking-[0.24em] text-[15px] font-bold hover:bg-paper hover:text-ink transition-colors shadow-lift rounded-full"
         >
           <Copy k="hero.cta" />

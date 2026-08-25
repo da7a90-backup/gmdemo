@@ -43,7 +43,7 @@ export function FAQAccordion() {
           </div>
         </div>
         <Link
-          href="/rules"
+          href="/beta/rules"
           className="inline-flex h-11 items-center gap-2 bg-ink text-paper-3 px-5 border border-ink/10 font-condensed uppercase tracking-[0.22em] text-[11px] font-bold hover:bg-brass hover:text-ink transition-colors rounded-full shrink-0"
         >
           Read the Official Rules <ArrowRight size={13} />

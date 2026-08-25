@@ -28,13 +28,13 @@ export function PricingTiers() {
       multiplier: 1,
       attribution: { attr_source: "organic", attr_channel: "Organic", attr_page: "/" },
     });
-    if (!redirected) router.push(`/checkout?tier=${tierId}&type=once`);
+    if (!redirected) router.push(`/beta/checkout?tier=${tierId}&type=once`);
   };
 
   // Membership tier → real Shopify subscription checkout; demo fallback.
   const joinMembership = async (tierId: string, tierName: string) => {
     const redirected = await startMembershipCheckout(tierName, { attr_source: "organic", attr_channel: "Organic", attr_page: "/" });
-    if (!redirected) router.push(`/checkout?tier=${tierId}&type=monthly`);
+    if (!redirected) router.push(`/beta/checkout?tier=${tierId}&type=monthly`);
   };
 
   return (

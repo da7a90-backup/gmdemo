@@ -38,7 +38,10 @@ function formatPhone(raw: string): string {
 export function EmailPopup() {
   const t = useCopy();
   const pathname = usePathname();
-  const suppressed = SUPPRESS_PATHS.some((p) => pathname?.startsWith(p));
+  const path = pathname ?? "/";
+  const rel = path === "/beta" ? "/" : path.startsWith("/beta/") ? path.slice(5) : path;
+  // Never on the coming-soon teaser; and honor the suppress list under /beta too.
+  const suppressed = path === "/" || SUPPRESS_PATHS.some((p) => rel.startsWith(p) || path.startsWith(p));
   const [open, setOpen] = useState(false);
   const [phone, setPhone] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -176,9 +179,9 @@ export function EmailPopup() {
               {/* TCPA consent disclosure — must sit directly under the CTA, no gaps */}
               <p className="mt-2.5 text-[10px] sm:text-[11px] leading-snug text-ink-3">
                 <Copy k="popup.tcpa" />{" "}
-                <Link href="/about" className="font-bold underline underline-offset-2 text-accent"><Copy k="popup.terms" /></Link>
+                <Link href="/beta/about" className="font-bold underline underline-offset-2 text-accent"><Copy k="popup.terms" /></Link>
                 {" "}&amp;{" "}
-                <Link href="/about" className="font-bold underline underline-offset-2 text-accent"><Copy k="popup.privacy" /></Link>.
+                <Link href="/beta/about" className="font-bold underline underline-offset-2 text-accent"><Copy k="popup.privacy" /></Link>.
               </p>
             </form>
 

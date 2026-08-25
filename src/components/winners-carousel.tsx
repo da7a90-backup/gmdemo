@@ -29,7 +29,7 @@ export function WinnersCarousel() {
           </h2>
         </div>
         <Link
-          href="/winners"
+          href="/beta/winners"
           className="hidden sm:inline-flex items-center gap-2 border border-ink/10 bg-paper-4 px-4 py-2 font-condensed uppercase tracking-[0.22em] text-[11px] text-ink hover:bg-ink hover:text-paper rounded-full"
         >
           <Copy k="winners.fullArchive" /> <ArrowRight size={12} />

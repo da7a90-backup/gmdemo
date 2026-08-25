@@ -16,13 +16,13 @@ export default function AccountLoginPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
-  const [returnTo, setReturnTo] = useState("/account");
+  const [returnTo, setReturnTo] = useState("/beta/account");
   const codeRef = useRef<HTMLInputElement>(null);
 
   // Already signed in → bounce to the account (or returnTo).
   useEffect(() => {
     const rt = new URLSearchParams(window.location.search).get("returnTo");
-    const dest = rt && rt.startsWith("/") ? rt : "/account";
+    const dest = rt && rt.startsWith("/") ? rt : "/beta/account";
     setReturnTo(dest);
     let alive = true;
     fetch("/api/auth/me")

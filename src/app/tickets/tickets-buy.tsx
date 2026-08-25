@@ -102,7 +102,7 @@ export function TicketsBuy() {
 
     // Fallback: simulated checkout (Shopify unavailable).
     const promoQS = promo ? `&promo=${encodeURIComponent(promo.code ?? promo.id)}` : "";
-    router.push(`/checkout?tier=${tierId}&type=${type}${promoQS}`);
+    router.push(`/beta/checkout?tier=${tierId}&type=${type}${promoQS}`);
   };
 
   return (

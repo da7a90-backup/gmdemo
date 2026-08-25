@@ -109,7 +109,7 @@ export function CheckoutClient() {
     const next = new URLSearchParams(sp.toString());
     next.set("tier", upgrade.id);
     next.set("type", "once");
-    router.replace(`/checkout?${next.toString()}`);
+    router.replace(`/beta/checkout?${next.toString()}`);
   };
 
   const charityCut = +(item.priceUSD * 0.10).toFixed(2);
@@ -148,7 +148,7 @@ export function CheckoutClient() {
       placedAtISO: new Date().toISOString(),
     };
     try { sessionStorage.setItem("gm:lastOrder", JSON.stringify(payload)); } catch {}
-    setTimeout(() => router.push(`/thank-you?order=${draftId}`), 1000);
+    setTimeout(() => router.push(`/beta/thank-you?order=${draftId}`), 1000);
   };
 
   const FONT_STACK = `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"`;

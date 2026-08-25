@@ -8,14 +8,16 @@ import { CountdownCompact } from "@/components/countdown";
 import { Copy } from "@/components/copy";
 import { usePrizeCycle } from "@/lib/cycle-store";
 
+// The public site is served under /beta/* — link there directly so nav never
+// bounces through the bare→/beta redirect.
 const NAV = [
-  { href: "/tickets", k: "nav.tickets" },
-  { href: "/winners", k: "nav.winners" },
-  { href: "/live", k: "nav.live" },
-  { href: "/partners", k: "nav.partners" },
-  { href: "/about", k: "nav.about" },
-  { href: "/blog", k: "nav.blog" },
-  { href: "/lookup", k: "nav.lookup" },
+  { href: "/beta/tickets", k: "nav.tickets" },
+  { href: "/beta/winners", k: "nav.winners" },
+  { href: "/beta/live", k: "nav.live" },
+  { href: "/beta/partners", k: "nav.partners" },
+  { href: "/beta/about", k: "nav.about" },
+  { href: "/beta/blog", k: "nav.blog" },
+  { href: "/beta/lookup", k: "nav.lookup" },
 ];
 
 export function SiteHeader() {
@@ -40,7 +42,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-ink/10 bg-paper">
       <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-5 gap-6">
-        <Link href="/" aria-label="Generous Motors home" className="flex items-center group">
+        <Link href="/beta" aria-label="Generous Motors home" className="flex items-center group">
           <Logo
             height={32}
             markColor="var(--color-accent-bright)"
@@ -63,14 +65,14 @@ export function SiteHeader() {
 
         {/* Live-draw countdown — desktop: between My Entries and Buy tickets;
             mobile: nav is hidden, so it sits between the logo and the hamburger. */}
-        <Link href="/live" aria-label="Countdown to the live drawing" className="shrink-0">
+        <Link href="/beta/live" aria-label="Countdown to the live drawing" className="shrink-0">
           <CountdownCompact targetISO={activeDraw.drawDateISO} />
         </Link>
 
         <div className="flex items-center gap-2">
           {!isAdmin && (
             <Link
-              href="/account"
+              href="/beta/account"
               aria-label="Your account"
               className="inline-flex h-11 items-center gap-2 px-3.5 border border-ink/10 bg-paper text-ink rounded-full hover:bg-ink hover:text-paper transition-colors font-condensed uppercase tracking-[0.18em] text-[11px] font-semibold"
             >
@@ -79,7 +81,7 @@ export function SiteHeader() {
             </Link>
           )}
           <Link
-            href="/tickets"
+            href="/beta/tickets"
             className="hidden md:inline-flex items-center gap-2 bg-accent-bright text-ink px-6 py-2.5 font-condensed uppercase tracking-[0.24em] text-[12px] font-bold border border-ink/10 btn-poly hover:bg-accent hover:text-paper-3 transition-colors"
           >
             <Copy k="header.buy" />
@@ -105,7 +107,7 @@ export function SiteHeader() {
                 <Copy k={n.k} />
               </Link>
             ))}
-            <Link href="/tickets" onClick={() => setOpen(false)} className="mt-2 inline-flex items-center justify-center bg-accent-bright px-5 py-3 border border-ink/10 text-ink font-condensed uppercase tracking-[0.24em] text-[12px] font-bold btn-poly">
+            <Link href="/beta/tickets" onClick={() => setOpen(false)} className="mt-2 inline-flex items-center justify-center bg-accent-bright px-5 py-3 border border-ink/10 text-ink font-condensed uppercase tracking-[0.24em] text-[12px] font-bold btn-poly">
               <Copy k="header.buy" />
             </Link>
           </nav>

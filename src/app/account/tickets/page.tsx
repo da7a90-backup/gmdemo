@@ -33,7 +33,7 @@ export default function MemberTicketsPage() {
       // Real OTP session (email/phone) OR the demo session both count as signed in.
       const me = await fetch("/api/auth/me").then((r) => r.json()).catch(() => null);
       const signedIn = !!me?.data?.signedIn || !!getUser();
-      if (!signedIn) { if (alive) router.replace("/account/login"); return; }
+      if (!signedIn) { if (alive) router.replace("/beta/account/login"); return; }
       if (!alive) return;
       loadPromos();
       setReady(true);
@@ -59,7 +59,7 @@ export default function MemberTicketsPage() {
       });
       if (redirected) return;
     }
-    router.push(`/checkout?tier=${tierId}&type=once&promo=member`);
+    router.push(`/beta/checkout?tier=${tierId}&type=once&promo=member`);
   };
 
   return (
