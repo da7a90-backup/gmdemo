@@ -1,5 +1,6 @@
 import { AnimIgnition } from "@/components/teaser/anim-ignition";
 import { TeaserSignup } from "@/components/teaser/signup";
+import { RootDark } from "@/components/teaser/root-dark";
 
 /**
  * Coming-soon teaser shown at "/" while the full site is soft-launched under /beta.
@@ -8,6 +9,9 @@ import { TeaserSignup } from "@/components/teaser/signup";
 export function Teaser() {
   return (
     <div className="relative w-full bg-[#0a0a0a] text-white">
+      {/* darken the document root so the browser backdrop (behind the address bar
+          + overscroll) isn't the site's cream */}
+      <RootDark />
       {/* Fixed, full-viewport background so no cream gap ever shows when the mobile
           address bar collapses (svh→lvh). Sits behind the content. */}
       <div className="pointer-events-none fixed inset-0 z-0">
