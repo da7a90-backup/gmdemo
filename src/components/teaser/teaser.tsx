@@ -8,7 +8,7 @@ import { RootDark } from "@/components/teaser/root-dark";
  */
 export function Teaser() {
   return (
-    <div className="relative w-full bg-[#0a0a0a] text-white">
+    <div className="teaser-root relative w-full bg-[#0a0a0a] text-white">
       {/* darken the document root so the browser backdrop (behind the address bar
           + overscroll) isn't the site's cream */}
       <RootDark />

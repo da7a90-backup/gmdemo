@@ -93,6 +93,21 @@ html {
   overflow-x: clip;
 }
 
+/* The teaser (/) is a full-bleed dark page. The mobile browser paints its backdrop
+   — behind the address bar + the overscroll/rubber-band region — from the ROOT
+   element's background, and decides it at FIRST PAINT, so post-hydration JS is too
+   late. This pure-CSS rule (scoped to the teaser via :has(), so every other route
+   stays cream) makes that backdrop dark up front; any address-bar gap is then just
+   more dark, never cream. */
+html:has(.teaser-root),
+html:has(.teaser-root) body {
+  background: #0a0a0a;
+}
+html:has(.teaser-root),
+html:has(.teaser-root) body {
+  overscroll-behavior-y: none;
+}
+
 body {
   overflow-x: clip;
 }
