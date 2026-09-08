@@ -1,8 +1,9 @@
 // Server-side email template store + renderer. Admin edits live in Postgres
-// (email_templates); code renders {{variables}} and hands the result to Klaviyo as
-// event properties. Falls back to the code defaults when a row hasn't been saved.
+// (email_templates); code renders {{variables}} and hands the result to SendGrid,
+// our transactional email provider. Falls back to the code defaults when a row
+// hasn't been saved.
 import { pool } from "./db";
-import { klaviyoEvent } from "./providers/klaviyo";
+import { sendEmail } from "./providers/sendgrid";
 import { EMAIL_TEMPLATES, emailTemplateDef, type EmailTemplateDef } from "@/lib/email-templates-data";
 
 export type Vars = Record<string, string | number>;
@@ -30,9 +31,10 @@ export async function renderTemplate(key: string, vars: Vars): Promise<{ subject
 }
 
 /**
- * Render the admin template and emit the Klaviyo event carrying the rendered
- * `subject` + `body_html` (plus the raw vars). The Klaviyo flow just outputs
- * {{ event.subject }} / {{ event.body_html | safe }}. Never throws.
+ * Render the admin template (subject + HTML) and deliver it via SendGrid. `metric`
+ * becomes the SendGrid category (e.g. "Tickets Minted") for analytics, and any
+ * `uniqueId` rides along as a custom arg for search/idempotency. Never throws —
+ * returns { ok:false } if the template is missing or the send fails.
  */
 export async function emitEmailEvent(
   metric: string,
@@ -42,12 +44,17 @@ export async function emitEmailEvent(
   uniqueId?: string,
 ) {
   const rendered = await renderTemplate(templateKey, vars).catch(() => null);
-  const properties: Record<string, unknown> = { ...vars };
-  if (rendered) {
-    properties.subject = rendered.subject;
-    properties.body_html = rendered.body_html;
+  if (!rendered) {
+    console.error(`[email] no template for "${templateKey}" — not sending to ${email}`);
+    return { ok: false as const, error: `no template: ${templateKey}` };
   }
-  return klaviyoEvent(metric, email, properties, uniqueId);
+  return sendEmail({
+    to: email,
+    subject: rendered.subject,
+    html: rendered.body_html,
+    category: metric,
+    ...(uniqueId ? { customArgs: { unique_id: uniqueId } } : {}),
+  });
 }
 
 export type AdminTemplate = EmailTemplateDef & { edited: boolean };
