@@ -6,9 +6,12 @@ import { Mail, ArrowRight, CheckCircle2 } from "lucide-react";
 export function TeaserSignup({
   source = "Beta teaser",
   theme = "dark",
+  claim = false,
 }: {
   source?: string;
   theme?: "dark" | "paper";
+  /** When true, sign up for the free-ticket claim flow (sends a confirm-to-claim email). */
+  claim?: boolean;
 }) {
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
@@ -25,7 +28,11 @@ export function TeaserSignup({
         }`}
       >
         <CheckCircle2 size={18} className={`shrink-0 ${paper ? "text-[var(--color-accent)]" : "text-[var(--color-accent-bright)]"}`} />
-        <p className="text-[14px]">You&apos;re on the list — we&apos;ll email you the moment we launch.</p>
+        <p className="text-[14px]">
+          {claim
+            ? "Check your inbox — confirm to claim your free ticket 🎟️"
+            : "You're on the list — we'll email you the moment we launch."}
+        </p>
       </div>
     );
   }
@@ -39,7 +46,7 @@ export function TeaserSignup({
           const r = await fetch("/api/subscribe/email", {
             method: "POST",
             headers: { "content-type": "application/json" },
-            body: JSON.stringify({ email, source }),
+            body: JSON.stringify({ email, source, claim }),
           });
           if ((await r.json())?.ok) setDone(true);
         } catch {

@@ -54,8 +54,9 @@ export async function middleware(req: NextRequest) {
   if (pathname === "/beta" || pathname === "/beta/") return betaRewrite(req, "/home");
   if (pathname.startsWith("/beta/")) return betaRewrite(req, pathname.slice(5) || "/");
 
-  // "/" is the teaser (app/page.tsx).
-  if (pathname === "/") return NextResponse.next();
+  // "/" is the teaser; "/claim" is the standalone free-ticket claim page. Both
+  // are public root pages, not part of the /beta site.
+  if (pathname === "/" || pathname === "/claim") return NextResponse.next();
 
   // The internal homepage target must not be reachable bare.
   if (pathname === "/home") {

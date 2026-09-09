@@ -46,7 +46,7 @@ export function Teaser() {
             A new kind of car giveaway is pulling up. Drop your email and be first through the door.
           </p>
           <div className="mt-5 flex w-full justify-center">
-            <TeaserSignup source="Coming soon" />
+            <TeaserSignup source="Coming soon" claim />
           </div>
         </div>
 

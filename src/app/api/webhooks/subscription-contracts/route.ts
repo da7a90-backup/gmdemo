@@ -8,7 +8,6 @@ import {
   verifyShopifyHmac, webhookSecretConfigured, upsertSubscriptionContract, currentCyclePrize, type ContractPayload,
 } from "@/lib/server/webhooks";
 import { emitEmailEvent } from "@/lib/server/email-templates";
-import { addToMembersList, removeFromMembersList } from "@/lib/server/providers/klaviyo";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -46,17 +45,16 @@ export async function POST(req: Request) {
   const status = contractStatus(topic, payload);
   const { transition, email } = await upsertSubscriptionContract(payload, status);
 
-  // Lifecycle email + Members-list sync (best-effort; never blocks the 2xx ack).
+  // Lifecycle email (best-effort; never blocks the 2xx ack). Membership state lives
+  // in users.is_member — member-only campaigns read that directly, no list to sync.
   if (email && transition) {
     const gid = payload.admin_graphql_api_id || `contract-${payload.id}`;
     if (transition === "started") {
       const { code, prize } = await currentCyclePrize();
       await emitEmailEvent("Membership Started", "membership_started", email, { prize, cycle: code }, `memstart-${gid}`).catch(() => {});
-      await addToMembersList(email).catch(() => {});
     } else if (transition === "cancelled") {
       const { prize } = await currentCyclePrize();
       await emitEmailEvent("Membership Cancelled", "membership_cancelled", email, { prize }, `memcancel-${gid}-${status}`).catch(() => {});
-      await removeFromMembersList(email).catch(() => {});
     }
   }
   return NextResponse.json({ ok: true }, { status: 200 });

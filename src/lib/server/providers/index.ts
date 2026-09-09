@@ -1,13 +1,13 @@
 export * from "./postscript";
-export * from "./klaviyo";
+export * from "./sendgrid";
 import { postscriptConfigured } from "./postscript";
-import { klaviyoConfigured } from "./klaviyo";
+import { sendgridConfigured } from "./sendgrid";
 
-// Transactional email is NOT a separate provider: OTP is Shopify-hosted (Customer
-// Account API) and receipt/"you won" are Klaviyo events → transactional flows.
+// Email is SendGrid (all transactional + broadcasts); SMS is Postscript. OTP is
+// self-hosted (we generate the code, SendGrid/Postscript just deliver it).
 export function providerStatus() {
   return {
+    email_sendgrid: sendgridConfigured() ? "configured" : "stubbed (set SENDGRID_API_KEY)",
     sms_postscript: postscriptConfigured() ? "configured" : "stubbed (set POSTSCRIPT_API_KEY)",
-    email_klaviyo: klaviyoConfigured() ? "configured" : "stubbed (set KLAVIYO_API_KEY)",
   };
 }

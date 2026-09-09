@@ -1,8 +1,9 @@
 // Marketing campaigns (newsletter / SMS blasts) — stored in Postgres, sent as REAL
-// Klaviyo email campaigns / Postscript SMS. Promo variables ({{promo_link}}, {{promo_code}},
-// …) are injected into the subject/body at send time.
+// SendGrid emails / Postscript SMS. Recipients come from our own DB. Promo variables
+// ({{promo_link}}, {{promo_code}}, …) are injected into the subject/body at send time.
 import { pool } from "./db";
-import { sendKlaviyoCampaign, deleteKlaviyoCampaign, newsletterListId, membersListId, klaviyoConfigured } from "./providers/klaviyo";
+import { sendBroadcast } from "./providers/sendgrid";
+import { unsubscribeUrl } from "./unsubscribe";
 import { postscriptConfigured } from "./providers/postscript";
 import { smsBroadcast } from "./subscribers";
 import { fillVars } from "./email-templates";
@@ -55,7 +56,7 @@ function promoVars(code: string | null, origin: string): Record<string, string> 
   };
 }
 
-/** Send an existing draft. Email → real Klaviyo campaign; SMS → blocked (Postscript). */
+/** Send an existing draft. Email → real SendGrid send; SMS → real Postscript send. */
 export async function sendCampaign(id: number, origin: string): Promise<Campaign> {
   const cur = (await pool.query(`select * from campaigns where id = $1`, [id])).rows[0];
   if (!cur) throw new Error("campaign not found");
@@ -79,39 +80,35 @@ export async function sendCampaign(id: number, origin: string): Promise<Campaign
     return row(updated.rows[0]);
   }
 
-  const list = c.audience === "members" ? membersListId() : newsletterListId();
-  if (!klaviyoConfigured() || !list) {
-    const error = c.audience === "members"
-      ? "Members list not configured (KLAVIYO_MEMBERS_LIST_ID)."
-      : "Klaviyo not configured (KLAVIYO_API_KEY / KLAVIYO_NEWSLETTER_LIST_ID).";
-    await pool.query(`update campaigns set status='failed', error=$2 where id=$1`, [id, error]);
-    return { ...c, status: "failed", error };
-  }
-
   const vars = promoVars(c.promoCode, origin);
   const subject = fillVars(c.subject ?? "", vars);
   const html = fillVars(c.body, vars);
-  const recipients = (await pool.query(
+  // Recipients from our own DB (unsubscribed are excluded in both branches).
+  const emails = (await pool.query(
     c.audience === "members"
-      ? `select count(*)::int n from users where is_member`
-      : `select count(*)::int n from email_subscribers where status = 'subscribed'`,
-  )).rows[0].n as number;
+      ? `select u.email::text as email from users u
+         where u.is_member and u.email is not null
+           and lower(u.email::text) not in (select lower(email::text) from email_subscribers where status = 'unsubscribed')`
+      : `select email::text as email from email_subscribers where status = 'subscribed'`,
+  )).rows.map((x) => x.email as string);
 
-  const res = await sendKlaviyoCampaign({ name: subject || `Campaign ${id}`, subject, html, listId: list, send: true });
-  if (!res.ok) {
-    await pool.query(`update campaigns set status='failed', error=$2 where id=$1`, [id, res.error ?? "send failed"]);
-    return { ...c, status: "failed", error: res.error ?? "send failed" };
-  }
+  const res = await sendBroadcast({
+    subject: subject || `Campaign ${id}`,
+    html,
+    recipients: emails,
+    category: c.audience === "members" ? "Members Campaign" : "Newsletter Campaign",
+    unsubscribeUrl: (e) => unsubscribeUrl(origin, e),
+  });
+  const status: Campaign["status"] = res.sent > 0 || res.recipients === 0 ? "sent" : "failed";
+  const error = res.error ?? (res.failed ? `${res.failed}/${res.recipients} failed to send` : null);
   const updated = await pool.query(
-    `update campaigns set status='sent', klaviyo_campaign_id=$2, recipients=$3, error=null, sent_at=now() where id=$1 returning *`,
-    [id, res.campaignId ?? null, recipients],
+    `update campaigns set status=$2, recipients=$3, error=$4, sent_at=now() where id=$1 returning *`,
+    [id, status, res.sent, error],
   );
   return row(updated.rows[0]);
 }
 
-/** Delete the campaign locally and (best-effort) its Klaviyo campaign. */
+/** Delete the campaign. */
 export async function deleteCampaignEverywhere(id: number): Promise<void> {
-  const cur = (await pool.query(`select klaviyo_campaign_id from campaigns where id = $1`, [id])).rows[0];
-  if (cur?.klaviyo_campaign_id) await deleteKlaviyoCampaign(cur.klaviyo_campaign_id);
   await deleteCampaign(id);
 }

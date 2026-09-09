@@ -52,3 +52,56 @@ export async function sendEmail(opts: {
     return { ok: false, error: detail };
   }
 }
+
+/**
+ * Bulk marketing send (newsletter / member broadcasts). One message per recipient
+ * so each gets a personalized one-click unsubscribe link + List-Unsubscribe header
+ * (CAN-SPAM). Sent in small concurrent batches. Never throws.
+ */
+export async function sendBroadcast(opts: {
+  subject: string;
+  html: string;
+  recipients: string[];
+  category?: string;
+  unsubscribeUrl?: (email: string) => string;
+}): Promise<{ recipients: number; sent: number; failed: number; error?: string }> {
+  const list = [...new Set(opts.recipients.map((e) => e.trim().toLowerCase()).filter(Boolean))];
+  if (!KEY) return { recipients: list.length, sent: 0, failed: 0, error: "SENDGRID_API_KEY not set" };
+
+  let sent = 0;
+  let failed = 0;
+  const CHUNK = 20;
+  for (let i = 0; i < list.length; i += CHUNK) {
+    const batch = list.slice(i, i + CHUNK);
+    const results = await Promise.all(
+      batch.map(async (email) => {
+        const unsub = opts.unsubscribeUrl?.(email);
+        const html = unsub
+          ? `${opts.html}<hr style="margin-top:32px;border:none;border-top:1px solid #e7e2d9"/>` +
+            `<p style="font-size:12px;color:#8a8a8a;font-family:Arial,sans-serif">` +
+            `You're receiving this because you subscribed to Generous Motors. ` +
+            `<a href="${unsub}" style="color:#8a8a8a">Unsubscribe</a>.</p>`
+          : opts.html;
+        try {
+          await sgMail.send({
+            to: email,
+            from: { email: FROM_EMAIL, name: FROM_NAME },
+            subject: opts.subject,
+            html,
+            ...(opts.category ? { categories: [opts.category] } : {}),
+            ...(unsub
+              ? { headers: { "List-Unsubscribe": `<${unsub}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" } }
+              : {}),
+          });
+          return true;
+        } catch (e) {
+          console.error(`[sendgrid] broadcast to ${email} failed`, e);
+          return false;
+        }
+      }),
+    );
+    sent += results.filter(Boolean).length;
+    failed += results.length - results.filter(Boolean).length;
+  }
+  return { recipients: list.length, sent, failed };
+}
