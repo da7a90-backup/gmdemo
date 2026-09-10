@@ -4,6 +4,7 @@
 // hasn't been saved.
 import { pool } from "./db";
 import { sendEmail } from "./providers/sendgrid";
+import { renderBrandedEmail } from "./email-layout";
 import { EMAIL_TEMPLATES, emailTemplateDef, type EmailTemplateDef } from "@/lib/email-templates-data";
 
 export type Vars = Record<string, string | number>;
@@ -51,7 +52,7 @@ export async function emitEmailEvent(
   return sendEmail({
     to: email,
     subject: rendered.subject,
-    html: rendered.body_html,
+    html: renderBrandedEmail({ subject: rendered.subject, bodyHtml: rendered.body_html }),
     category: metric,
     ...(uniqueId ? { customArgs: { unique_id: uniqueId } } : {}),
   });

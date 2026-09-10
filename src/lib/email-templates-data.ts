@@ -79,6 +79,25 @@ export const EMAIL_TEMPLATES: EmailTemplateDef[] = [
 <p style="font-size:13px;color:#8a8a8a">This link expires in 72 hours.</p>`,
   },
   {
+    key: "free_ticket_claimed",
+    metric: "Free Ticket Claimed",
+    name: "Free ticket — claimed (ticket number)",
+    description: "Sent right after a free ticket is claimed on /claim, carrying the real ticket number.",
+    variables: [
+      { name: "ticket_numbers", example: "GM01-0007-0001" },
+      { name: "cycle", example: "1" },
+      { name: "prize", example: "2024 Chevrolet Corvette" },
+      { name: "lookup_url", example: "https://www.generousmotors.org/beta/lookup?email=you@email.com" },
+    ],
+    subject: "🎟️ Your free ticket is in — {{ticket_numbers}}",
+    body:
+      `<h1 style="font-family:Georgia,serif;margin:0 0 12px">You're in the drum.</h1>
+<p>Your <strong>free entry</strong> for Cycle {{cycle}} — the {{prize}} — is locked in.</p>
+<p style="margin:18px 0">Your ticket number:<br/><strong style="font-size:22px;letter-spacing:1px">{{ticket_numbers}}</strong></p>
+<p>It's printed and dropped in the barrel for the live draw. Track it any time from <a href="{{lookup_url}}" style="color:#00a89a">your tickets</a>.</p>
+<p>Good luck — and thank you for being part of the cause.</p>`,
+  },
+  {
     key: "newsletter_welcome",
     metric: "Newsletter Welcome",
     name: "Newsletter welcome",

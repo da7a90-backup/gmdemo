@@ -87,22 +87,18 @@ export async function confirmFreeTicket(rawToken: string, name: string, phone: s
     [claim.id, fullName, normPhone, cyc.id, order.orderId, ticketNumbers],
   );
 
-  // Receipt with the real ticket number (same template as a paid order).
+  // Dedicated "free ticket claimed" email carrying the real ticket number.
   await emitEmailEvent(
-    "Tickets Minted",
-    "tickets_minted",
+    "Free Ticket Claimed",
+    "free_ticket_claimed",
     email,
     {
-      entries: mint.entries ?? 1,
+      ticket_numbers: ticketNumbers,
       cycle: mint.cycle_code ?? cyc.code,
       prize: cyc.vehicle_label ?? "",
-      ticket_prefix: mint.ticket_prefix ?? "",
-      ticket_numbers: ticketNumbers,
       lookup_url: `${origin}/beta/lookup?email=${encodeURIComponent(email)}`,
-      order_token: mint.order_token ?? "",
-      shopify_order_id: order.orderId,
     },
-    `mint-${order.orderId}`,
+    `freeclaim-${order.orderId}`,
   ).catch(() => {});
 
   return { ok: true, ticketNumbers, cycle: mint.cycle_code ?? cyc.code };
