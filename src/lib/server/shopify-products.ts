@@ -1,24 +1,26 @@
 // Sprint 2 — the "Tickets" product in Shopify: one product, one "Bundle" option,
-// six variants (own prices), each with a base_entries metafield (namespace gm_tickets). Idempotent by
-// handle. Promo multiplier is applied at add-to-cart (line-item property) + webhook.
+// six variants (own prices). The entry count for each variant is simply the number
+// in its name (e.g. "10 Tickets" -> 10) — see cart.ts getTicketVariants. No
+// metafields. Idempotent by handle. Promo multiplier is applied at add-to-cart
+// (line-item property) + webhook.
 import { shopifyAdmin } from "./shopify";
 
 export const TICKETS_HANDLE = "tickets";
 const HANDLE = TICKETS_HANDLE;
 // Seed catalog used ONLY to create the product the first time. At runtime the entry
-// count for every variant is read live from its `base_entries` metafield (see
-// cart.ts getTicketVariants) — this list is not the runtime source of truth.
+// count is parsed from each variant's name (cart.ts getTicketVariants), so this list
+// is not the source of truth — edit the variants in Shopify.
 export const BUNDLES = [
-  { name: "1 Ticket", price: "10.00", entries: 1 },
-  { name: "5 Tickets", price: "45.00", entries: 5 },
-  { name: "10 Tickets", price: "85.00", entries: 10 },
-  { name: "25 Tickets", price: "200.00", entries: 25 },
-  { name: "50 Tickets", price: "375.00", entries: 50 },
-  { name: "100 Tickets", price: "700.00", entries: 100 },
+  { name: "1 Ticket", price: "10.00" },
+  { name: "5 Tickets", price: "45.00" },
+  { name: "10 Tickets", price: "85.00" },
+  { name: "25 Tickets", price: "200.00" },
+  { name: "50 Tickets", price: "375.00" },
+  { name: "100 Tickets", price: "700.00" },
 ];
 
-/** First positive integer in a variant/bundle title, e.g. "5 Tickets" -> 5. Used as
- *  a fallback when a variant has no base_entries metafield, so no variant is a gap. */
+/** The entry count for a ticket variant = the first positive integer in its name,
+ *  e.g. "5 Tickets" -> 5. */
 export function entriesFromTitle(title: string): number | null {
   const m = String(title ?? "").match(/\d[\d,]*/);
   if (!m) return null;
@@ -28,21 +30,6 @@ export function entriesFromTitle(title: string): number | null {
 
 type UE = { field?: string[]; message: string }[];
 
-async function ensureBaseEntriesDefinition() {
-  await shopifyAdmin(
-    `mutation($def: MetafieldDefinitionInput!) {
-       metafieldDefinitionCreate(definition: $def) { createdDefinition { id } userErrors { message code } }
-     }`,
-    {
-      def: {
-        name: "Base entries", namespace: "gm_tickets", key: "base_entries",
-        type: "number_integer", ownerType: "PRODUCTVARIANT",
-        description: "Base entries for this bundle (before promo multiplier).",
-      },
-    },
-  ).catch(() => {}); // ignore "already exists"
-}
-
 async function productIdByHandle(): Promise<string | null> {
   const r = await shopifyAdmin<{ productByHandle: { id: string } | null }>(
     `query($h: String!) { productByHandle(handle: $h) { id } }`, { h: HANDLE },
@@ -50,39 +37,15 @@ async function productIdByHandle(): Promise<string | null> {
   return r.productByHandle?.id ?? null;
 }
 
-async function setBaseEntries(productId: string) {
-  const v = await shopifyAdmin<{ product: { variants: { nodes: { id: string; selectedOptions: { name: string; value: string }[]; metafield: { value: string } | null }[] } } }>(
-    `query($id: ID!) { product(id: $id) { variants(first: 50) { nodes { id selectedOptions { name value } metafield(namespace: "gm_tickets", key: "base_entries") { value } } } } }`,
-    { id: productId },
-  );
-  const metafields = v.product.variants.nodes
-    // Only SEED variants that don't already have a value — never clobber a
-    // merchant-edited base_entries (Shopify is the source of truth at runtime).
-    .filter((node) => node.metafield?.value == null)
-    .map((node) => {
-      const bundleName = node.selectedOptions.find((o) => o.name === "Bundle")?.value;
-      const b = BUNDLES.find((x) => x.name === bundleName);
-      const entries = b?.entries ?? entriesFromTitle(bundleName ?? "");
-      return entries ? { ownerId: node.id, namespace: "gm_tickets", key: "base_entries", type: "number_integer", value: String(entries) } : null;
-    })
-    .filter(Boolean);
-  if (metafields.length) {
-    await shopifyAdmin(
-      `mutation($m: [MetafieldsSetInput!]!) { metafieldsSet(metafields: $m) { userErrors { message } } }`,
-      { m: metafields },
-    );
-  }
-}
-
 async function summarize(productId: string, status: "created" | "exists") {
   const r = await shopifyAdmin<{
     product: { id: string; title: string; handle: string; status: string; productType: string;
-      variants: { nodes: { title: string; price: string; metafield: { value: string } | null }[] } };
+      variants: { nodes: { title: string; price: string }[] } };
   }>(
     `query($id: ID!) {
        product(id: $id) {
          id title handle status productType
-         variants(first: 20) { nodes { title price metafield(namespace: "gm_tickets", key: "base_entries") { value } } }
+         variants(first: 50) { nodes { title price } }
        }
      }`,
     { id: productId },
@@ -98,7 +61,7 @@ async function summarize(productId: string, status: "created" | "exists") {
     productStatus: p.status,
     productType: p.productType,
     adminUrl: `https://admin.shopify.com/store/${shop}/products/${numericId}`,
-    variants: p.variants.nodes.map((v) => ({ bundle: v.title, price: v.price, base_entries: v.metafield?.value ?? null })),
+    variants: p.variants.nodes.map((v) => ({ bundle: v.title, price: v.price, entries: entriesFromTitle(v.title) ?? 1 })),
   };
 }
 
@@ -139,23 +102,26 @@ export async function publishEverywhere(productId: string) {
   }
 }
 
-async function cleanupOldDefinition() {
-  // Remove the earlier gm_raffle namespace + its metafields entirely.
-  const r = await shopifyAdmin<{ metafieldDefinitions: { nodes: { id: string }[] } }>(
-    `{ metafieldDefinitions(first: 5, ownerType: PRODUCTVARIANT, namespace: "gm_raffle", key: "base_entries") { nodes { id } } }`,
-  ).catch(() => null);
-  const id = r?.metafieldDefinitions?.nodes?.[0]?.id;
-  if (id) {
-    await shopifyAdmin(
-      `mutation($id: ID!) { metafieldDefinitionDelete(id: $id, deleteAllAssociatedMetafields: true) { deletedDefinitionId userErrors { message } } }`,
-      { id },
-    ).catch(() => {});
+/** Entry counts come from the variant name now — purge the old base_entries metafield
+ * definitions (both namespaces) and their values entirely, so nothing dangles. */
+async function cleanupEntriesMetafields() {
+  for (const ns of ["gm_raffle", "gm_tickets"]) {
+    const r = await shopifyAdmin<{ metafieldDefinitions: { nodes: { id: string }[] } }>(
+      `query($ns: String!) { metafieldDefinitions(first: 5, ownerType: PRODUCTVARIANT, namespace: $ns, key: "base_entries") { nodes { id } } }`,
+      { ns },
+    ).catch(() => null);
+    const id = r?.metafieldDefinitions?.nodes?.[0]?.id;
+    if (id) {
+      await shopifyAdmin(
+        `mutation($id: ID!) { metafieldDefinitionDelete(id: $id, deleteAllAssociatedMetafields: true) { deletedDefinitionId userErrors { message } } }`,
+        { id },
+      ).catch(() => {});
+    }
   }
 }
 
 export async function ensureTicketsProduct() {
-  await cleanupOldDefinition();
-  await ensureBaseEntriesDefinition();
+  await cleanupEntriesMetafields();
 
   const existing = await productIdByHandle();
   if (existing) {
@@ -164,7 +130,6 @@ export async function ensureTicketsProduct() {
       `mutation($p: ProductUpdateInput!) { productUpdate(product: $p) { product { id } userErrors { message } } }`,
       { p: { id: existing, title: "Tickets", productType: "Tickets" } },
     ).catch(() => {});
-    await setBaseEntries(existing); // idempotent — (re)sets base_entries metafields
     await setVariantsNoShipping(existing); // digital → no shipping step at checkout
     await publishEverywhere(existing); // ensure Storefront (cart) can see it
     return summarize(existing, "exists");
@@ -191,7 +156,6 @@ export async function ensureTicketsProduct() {
   );
   if (set.productSet.userErrors?.length) throw new Error("productSet: " + JSON.stringify(set.productSet.userErrors));
   const productId = set.productSet.product!.id;
-  await setBaseEntries(productId);
   await setVariantsNoShipping(productId); // digital → no shipping step at checkout
   await publishEverywhere(productId); // ensure Storefront (cart) can see it
   return summarize(productId, "created");

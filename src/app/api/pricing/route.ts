@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const [tv, mv] = await Promise.all([getTicketVariants().catch(() => []), getMembershipVariants().catch(() => [])]);
-    // Full live variant ladder (entries from Shopify base_entries) + a price-by-entries
+    // Full live variant ladder (entries from the variant name) + a price-by-entries
     // map for quick lookups. The ladder drives the buy UI so it's exhaustive.
     const ticketTiers = tv.map((v) => ({ entries: v.entries, price: v.price, available: v.available }));
     const tickets: Record<string, number> = {};

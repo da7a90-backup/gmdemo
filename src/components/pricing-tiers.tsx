@@ -19,7 +19,7 @@ export function PricingTiers() {
   const activeDraw = usePrizeCycle();
   const [mode, setMode] = useState<"once" | "monthly">("once");
   const [showAll, setShowAll] = useState(false);
-  // Live Shopify variant ladder (entries from base_entries), code ladder as fallback.
+  // Live Shopify variant ladder (entries parsed from the variant name), code fallback.
   const tiers = effectiveTicketTiers(pricing.ticketTiers());
   const visibleOnce = showAll ? tiers : tiers.slice(0, 3);
 

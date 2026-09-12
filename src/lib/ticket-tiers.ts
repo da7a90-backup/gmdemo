@@ -5,7 +5,7 @@ export type DisplayTier = Tier & { available?: boolean };
 
 /**
  * The ticket tiers to render. Driven by the LIVE Shopify variant ladder (entry
- * counts from each variant's base_entries, + live price), enriched with the
+ * counts parsed from each variant's name, + live price), enriched with the
  * hardcoded display metadata (name / badge / blurb / popular) matched by entry
  * count. Exhaustive — every purchasable variant shows up, including ones added in
  * Shopify that aren't in the code ladder. Falls back to the code ladder only when

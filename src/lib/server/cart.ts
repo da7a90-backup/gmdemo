@@ -3,7 +3,7 @@
 // matching "Tickets" product variant, a per-line `_entries` attribute (entries per
 // unit, read by the orders/paid webhook) and cart attributes (`_multiplier` +
 // attribution for Track E), then hands the shopper Shopify's hosted checkoutUrl.
-import { shopifyStorefront, shopifyAdmin } from "./shopify";
+import { shopifyStorefront } from "./shopify";
 import { entriesFromTitle } from "./shopify-products";
 
 /** Headless domain fix: Shopify builds `checkoutUrl` from the store's PRIMARY domain. When
@@ -27,42 +27,31 @@ function withCheckoutHost(url: string): string {
 export type TicketVariant = { variantId: string; bundle: string; entries: number; price: number; available: boolean };
 
 /**
- * Every variant of the "Tickets" product with its entry count read LIVE from
- * Shopify — the `base_entries` metafield (namespace gm_tickets), falling back to the
- * number in the variant title, then 1. Read via the Admin API so the metafield is
- * always visible regardless of Storefront exposure. Exhaustive (all variants, no
- * hardcoded bundle list) and sorted by entry count. The variant gid doubles as the
- * Storefront cart merchandiseId.
+ * Every variant of the "Tickets" product, with the entry count parsed straight from
+ * the variant's Bundle name (e.g. "10 Tickets" -> 10) — the name IS the source of
+ * truth, no metafields. Exhaustive (all variants) and sorted by entry count. The
+ * variant gid doubles as the Storefront cart merchandiseId.
  */
 export async function getTicketVariants(): Promise<TicketVariant[]> {
-  const r = await shopifyAdmin<{
-    productByHandle: {
-      variants: { nodes: {
-        id: string; title: string; price: string; availableForSale: boolean;
-        selectedOptions: { name: string; value: string }[];
-        metafield: { value: string } | null;
-      }[] };
-    } | null;
+  const r = await shopifyStorefront<{
+    product: { variants: { nodes: {
+      id: string; title: string; availableForSale: boolean; price: { amount: string };
+      selectedOptions: { name: string; value: string }[];
+    }[] } } | null;
   }>(
     `query {
-      productByHandle(handle: "tickets") {
+      product(handle: "tickets") {
         variants(first: 100) {
-          nodes {
-            id title price availableForSale
-            selectedOptions { name value }
-            metafield(namespace: "gm_tickets", key: "base_entries") { value }
-          }
+          nodes { id title availableForSale price { amount } selectedOptions { name value } }
         }
       }
     }`,
   ).catch(() => null);
 
-  return (r?.productByHandle?.variants?.nodes ?? [])
+  return (r?.product?.variants?.nodes ?? [])
     .map((n) => {
       const bundle = n.selectedOptions.find((o) => o.name === "Bundle")?.value ?? n.title ?? "";
-      const fromMeta = Number(n.metafield?.value);
-      const entries = Number.isFinite(fromMeta) && fromMeta > 0 ? fromMeta : entriesFromTitle(bundle) ?? 1;
-      return { variantId: n.id, bundle, entries, price: Number(n.price), available: n.availableForSale };
+      return { variantId: n.id, bundle, entries: entriesFromTitle(bundle) ?? 1, price: Number(n.price.amount), available: n.availableForSale };
     })
     .sort((a, b) => a.entries - b.entries);
 }

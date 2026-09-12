@@ -38,7 +38,7 @@ export function TicketsBuy() {
   const searchParams = useSearchParams();
   const stats = useLifetimeStats();
   const pricing = usePricing();
-  // Live Shopify variant ladder (entries from base_entries); code ladder as fallback.
+  // Live Shopify variant ladder (entries parsed from the variant name); code fallback.
   const tiers = effectiveTicketTiers(pricing.ticketTiers());
   const [isMember, setIsMember] = useState(false);
 
