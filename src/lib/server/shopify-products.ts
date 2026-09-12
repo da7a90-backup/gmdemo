@@ -3,7 +3,11 @@
 // handle. Promo multiplier is applied at add-to-cart (line-item property) + webhook.
 import { shopifyAdmin } from "./shopify";
 
-const HANDLE = "tickets";
+export const TICKETS_HANDLE = "tickets";
+const HANDLE = TICKETS_HANDLE;
+// Seed catalog used ONLY to create the product the first time. At runtime the entry
+// count for every variant is read live from its `base_entries` metafield (see
+// cart.ts getTicketVariants) — this list is not the runtime source of truth.
 export const BUNDLES = [
   { name: "1 Ticket", price: "10.00", entries: 1 },
   { name: "5 Tickets", price: "45.00", entries: 5 },
@@ -12,6 +16,15 @@ export const BUNDLES = [
   { name: "50 Tickets", price: "375.00", entries: 50 },
   { name: "100 Tickets", price: "700.00", entries: 100 },
 ];
+
+/** First positive integer in a variant/bundle title, e.g. "5 Tickets" -> 5. Used as
+ *  a fallback when a variant has no base_entries metafield, so no variant is a gap. */
+export function entriesFromTitle(title: string): number | null {
+  const m = String(title ?? "").match(/\d[\d,]*/);
+  if (!m) return null;
+  const n = Number(m[0].replace(/,/g, ""));
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
 
 type UE = { field?: string[]; message: string }[];
 
@@ -38,15 +51,19 @@ async function productIdByHandle(): Promise<string | null> {
 }
 
 async function setBaseEntries(productId: string) {
-  const v = await shopifyAdmin<{ product: { variants: { nodes: { id: string; selectedOptions: { name: string; value: string }[] }[] } } }>(
-    `query($id: ID!) { product(id: $id) { variants(first: 20) { nodes { id selectedOptions { name value } } } } }`,
+  const v = await shopifyAdmin<{ product: { variants: { nodes: { id: string; selectedOptions: { name: string; value: string }[]; metafield: { value: string } | null }[] } } }>(
+    `query($id: ID!) { product(id: $id) { variants(first: 50) { nodes { id selectedOptions { name value } metafield(namespace: "gm_tickets", key: "base_entries") { value } } } } }`,
     { id: productId },
   );
   const metafields = v.product.variants.nodes
+    // Only SEED variants that don't already have a value — never clobber a
+    // merchant-edited base_entries (Shopify is the source of truth at runtime).
+    .filter((node) => node.metafield?.value == null)
     .map((node) => {
       const bundleName = node.selectedOptions.find((o) => o.name === "Bundle")?.value;
       const b = BUNDLES.find((x) => x.name === bundleName);
-      return b ? { ownerId: node.id, namespace: "gm_tickets", key: "base_entries", type: "number_integer", value: String(b.entries) } : null;
+      const entries = b?.entries ?? entriesFromTitle(bundleName ?? "");
+      return entries ? { ownerId: node.id, namespace: "gm_tickets", key: "base_entries", type: "number_integer", value: String(entries) } : null;
     })
     .filter(Boolean);
   if (metafields.length) {

@@ -3,10 +3,8 @@
 // matching "Tickets" product variant, a per-line `_entries` attribute (entries per
 // unit, read by the orders/paid webhook) and cart attributes (`_multiplier` +
 // attribution for Track E), then hands the shopper Shopify's hosted checkoutUrl.
-import { shopifyStorefront } from "./shopify";
-import { BUNDLES } from "./shopify-products";
-
-const entriesForBundle = (name: string) => BUNDLES.find((b) => b.name === name)?.entries ?? null;
+import { shopifyStorefront, shopifyAdmin } from "./shopify";
+import { entriesFromTitle } from "./shopify-products";
 
 /** Headless domain fix: Shopify builds `checkoutUrl` from the store's PRIMARY domain. When
  * that domain points at this Next.js app (headless), the checkout link 404s and Shopify even
@@ -26,29 +24,47 @@ function withCheckoutHost(url: string): string {
   }
 }
 
-export type TicketVariant = { variantId: string; bundle: string; entries: number; price: number };
+export type TicketVariant = { variantId: string; bundle: string; entries: number; price: number; available: boolean };
 
-/** The live "Tickets" product variants (Storefront), mapped to entry counts via
- * the Bundle option name. Empty when the product isn't published to Storefront. */
+/**
+ * Every variant of the "Tickets" product with its entry count read LIVE from
+ * Shopify — the `base_entries` metafield (namespace gm_tickets), falling back to the
+ * number in the variant title, then 1. Read via the Admin API so the metafield is
+ * always visible regardless of Storefront exposure. Exhaustive (all variants, no
+ * hardcoded bundle list) and sorted by entry count. The variant gid doubles as the
+ * Storefront cart merchandiseId.
+ */
 export async function getTicketVariants(): Promise<TicketVariant[]> {
-  const r = await shopifyStorefront<{
-    product: { variants: { nodes: { id: string; availableForSale: boolean; price: { amount: string }; selectedOptions: { name: string; value: string }[] }[] } } | null;
+  const r = await shopifyAdmin<{
+    productByHandle: {
+      variants: { nodes: {
+        id: string; title: string; price: string; availableForSale: boolean;
+        selectedOptions: { name: string; value: string }[];
+        metafield: { value: string } | null;
+      }[] };
+    } | null;
   }>(
     `query {
-      product(handle: "tickets") {
-        variants(first: 20) {
-          nodes { id availableForSale price { amount } selectedOptions { name value } }
+      productByHandle(handle: "tickets") {
+        variants(first: 100) {
+          nodes {
+            id title price availableForSale
+            selectedOptions { name value }
+            metafield(namespace: "gm_tickets", key: "base_entries") { value }
+          }
         }
       }
     }`,
   ).catch(() => null);
 
-  return (r?.product?.variants?.nodes ?? [])
+  return (r?.productByHandle?.variants?.nodes ?? [])
     .map((n) => {
-      const bundle = n.selectedOptions.find((o) => o.name === "Bundle")?.value ?? "";
-      return { variantId: n.id, bundle, entries: entriesForBundle(bundle), price: Number(n.price.amount) };
+      const bundle = n.selectedOptions.find((o) => o.name === "Bundle")?.value ?? n.title ?? "";
+      const fromMeta = Number(n.metafield?.value);
+      const entries = Number.isFinite(fromMeta) && fromMeta > 0 ? fromMeta : entriesFromTitle(bundle) ?? 1;
+      return { variantId: n.id, bundle, entries, price: Number(n.price), available: n.availableForSale };
     })
-    .filter((v): v is TicketVariant => v.entries != null);
+    .sort((a, b) => a.entries - b.entries);
 }
 
 export type CartAttr = { key: string; value: string };
@@ -67,14 +83,14 @@ export async function createTicketCart(opts: {
 
   const quantity = Math.max(1, Math.floor(opts.quantity ?? 1));
   const multiplier = Math.max(1, Math.floor(opts.multiplier ?? 1));
-  const totalEntries = opts.entries * quantity * multiplier;
+  const totalEntries = v.entries * quantity * multiplier;
 
   // Line-item properties. `_entries` stays hidden (leading underscore) for the
   // orders/paid webhook. When a promo multiplier is active we ALSO add a VISIBLE
   // property (no underscore → Shopify shows it in the hosted checkout + order
   // summary) so the shopper actually sees the boosted entry count they're getting,
   // not just the "1 Ticket" bundle name at the base price.
-  const lineAttributes: CartAttr[] = [{ key: "_entries", value: String(opts.entries) }];
+  const lineAttributes: CartAttr[] = [{ key: "_entries", value: String(v.entries) }];
   if (multiplier > 1) {
     lineAttributes.push({ key: "Entries", value: `${totalEntries} (${multiplier}× promo bonus)` });
   }

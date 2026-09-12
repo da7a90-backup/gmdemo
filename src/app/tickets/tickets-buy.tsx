@@ -6,7 +6,8 @@ import {
   Tv2, HeartHandshake, Drum, ArrowRight, PlayCircle,
 } from "lucide-react";
 import { iconFor } from "@/lib/pillar-icons";
-import { ticketTiers, membershipTiers } from "@/lib/mock-data";
+import { membershipTiers } from "@/lib/mock-data";
+import { effectiveTicketTiers } from "@/lib/ticket-tiers";
 import { usePrizeCycle, useLifetimeStats } from "@/lib/cycle-store";
 import { usePricing } from "@/lib/pricing-store";
 import { useWinners } from "@/lib/winners-store";
@@ -37,6 +38,8 @@ export function TicketsBuy() {
   const searchParams = useSearchParams();
   const stats = useLifetimeStats();
   const pricing = usePricing();
+  // Live Shopify variant ladder (entries from base_entries); code ladder as fallback.
+  const tiers = effectiveTicketTiers(pricing.ticketTiers());
   const [isMember, setIsMember] = useState(false);
 
   // Real signed-in member? (Shopify OTP session → users.is_member). Drives the member multiplier.
@@ -67,7 +70,7 @@ export function TicketsBuy() {
 
   const onBuy = async (tierId: string, type: "once" | "monthly") => {
     const item = type === "once"
-      ? ticketTiers.find((t) => t.id === tierId)
+      ? tiers.find((t) => t.id === tierId)
       : membershipTiers.find((m) => m.id === tierId);
     setRedirecting(true);
 
@@ -176,7 +179,7 @@ export function TicketsBuy() {
 
               {mode === "once" ? (
                 <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {ticketTiers.map((tier) => (
+                  {tiers.map((tier) => (
                     <div
                       key={tier.id}
                       className={`relative flex flex-col items-center border rounded-lg bg-paper-4 px-2.5 pt-3 pb-2.5 ${

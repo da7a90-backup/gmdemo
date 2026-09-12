@@ -1,7 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 
-type Pricing = { tickets: Record<string, number>; memberships: Record<string, { price: number; entries: number }> };
+export type LiveTicketTier = { entries: number; price: number; available: boolean };
+type Pricing = {
+  tickets: Record<string, number>;
+  ticketTiers?: LiveTicketTier[];
+  memberships: Record<string, { price: number; entries: number }>;
+};
 
 /** Live Shopify prices (GET /api/pricing) with helpers that return null until loaded /
  * when a match isn't found, so callers fall back to their code default. */
@@ -14,6 +19,9 @@ export function usePricing() {
   }, []);
   return {
     ticketPrice: (entries: number): number | null => p?.tickets?.[String(entries)] ?? null,
+    // The live variant ladder (entries from Shopify), or null until loaded / when
+    // Shopify is unreachable so callers fall back to the code ladder.
+    ticketTiers: (): LiveTicketTier[] | null => (p?.ticketTiers?.length ? p.ticketTiers : null),
     membershipPrice: (tier: string): number | null => p?.memberships?.[tier.toLowerCase()]?.price ?? null,
   };
 }

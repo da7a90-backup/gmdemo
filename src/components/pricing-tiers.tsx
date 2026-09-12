@@ -3,11 +3,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Check, Plus, Minus } from "lucide-react";
-import { ticketTiers, membershipTiers } from "@/lib/mock-data";
+import { membershipTiers } from "@/lib/mock-data";
 import { usePrizeCycle } from "@/lib/cycle-store";
 import { usd } from "@/lib/format";
 import { startTicketCheckout, startMembershipCheckout } from "@/lib/checkout";
 import { usePricing } from "@/lib/pricing-store";
+import { effectiveTicketTiers } from "@/lib/ticket-tiers";
 import { Label } from "@/components/sticker";
 import { Copy, useCopy } from "@/components/copy";
 
@@ -18,7 +19,9 @@ export function PricingTiers() {
   const activeDraw = usePrizeCycle();
   const [mode, setMode] = useState<"once" | "monthly">("once");
   const [showAll, setShowAll] = useState(false);
-  const visibleOnce = showAll ? ticketTiers : ticketTiers.slice(0, 3);
+  // Live Shopify variant ladder (entries from base_entries), code ladder as fallback.
+  const tiers = effectiveTicketTiers(pricing.ticketTiers());
+  const visibleOnce = showAll ? tiers : tiers.slice(0, 3);
 
   // One-time bundle → real Shopify checkout (baseline attribution); falls back to
   // the demo checkout if Shopify is unavailable.
