@@ -43,7 +43,7 @@ export function Teaser() {
           <AnimIgnition theme="dark" />
 
           <p className="mt-9 max-w-md text-center font-serif text-[15px] text-white/75">
-            A new kind of car giveaway is pulling up. Drop your email and be first through the door.
+            A new kind of car giveaway is pulling up. Drop your email and win a free ticket.
           </p>
           <div className="mt-5 flex w-full justify-center">
             <TeaserSignup source="Coming soon" claim />
