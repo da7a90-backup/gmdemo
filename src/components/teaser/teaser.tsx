@@ -1,6 +1,12 @@
+import { Facebook, Instagram } from "lucide-react";
 import { AnimIgnition } from "@/components/teaser/anim-ignition";
 import { TeaserSignup } from "@/components/teaser/signup";
 import { RootDark } from "@/components/teaser/root-dark";
+
+const SOCIALS = [
+  { href: "https://www.facebook.com/generousmotors.org", label: "Generous Motors on Facebook", Icon: Facebook },
+  { href: "https://www.instagram.com/generousmotors/", label: "Generous Motors on Instagram", Icon: Instagram },
+];
 
 /**
  * Coming-soon teaser shown at "/" while the full site is soft-launched under /beta.
@@ -53,6 +59,23 @@ export function Teaser() {
         <p className="shrink-0 pt-8 text-center font-condensed text-[15px] font-bold uppercase tracking-[0.28em] text-white/85 sm:text-[17px]">
           Launching soon…
         </p>
+
+        {/* Socials — centered under "Launching soon…" on mobile; bottom-right corner on desktop.
+            Outline icons in the brand teal, matching the GM logo. */}
+        <div className="mt-5 flex shrink-0 items-center justify-center gap-3 sm:absolute sm:bottom-6 sm:right-6 sm:mt-0">
+          {SOCIALS.map(({ href, label, Icon }) => (
+            <a
+              key={href}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={label}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-accent-bright)]/50 text-[var(--color-accent-bright)] transition-colors hover:bg-[var(--color-accent-bright)] hover:text-[#0a0a0a]"
+            >
+              <Icon size={18} strokeWidth={1.75} aria-hidden />
+            </a>
+          ))}
+        </div>
       </div>
     </div>
   );
