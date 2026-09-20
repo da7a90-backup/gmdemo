@@ -76,6 +76,12 @@ export function Teaser() {
             </a>
           ))}
         </div>
+
+        {/* Nonprofit blurb — under the socials (below them on mobile, above the corner
+            socials' baseline on desktop). General Sans, italic. */}
+        <p className="mt-4 max-w-md shrink-0 text-center font-sans text-[12px] italic leading-relaxed text-white/55 sm:text-[13px]">
+          Generous Motors is a US 501(c)(3) car giveaway. Every draw is streamed live, and 10% of each cycle goes to charity.
+        </p>
       </div>
     </div>
   );
