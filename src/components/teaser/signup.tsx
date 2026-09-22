@@ -57,7 +57,7 @@ export function TeaserSignup({
           setBusy(false);
         }
       }}
-      className="flex w-full max-w-md flex-col gap-2.5"
+      className="flex w-full max-w-md flex-col gap-2 sm:gap-2.5"
     >
       <div
         className={`flex items-center overflow-hidden rounded-full border ${
@@ -74,7 +74,7 @@ export function TeaserSignup({
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@email.com"
           aria-label="Email address"
-          className={`h-13 min-w-0 flex-1 bg-transparent px-3 py-3.5 text-[15px] outline-none ${
+          className={`h-12 min-w-0 flex-1 bg-transparent px-3 text-[15px] outline-none sm:h-13 ${
             paper ? "text-[var(--color-ink)] placeholder:text-[var(--color-ink-3)]" : "text-white placeholder:text-white/40"
           }`}
         />
@@ -82,7 +82,7 @@ export function TeaserSignup({
       <button
         type="submit"
         disabled={busy}
-        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--color-accent-bright)] font-condensed text-[13px] font-bold uppercase tracking-[0.18em] text-[#0a0a0a] transition-colors hover:bg-[var(--color-brass)] disabled:opacity-60"
+        className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-[var(--color-accent-bright)] font-condensed text-[13px] font-bold uppercase tracking-[0.18em] text-[#0a0a0a] transition-colors hover:bg-[var(--color-brass)] disabled:opacity-60 sm:h-12"
       >
         {busy ? "Working…" : submitLabel} {!busy && <ArrowRight size={15} strokeWidth={2.5} />}
       </button>
