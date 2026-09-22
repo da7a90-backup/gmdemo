@@ -48,11 +48,19 @@ export function Teaser() {
         <div className="flex flex-1 flex-col items-center justify-center">
           <AnimIgnition theme="dark" />
 
-          <p className="mt-9 max-w-md text-center font-serif text-[15px] text-white/75">
-            A new kind of car giveaway is pulling up. Drop your email and win a free ticket.
+          <h1 className="mt-7 text-center font-display text-[clamp(1.6rem,5vw,2.5rem)] font-bold leading-[1.08] text-white">
+            Win the car. <span className="text-[var(--color-accent-bright)]">Fund the cause.</span>
+          </h1>
+
+          <p className="mt-3 max-w-xl text-center font-serif text-[15px] leading-relaxed text-white/75 sm:text-[16px]">
+            Generous Motors is a new kind of car giveaway. Every ticket you buy helps fund another nonprofit, and every draw is streamed live so you can watch it happen.
           </p>
-          <div className="mt-5 flex w-full justify-center">
-            <TeaserSignup source="Coming soon" claim />
+
+          <p className="mt-5 max-w-md text-center text-[14px] text-white/80">
+            Drop your email below and get a free ticket the moment we launch.
+          </p>
+          <div className="mt-3 flex w-full justify-center">
+            <TeaserSignup source="Coming soon" claim submitLabel="Get My Free Ticket" />
           </div>
         </div>
 
@@ -79,8 +87,8 @@ export function Teaser() {
 
         {/* Nonprofit blurb — under the socials (below them on mobile, above the corner
             socials' baseline on desktop). General Sans, italic. */}
-        <p className="mt-4 max-w-md shrink-0 text-center font-sans text-[12px] italic leading-relaxed text-white/55 sm:text-[13px]">
-          Generous Motors is a US 501(c)(3) car giveaway. Every draw is streamed live, and 10% of each cycle goes to charity.
+        <p className="mt-4 max-w-xl shrink-0 text-center font-sans text-[12px] italic leading-relaxed text-white/55 sm:text-[13px]">
+          Generous Motors is a registered 501(c)(3) nonprofit. We give away cars to raise funds and awareness for other nonprofit causes, and 10% of each cycle&apos;s proceeds go directly to charity.
         </p>
       </div>
     </div>
