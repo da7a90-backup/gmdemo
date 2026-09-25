@@ -57,7 +57,7 @@ export function Teaser() {
           </p>
 
           <p className="mt-3 max-w-md text-center text-[13px] text-white/80 sm:mt-5 sm:text-[14px]">
-            Drop your email below and get a free ticket the moment we launch.
+            Drop your email below and get a <span className="font-semibold text-[var(--color-accent-bright)]">free ticket</span> the moment we launch.
           </p>
           <div className="mt-3 flex w-full justify-center">
             <TeaserSignup source="Coming soon" claim submitLabel="Get My Free Ticket" />
