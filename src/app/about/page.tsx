@@ -92,7 +92,7 @@ export default async function AboutPage() {
         <div className="relative mx-auto max-w-[1400px] px-5 py-24 grid gap-12 lg:grid-cols-12 border-b border-paper-3/15">
           <div className="lg:col-span-5">
             <p className="section-eyebrow !text-paper-3/70 section-eyebrow-rule">{copy["about.flow.eyebrow"]}</p>
-            <h2 className="mt-4 hero-headline">
+            <h2 className="mt-4 hero-headline on-dark">
               {copy["about.flow.h.lead"]} <span className="accent-serif">{copy["about.flow.h.accent"]}</span>
             </h2>
             <p className="mt-7 text-paper-3/85 text-lg font-serif">
