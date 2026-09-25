@@ -18,7 +18,7 @@ export function AnimIgnition({ theme = "dark" }: { theme?: "dark" | "paper" }) {
 
   return (
     <div className="flex w-full flex-col items-center">
-      <div className="w-[min(52vw,520px)] sm:w-[min(82vw,560px)]">
+      <div className="w-[min(46vw,300px)] sm:w-[min(64vw,420px)]">
         <svg viewBox={LOGO_VIEWBOX} className="block w-full overflow-visible">
           {/* G swoosh + M chevron: stroke-draw, then fill in */}
           {[MARK_G, MARK_M].map((d, i) => (
@@ -46,7 +46,7 @@ export function AnimIgnition({ theme = "dark" }: { theme?: "dark" | "paper" }) {
       </div>
 
       {/* redline sweep */}
-      <div className="relative mt-4 h-[3px] w-[min(50vw,300px)] overflow-hidden rounded-full bg-white/10 sm:mt-7 sm:w-[min(70vw,380px)]">
+      <div className="relative mt-3 h-[3px] w-[min(42vw,240px)] overflow-hidden rounded-full bg-white/10 sm:mt-5 sm:w-[min(56vw,300px)]">
         <motion.div
           className="absolute inset-y-0 w-1/3 rounded-full"
           style={{ background: `linear-gradient(90deg, transparent, ${BRAND.teal}, transparent)` }}
@@ -61,7 +61,7 @@ export function AnimIgnition({ theme = "dark" }: { theme?: "dark" | "paper" }) {
 
 function StaticLogo({ wordmark = BRAND.fg }: { wordmark?: string }) {
   return (
-    <svg viewBox={LOGO_VIEWBOX} className="block w-[min(52vw,520px)] overflow-visible sm:w-[min(82vw,560px)]">
+    <svg viewBox={LOGO_VIEWBOX} className="block w-[min(46vw,300px)] overflow-visible sm:w-[min(64vw,420px)]">
       <path d={MARK_G} fill={BRAND.teal} />
       <path d={MARK_M} fill={BRAND.teal} />
       {WORDMARK.map((d, i) => (

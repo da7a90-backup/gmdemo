@@ -44,33 +44,33 @@ export function Teaser() {
 
       {/* content column — main block centered in the free space, tagline pinned at
           the bottom of the flow so nothing clips on short mobile viewports */}
-      <div className="relative z-10 flex min-h-[100dvh] flex-col items-center px-6 py-6 sm:py-10">
+      <div className="relative z-10 flex min-h-[100dvh] flex-col items-center px-6 py-5 sm:py-8">
         <div className="flex flex-1 flex-col items-center justify-center">
           <AnimIgnition theme="dark" />
 
-          <h1 className="mt-5 text-center font-display text-[clamp(1.35rem,5.5vw,2.5rem)] font-bold leading-[1.05] text-white sm:mt-7">
+          <h1 className="mt-4 text-center font-display text-[clamp(1.3rem,5vw,2.25rem)] font-bold leading-[1.05] text-white sm:mt-6">
             Win the car. <span className="text-[var(--color-accent-bright)]">Fund the cause.</span>
           </h1>
 
-          <p className="mt-2.5 max-w-xl text-center font-serif text-[13.5px] leading-snug text-white/75 sm:mt-3 sm:text-[16px] sm:leading-relaxed">
+          <p className="mt-2 max-w-xl text-center font-serif text-[13px] leading-snug text-white/75 sm:mt-3 sm:text-[15px] sm:leading-relaxed">
             Generous Motors is a new kind of car giveaway. Every ticket you buy helps fund another nonprofit, and every draw is streamed live so you can watch it happen.
           </p>
 
-          <p className="mt-3 max-w-md text-center text-[13px] text-white/80 sm:mt-5 sm:text-[14px]">
-            Drop your email below and get a <span className="font-semibold text-[var(--color-accent-bright)]">free ticket</span> the moment we launch.
+          <p className="mt-2.5 max-w-md text-center text-[13px] text-white/80 sm:mt-4 sm:text-[14px]">
+            Drop your email below and get a <span className="font-bold text-[var(--color-accent-bright)]">free ticket</span> the moment we launch.
           </p>
-          <div className="mt-3 flex w-full justify-center">
+          <div className="mt-2.5 flex w-full justify-center">
             <TeaserSignup source="Coming soon" claim submitLabel="Get My Free Ticket" />
           </div>
         </div>
 
-        <p className="shrink-0 pt-4 text-center font-condensed text-[13px] font-bold uppercase tracking-[0.28em] text-white/85 sm:pt-8 sm:text-[17px]">
+        <p className="shrink-0 pt-3 text-center font-condensed text-[13px] font-bold uppercase tracking-[0.28em] text-white/85 sm:pt-6 sm:text-[17px]">
           Launching soon…
         </p>
 
         {/* Socials — centered under "Launching soon…" on mobile; bottom-right corner on desktop.
             Outline icons in the brand teal, matching the GM logo. */}
-        <div className="mt-3.5 flex shrink-0 items-center justify-center gap-3 sm:absolute sm:bottom-6 sm:right-6 sm:mt-0">
+        <div className="mt-3 flex shrink-0 items-center justify-center gap-3 sm:absolute sm:bottom-6 sm:right-6 sm:mt-0">
           {SOCIALS.map(({ href, label, Icon }) => (
             <a
               key={href}
@@ -87,7 +87,7 @@ export function Teaser() {
 
         {/* Nonprofit blurb — under the socials (below them on mobile, above the corner
             socials' baseline on desktop). General Sans, italic. */}
-        <p className="mt-3 max-w-xl shrink-0 text-center font-sans text-[11px] italic leading-snug text-white/55 sm:mt-4 sm:text-[13px] sm:leading-relaxed">
+        <p className="mt-2.5 max-w-xl shrink-0 text-center font-sans text-[11px] italic leading-snug text-white/55 sm:mt-4 sm:text-[13px] sm:leading-relaxed">
           Generous Motors is a registered 501(c)(3) nonprofit. We give away cars to raise funds and awareness for other nonprofit causes, and 10% of each cycle&apos;s proceeds go directly to charity.
         </p>
       </div>
