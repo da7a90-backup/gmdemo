@@ -87,8 +87,8 @@ export default async function AboutPage() {
       </section>
 
       {/* CHARITY FLOW */}
-      <section className="bg-charity text-paper-3 border-y border-ink/10 relative overflow-hidden grain" id="charity">
-        <span aria-hidden className="absolute -top-6 -left-6 display-mega text-paper-3/[0.07] select-none">10%</span>
+      <section className="bg-ink text-paper-3 border-y border-ink/10 relative overflow-hidden grain grain-dark" id="charity">
+        <span aria-hidden className="absolute -top-6 -left-6 display-mega text-paper-3/[0.07] select-none">{copy["about.flow.watermark"]}</span>
         <div className="relative mx-auto max-w-[1400px] px-5 py-24 grid gap-12 lg:grid-cols-12 border-b border-paper-3/15">
           <div className="lg:col-span-5">
             <p className="section-eyebrow !text-paper-3/70 section-eyebrow-rule">{copy["about.flow.eyebrow"]}</p>

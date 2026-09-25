@@ -396,6 +396,7 @@ export const CONTENT_FIELDS: ContentField[] = [
   { key: "about.draw.h.l2", page: "About", group: "Draw section", label: "Heading — line 2", def: "Fully transparent." },
   { key: "about.draw.side", page: "About", group: "Draw section", label: "Side paragraph", def: "Every drawing is conducted live via livestream — transparent, real-time, and verifiable." },
   { key: "about.flow.eyebrow", page: "About", group: "Charity flow", label: "Eyebrow", def: "Charity flow" },
+  { key: "about.flow.watermark", page: "About", group: "Charity flow", label: "Big faded % watermark behind the section", def: "10%" },
   { key: "about.flow.h.lead", page: "About", group: "Charity flow", label: "Heading — lead", def: "Ten percent." },
   { key: "about.flow.h.accent", page: "About", group: "Charity flow", label: "Heading — italic accent", def: "Paid first." },
   { key: "about.flow.body", page: "About", group: "Charity flow", label: "Body", long: true, def: "We pay the charity first — before the car is bought, before payroll, before any expense. It is a number we can defend." },
