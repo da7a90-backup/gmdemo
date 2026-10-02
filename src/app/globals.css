@@ -110,13 +110,10 @@ html {
   overflow-x: clip;
 }
 
-/* --- Launch lander ("/") — self-hosted Geist + Bricolage Grotesque (matches the
-   generousmotors-lander typography). Scoped so the rest of the site keeps General Sans. --- */
-@font-face { font-family: "Geist"; font-weight: 100 900; font-style: normal; font-display: swap; src: url("/teaser/fonts/geist.woff2") format("woff2"); }
-@font-face { font-family: "Bricolage Grotesque"; font-weight: 600 800; font-style: normal; font-display: swap; src: url("/teaser/fonts/bricolage.woff2") format("woff2"); }
-
-.gm-lander { font-family: "Geist", ui-sans-serif, system-ui, sans-serif; }
-.gm-lander .gm-display { font-family: "Bricolage Grotesque", "Geist", ui-sans-serif, sans-serif; }
+/* --- Launch lander ("/") — uses the brand typeface (General Sans), same as the rest
+   of the site. .gm-display keeps the tighter display tracking for headings. --- */
+.gm-lander { font-family: var(--font-sans); }
+.gm-lander .gm-display { font-family: var(--font-display); letter-spacing: -0.025em; }
 .gm-lander .highlight {
   background-color: var(--color-primary);
   color: var(--color-primary-foreground);
