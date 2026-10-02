@@ -48,6 +48,7 @@ export function LanderSurvey() {
       <div className="grid w-full max-w-xl grid-cols-3 gap-2 sm:gap-3" role="group" aria-label="Choose your prize car">
         {CARS.map((c) => {
           const sel = prize === c.full;
+          const dim = prize !== null && !sel;
           return (
             <button
               type="button"
@@ -55,7 +56,11 @@ export function LanderSurvey() {
               aria-pressed={sel}
               onClick={() => setPrize(c.full)}
               className={`group relative flex flex-col overflow-hidden rounded-xl border bg-card/60 text-left backdrop-blur-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
-                sel ? "border-primary ring-2 ring-primary" : "border-border hover:-translate-y-0.5 hover:border-primary/50"
+                sel
+                  ? "-translate-y-0.5 border-primary ring-2 ring-primary shadow-[0_0_28px_-2px_var(--color-primary)]"
+                  : dim
+                    ? "border-border opacity-75 hover:-translate-y-0.5 hover:border-primary/50 hover:opacity-100"
+                    : "border-border hover:-translate-y-0.5 hover:border-primary/50"
               }`}
             >
               <div className="relative aspect-[16/10] w-full overflow-hidden">
@@ -65,7 +70,9 @@ export function LanderSurvey() {
                   loading="lazy"
                   decoding="async"
                   src={c.img}
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className={`absolute inset-0 h-full w-full object-cover transition-all duration-500 group-hover:scale-105 ${
+                    dim ? "grayscale group-hover:grayscale-0" : "grayscale-0"
+                  }`}
                 />
                 <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-card/80 to-transparent" />
                 <span
