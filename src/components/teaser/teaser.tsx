@@ -56,7 +56,7 @@ export function Teaser() {
         </div>
 
         {/* Second block — venue image, cause card, footer */}
-        <div className="relative isolate w-full pt-16 sm:pt-24">
+        <div className="relative isolate w-full pt-6 sm:pt-10">
           <div
             className="pointer-events-none absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,transparent,black_45%)]"
             aria-hidden
