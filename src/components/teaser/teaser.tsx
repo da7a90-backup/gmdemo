@@ -86,7 +86,7 @@ export function Teaser() {
                 draw is streamed live so you can watch it happen.
               </p>
               <p className="max-w-xl text-pretty font-semibold leading-relaxed text-foreground">
-                10% of every giveaway goes directly to charity. Each giveaway&apos;s named partner gets a portion of every ticket.
+                100% of every giveaway goes directly to charity. Each giveaway&apos;s named partner gets a portion of every ticket.
               </p>
             </section>
           </div>
