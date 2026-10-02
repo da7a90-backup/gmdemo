@@ -1,97 +1,116 @@
-import Image from "next/image";
-import { Facebook, Instagram } from "lucide-react";
-import { Logo } from "@/components/logo";
-import { PrizeSurvey } from "@/components/teaser/prize-survey";
+import { LanderSurvey } from "@/components/teaser/lander-survey";
+import { LOGO_VIEWBOX, MARK_G, MARK_M, WORDMARK } from "@/components/teaser/logo-data";
 
 const SOCIALS = [
-  { href: "https://www.facebook.com/generousmotors.org", label: "Generous Motors on Facebook", Icon: Facebook },
-  { href: "https://www.instagram.com/generousmotors/", label: "Generous Motors on Instagram", Icon: Instagram },
+  { href: "https://www.facebook.com/generousmotors.org", label: "Generous Motors on Facebook", icon: "/icons/facebook.svg" },
+  { href: "https://www.instagram.com/generousmotors/", label: "Generous Motors on Instagram", icon: "/icons/instagram.svg" },
 ];
 
-/**
- * Coming-soon lander shown at "/" while the full site is soft-launched under /beta.
- * Prize-preference survey (which car you'd want to win) + free-ticket email capture.
- */
+const maskStyle = (icon: string) => ({
+  maskImage: `url(${icon})`,
+  WebkitMaskImage: `url(${icon})`,
+  maskSize: "contain",
+  WebkitMaskSize: "contain",
+  maskRepeat: "no-repeat",
+  WebkitMaskRepeat: "no-repeat",
+  maskPosition: "center",
+  WebkitMaskPosition: "center",
+});
+
+/** Coming-soon launch lander at "/" — prize-preference survey + free-ticket capture. */
 export function Teaser() {
   return (
-    <div className="min-h-[100dvh] w-full bg-[var(--color-paper)] text-ink">
-      {/* Header */}
-      <header className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
-        <Logo height={26} markColor="var(--color-accent-bright)" letterColor="var(--color-ink)" />
-        <span className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-paper-4 px-3 py-1 font-condensed text-[11px] font-semibold uppercase tracking-[0.2em] text-ink-2">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-bright opacity-70" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-bright" />
-          </span>
-          Launching soon
-        </span>
-      </header>
+    <div className="gm-lander relative isolate min-h-dvh overflow-x-hidden bg-background text-foreground">
+      <main className="flex w-full flex-col items-center">
+        {/* First viewport — header, headline, survey + email capture */}
+        <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col items-center justify-center gap-8 px-4 py-8 sm:gap-10 sm:px-6">
+          <header className="flex flex-col items-center gap-6 text-center sm:gap-8">
+            <div className="flex items-center gap-4 sm:gap-6">
+              <svg viewBox={LOGO_VIEWBOX} className="block w-32 overflow-visible sm:w-44" role="img" aria-label="Generous Motors">
+                <path d={MARK_G} className="fill-primary" />
+                <path d={MARK_M} className="fill-primary" />
+                <g className="fill-foreground">
+                  {WORDMARK.map((d, i) => (
+                    <path key={i} d={d} />
+                  ))}
+                </g>
+              </svg>
+              <span className="h-14 w-px bg-foreground/20 sm:h-20" aria-hidden />
+              <p className="gm-display flex flex-col items-start text-left text-2xl font-extrabold uppercase leading-[0.9] tracking-tight text-foreground sm:text-4xl">
+                <span>Launching</span>
+                <span className="flex items-center gap-2.5 text-primary-ink sm:gap-3">
+                  Soon
+                  <span className="relative flex size-2.5 sm:size-3" aria-hidden>
+                    <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary opacity-75" />
+                    <span className="relative inline-flex size-full rounded-full bg-primary" />
+                  </span>
+                </span>
+              </p>
+            </div>
+            <h1 className="gm-display text-4xl font-extrabold leading-[0.95] tracking-tight text-foreground text-balance sm:text-6xl">
+              Our First-Ever Giveaway
+            </h1>
+          </header>
 
-      {/* Hero + survey */}
-      <main className="mx-auto max-w-5xl px-6 pb-16 pt-6 text-center sm:pt-12">
-        <p className="section-eyebrow">Our First-Ever Giveaway</p>
-        <h1 className="mx-auto mt-5 max-w-3xl hero-headline" style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", lineHeight: 1.05 }}>
-          Tell us which car you&apos;d <span className="accent-serif">want to win!</span>
-        </h1>
-        <p className="mx-auto mt-4 max-w-xl font-serif text-[16px] text-ink-2 sm:text-[18px]">
-          We&apos;ll announce the giveaway prize soon via email.
-        </p>
+          <LanderSurvey />
+        </div>
 
-        <div className="mt-10">
-          <PrizeSurvey />
+        {/* Second block — venue image, cause card, footer */}
+        <div className="relative isolate w-full pt-16 sm:pt-24">
+          <div
+            className="pointer-events-none absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,transparent,black_45%)]"
+            aria-hidden
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              alt=""
+              loading="lazy"
+              decoding="async"
+              src="/teaser/archive-courtyard.webp"
+              className="absolute inset-0 h-full w-full object-cover object-[50%_65%]"
+            />
+            <div className="absolute inset-0 bg-background/55" />
+          </div>
+          <p className="sr-only">Background: the Motoring Archives courtyard, home of the prize vehicle.</p>
+
+          <div className="mx-auto w-full max-w-3xl px-4 pb-12 sm:px-6 sm:pb-16">
+            <section
+              aria-labelledby="cause-heading"
+              className="flex w-full flex-col items-center gap-5 rounded-3xl border border-border bg-background/80 px-5 py-10 text-center shadow-xl shadow-foreground/5 backdrop-blur-md sm:px-10 sm:py-12"
+            >
+              <h2 id="cause-heading" className="gm-display text-3xl font-extrabold tracking-tight text-foreground text-balance sm:text-4xl">
+                Win the car. <span className="highlight">Fund the cause.</span>
+              </h2>
+              <p className="max-w-xl text-pretty leading-relaxed text-muted-foreground">
+                Generous Motors is a new kind of car giveaway. Every ticket you buy helps fund another nonprofit, and every
+                draw is streamed live so you can watch it happen.
+              </p>
+              <p className="max-w-xl text-pretty font-semibold leading-relaxed text-foreground">
+                10% of every giveaway goes directly to charity. Each giveaway&apos;s named partner gets a portion of every ticket.
+              </p>
+            </section>
+          </div>
+
+          <footer className="flex flex-col items-center gap-4 pb-16">
+            <ul className="flex items-center gap-4">
+              {SOCIALS.map((s) => (
+                <li key={s.href}>
+                  <a
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={s.label}
+                    className="flex size-12 items-center justify-center rounded-full border border-primary-ink/40 bg-card/70 text-primary-ink transition-colors hover:bg-primary hover:text-primary-foreground"
+                  >
+                    <span aria-hidden className="inline-block size-5 bg-current" style={maskStyle(s.icon)} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <p className="text-xs text-muted-foreground">© 2026 Generous Motors. No purchase necessary to enter or win.</p>
+          </footer>
         </div>
       </main>
-
-      {/* Venue image */}
-      <section className="relative">
-        <div className="relative h-[clamp(300px,46vh,560px)] w-full overflow-hidden border-y border-ink/10">
-          <Image
-            src="/teaser/archive-courtyard.webp"
-            alt="The Motoring Archives courtyard"
-            fill
-            sizes="100vw"
-            className="object-cover object-center"
-          />
-        </div>
-        <p className="mx-auto max-w-5xl px-6 py-3 text-center font-serif text-[13px] italic text-ink-3">
-          Background: the Motoring Archives courtyard, home of the prize vehicle.
-        </p>
-      </section>
-
-      {/* Value proposition */}
-      <section className="mx-auto max-w-3xl px-6 py-16 text-center">
-        <h2 className="hero-headline" style={{ fontSize: "clamp(1.75rem, 4vw, 3rem)", lineHeight: 1.05 }}>
-          Win the car. <span className="accent-serif">Fund the cause.</span>
-        </h2>
-        <p className="mx-auto mt-5 max-w-xl font-serif text-[16px] leading-relaxed text-ink-2 sm:text-[17px]">
-          Generous Motors is a new kind of car giveaway. Every ticket you buy helps fund another nonprofit, and every
-          draw is streamed live so you can watch it happen.
-        </p>
-        <p className="mx-auto mt-4 max-w-xl text-[14px] leading-relaxed text-ink-3">
-          10% of every giveaway goes directly to charity. Each giveaway&apos;s named partner gets a portion of every ticket.
-        </p>
-
-        {/* Socials */}
-        <div className="mt-9 flex items-center justify-center gap-3">
-          {SOCIALS.map(({ href, label, Icon }) => (
-            <a
-              key={href}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={label}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-accent/40 text-accent transition-colors hover:bg-accent hover:text-paper"
-            >
-              <Icon size={18} strokeWidth={1.75} aria-hidden />
-            </a>
-          ))}
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-ink/10 px-6 py-6 text-center font-condensed text-[11px] uppercase tracking-[0.18em] text-ink-3">
-        © 2026 Generous Motors. No purchase necessary to enter or win.
-      </footer>
     </div>
   );
 }

@@ -73,6 +73,23 @@
   --shadow-soft: 0 1px 2px rgba(22, 17, 15, 0.05), 0 8px 24px rgba(22, 17, 15, 0.08);
   --shadow-lift: 0 2px 4px rgba(22, 17, 15, 0.06), 0 16px 40px rgba(22, 17, 15, 0.12);
 
+  /* Launch lander ("/") design tokens — shadcn-style names used by the .gm-lander
+     markup (1:1 with generousmotors-lander). --color-accent is intentionally NOT
+     redefined here (the site's accent stays #00a89a). */
+  --color-background: #f1e9d3;
+  --color-foreground: #16110f;
+  --color-card: #fbf7ec;
+  --color-card-foreground: #16110f;
+  --color-primary: #00d1bd;
+  --color-primary-foreground: #16110f;
+  --color-primary-ink: #007a6e;
+  --color-muted: #f7f0db;
+  --color-muted-foreground: #3d352c;
+  --color-border: #16110f24;
+  --color-ring: #00a89a;
+  --color-cta: #fff200;
+  --color-cta-foreground: #16110f;
+
   /* Single-typeface system: General Sans everywhere.
      serif/condensed aliases kept so existing class usages keep working. */
   --font-sans: "General Sans", ui-sans-serif, system-ui, sans-serif;
@@ -91,6 +108,22 @@ html {
      elements (giant display-mega numerals, glows). `clip` (not `hidden`) doesn't
      create a scroll container, so position: sticky keeps working. */
   overflow-x: clip;
+}
+
+/* --- Launch lander ("/") — self-hosted Geist + Bricolage Grotesque (matches the
+   generousmotors-lander typography). Scoped so the rest of the site keeps General Sans. --- */
+@font-face { font-family: "Geist"; font-weight: 100 900; font-style: normal; font-display: swap; src: url("/teaser/fonts/geist.woff2") format("woff2"); }
+@font-face { font-family: "Bricolage Grotesque"; font-weight: 600 800; font-style: normal; font-display: swap; src: url("/teaser/fonts/bricolage.woff2") format("woff2"); }
+
+.gm-lander { font-family: "Geist", ui-sans-serif, system-ui, sans-serif; }
+.gm-lander .gm-display { font-family: "Bricolage Grotesque", "Geist", ui-sans-serif, sans-serif; }
+.gm-lander .highlight {
+  background-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  border-radius: 0.2em;
+  padding-inline: 0.18em;
 }
 
 /* The teaser (/) is a full-bleed dark page. The mobile browser paints its backdrop
