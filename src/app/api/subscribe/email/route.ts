@@ -1,18 +1,21 @@
 import { ok, fail, readJson, isEmail } from "@/lib/server/http";
 import { subscribeEmail } from "@/lib/server/subscribers";
 import { startFreeTicketClaim } from "@/lib/server/free-ticket";
+import { recordPrizeVote } from "@/lib/server/prize-votes";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
-  const b = await readJson<{ email?: string; source?: string; claim?: boolean }>(req);
+  const b = await readJson<{ email?: string; source?: string; claim?: boolean; prize?: string }>(req);
   if (!b || !isEmail(b.email)) return fail("A valid email is required.");
   const origin = process.env.PUBLIC_BASE_URL || new URL(req.url).origin;
   try {
     // The teaser signup (claim) skips the generic welcome and instead emails a
     // confirm-to-claim link for the free ticket.
     const sub = await subscribeEmail(b.email!, b.source ?? "Footer", { sendWelcome: !b.claim });
+    // Prize-preference survey (teaser): record which car they'd want to win.
+    if (b.prize) await recordPrizeVote(b.email!, b.prize, b.source ?? "Lander").catch(() => {});
     if (b.claim) {
       const claim = await startFreeTicketClaim(b.email!, origin);
       return ok({ ...sub, claim });

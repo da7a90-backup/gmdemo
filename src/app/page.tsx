@@ -6,8 +6,8 @@ export const metadata: Metadata = {
   description: "Something big is pulling up. Drop your email to be first in line when Generous Motors launches.",
 };
 
-// Dark browser chrome on the teaser so the mobile address bar matches the video.
-export const viewport: Viewport = { themeColor: "#0a0a0a", colorScheme: "dark" };
+// Cream browser chrome to match the light lander.
+export const viewport: Viewport = { themeColor: "#f1e9d3" };
 
 export default function Page() {
   return <Teaser />;

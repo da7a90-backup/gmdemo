@@ -1,7 +1,7 @@
+import Image from "next/image";
 import { Facebook, Instagram } from "lucide-react";
-import { AnimIgnition } from "@/components/teaser/anim-ignition";
-import { TeaserSignup } from "@/components/teaser/signup";
-import { RootDark } from "@/components/teaser/root-dark";
+import { Logo } from "@/components/logo";
+import { PrizeSurvey } from "@/components/teaser/prize-survey";
 
 const SOCIALS = [
   { href: "https://www.facebook.com/generousmotors.org", label: "Generous Motors on Facebook", Icon: Facebook },
@@ -9,68 +9,70 @@ const SOCIALS = [
 ];
 
 /**
- * Coming-soon teaser shown at "/" while the full site is soft-launched under /beta.
- * Ignition logo animation over a darkened brand video + the newsletter capture.
+ * Coming-soon lander shown at "/" while the full site is soft-launched under /beta.
+ * Prize-preference survey (which car you'd want to win) + free-ticket email capture.
  */
 export function Teaser() {
   return (
-    <div className="teaser-root relative w-full bg-[#0a0a0a] text-white">
-      {/* darken the document root so the browser backdrop (behind the address bar
-          + overscroll) isn't the site's cream */}
-      <RootDark />
-      {/* Fixed, full-viewport background so no cream gap ever shows when the mobile
-          address bar collapses (svh→lvh). Sits behind the content. */}
-      <div className="pointer-events-none fixed inset-0 z-0">
-        <video
-          className="absolute inset-0 h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          poster="/teaser/ignition-poster.jpg"
-        >
-          <source src="/teaser/ignition-bg-1080.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-black/40" />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(120% 90% at 50% -10%, rgba(0,209,189,0.12), transparent 60%), radial-gradient(80% 50% at 50% 115%, rgba(0,209,189,0.14), transparent 70%)",
-          }}
-        />
-      </div>
+    <div className="min-h-[100dvh] w-full bg-[var(--color-paper)] text-ink">
+      {/* Header */}
+      <header className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
+        <Logo height={26} markColor="var(--color-accent-bright)" letterColor="var(--color-ink)" />
+        <span className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-paper-4 px-3 py-1 font-condensed text-[11px] font-semibold uppercase tracking-[0.2em] text-ink-2">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-bright opacity-70" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-bright" />
+          </span>
+          Launching soon
+        </span>
+      </header>
 
-      {/* content column — main block centered in the free space, tagline pinned at
-          the bottom of the flow so nothing clips on short mobile viewports */}
-      <div className="relative z-10 flex min-h-[100dvh] flex-col items-center px-6 py-5 sm:py-8">
-        <div className="flex flex-1 flex-col items-center justify-center">
-          <AnimIgnition theme="dark" />
-
-          <h1 className="mt-4 text-center font-display text-[clamp(1.3rem,5vw,2.25rem)] font-bold leading-[1.05] text-white sm:mt-6">
-            Win the car. <span className="text-[var(--color-accent-bright)]">Fund the cause.</span>
-          </h1>
-
-          <p className="mt-2 max-w-xl text-center font-serif text-[13px] leading-snug text-white/75 sm:mt-3 sm:text-[15px] sm:leading-relaxed">
-            Generous Motors is a new kind of car giveaway. Every ticket you buy helps fund another nonprofit, and every draw is streamed live so you can watch it happen.
-          </p>
-
-          <p className="mt-2.5 max-w-md text-center text-[13px] text-white/80 sm:mt-4 sm:text-[14px]">
-            Drop your email below and get a <span className="font-bold text-[var(--color-accent-bright)]">free ticket</span> the moment we launch.
-          </p>
-          <div className="mt-2.5 flex w-full justify-center">
-            <TeaserSignup source="Coming soon" claim submitLabel="Get My Free Ticket" />
-          </div>
-        </div>
-
-        <p className="shrink-0 pt-3 text-center font-condensed text-[13px] font-bold uppercase tracking-[0.28em] text-white/85 sm:pt-6 sm:text-[17px]">
-          Launching soon…
+      {/* Hero + survey */}
+      <main className="mx-auto max-w-5xl px-6 pb-16 pt-6 text-center sm:pt-12">
+        <p className="section-eyebrow">Our First-Ever Giveaway</p>
+        <h1 className="mx-auto mt-5 max-w-3xl hero-headline" style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", lineHeight: 1.05 }}>
+          Tell us which car you&apos;d <span className="accent-serif">want to win!</span>
+        </h1>
+        <p className="mx-auto mt-4 max-w-xl font-serif text-[16px] text-ink-2 sm:text-[18px]">
+          We&apos;ll announce the giveaway prize soon via email.
         </p>
 
-        {/* Socials — centered under "Launching soon…" on mobile; bottom-right corner on desktop.
-            Outline icons in the brand teal, matching the GM logo. */}
-        <div className="mt-3 flex shrink-0 items-center justify-center gap-3 sm:absolute sm:bottom-6 sm:right-6 sm:mt-0">
+        <div className="mt-10">
+          <PrizeSurvey />
+        </div>
+      </main>
+
+      {/* Venue image */}
+      <section className="relative">
+        <div className="relative h-[clamp(300px,46vh,560px)] w-full overflow-hidden border-y border-ink/10">
+          <Image
+            src="/teaser/archive-courtyard.webp"
+            alt="The Motoring Archives courtyard"
+            fill
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+        </div>
+        <p className="mx-auto max-w-5xl px-6 py-3 text-center font-serif text-[13px] italic text-ink-3">
+          Background: the Motoring Archives courtyard, home of the prize vehicle.
+        </p>
+      </section>
+
+      {/* Value proposition */}
+      <section className="mx-auto max-w-3xl px-6 py-16 text-center">
+        <h2 className="hero-headline" style={{ fontSize: "clamp(1.75rem, 4vw, 3rem)", lineHeight: 1.05 }}>
+          Win the car. <span className="accent-serif">Fund the cause.</span>
+        </h2>
+        <p className="mx-auto mt-5 max-w-xl font-serif text-[16px] leading-relaxed text-ink-2 sm:text-[17px]">
+          Generous Motors is a new kind of car giveaway. Every ticket you buy helps fund another nonprofit, and every
+          draw is streamed live so you can watch it happen.
+        </p>
+        <p className="mx-auto mt-4 max-w-xl text-[14px] leading-relaxed text-ink-3">
+          10% of every giveaway goes directly to charity. Each giveaway&apos;s named partner gets a portion of every ticket.
+        </p>
+
+        {/* Socials */}
+        <div className="mt-9 flex items-center justify-center gap-3">
           {SOCIALS.map(({ href, label, Icon }) => (
             <a
               key={href}
@@ -78,19 +80,18 @@ export function Teaser() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={label}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-accent-bright)]/50 text-[var(--color-accent-bright)] transition-colors hover:bg-[var(--color-accent-bright)] hover:text-[#0a0a0a] sm:h-10 sm:w-10"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-accent/40 text-accent transition-colors hover:bg-accent hover:text-paper"
             >
               <Icon size={18} strokeWidth={1.75} aria-hidden />
             </a>
           ))}
         </div>
+      </section>
 
-        {/* Nonprofit blurb — under the socials (below them on mobile, above the corner
-            socials' baseline on desktop). General Sans, italic. */}
-        <p className="mt-2.5 max-w-xl shrink-0 text-center font-sans text-[11px] italic leading-snug text-white/55 sm:mt-4 sm:text-[13px] sm:leading-relaxed">
-          Generous Motors is a registered 501(c)(3) nonprofit. We give away cars to raise funds and awareness for other nonprofit causes, and 10% of each cycle&apos;s proceeds go directly to charity.
-        </p>
-      </div>
+      {/* Footer */}
+      <footer className="border-t border-ink/10 px-6 py-6 text-center font-condensed text-[11px] uppercase tracking-[0.18em] text-ink-3">
+        © 2026 Generous Motors. No purchase necessary to enter or win.
+      </footer>
     </div>
   );
 }
