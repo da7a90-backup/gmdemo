@@ -3,9 +3,9 @@ import { useState } from "react";
 
 // Survey: which car would you want to win. Stored in prize_votes via /api/subscribe/email.
 const CARS = [
-  { year: "1969", name: "Camaro", full: "1969 Camaro", alt: "1969 Chevrolet Camaro", img: "/teaser/cars/1969-camaro.webp" },
-  { year: "1964", name: "Corvette", full: "1964 Corvette", alt: "1964 Chevrolet Corvette", img: "/teaser/cars/1964-corvette.webp" },
-  { year: "1984", name: "911 Targa", full: "1984 911 Targa", alt: "1984 Porsche 911 Targa", img: "/teaser/cars/1984-911-targa.webp" },
+  { year: "1969", name: "Camaro", full: "1969 Camaro", alt: "1969 Chevrolet Camaro", img: "/teaser/cars/1969-camaro-v2.webp" },
+  { year: "1964", name: "Corvette", full: "1964 Corvette", alt: "1964 Chevrolet Corvette", img: "/teaser/cars/1964-corvette-v2.webp" },
+  { year: "1984", name: "911 Targa", full: "1984 911 Targa", alt: "1984 Porsche 911 Targa", img: "/teaser/cars/1984-911-targa-v2.webp" },
 ];
 
 export function LanderSurvey() {
