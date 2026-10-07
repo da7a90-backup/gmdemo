@@ -6,7 +6,7 @@ import { pool } from "./db";
 import { mintOne } from "./ticketing";
 import { createCompedTicketOrder } from "./shopify-orders";
 import { emitEmailEvent } from "./email-templates";
-import { normalizePhone } from "./http";
+import { isValidUSPhone, normalizeUSPhone } from "@/lib/phone";
 import { ticketRange } from "@/lib/ticket-format";
 
 const CLAIM_TTL_HOURS = 72;
@@ -37,9 +37,9 @@ export type ClaimResult =
 /** Confirm a claim: validate token, capture name + phone, create the $0 order, mint. */
 export async function confirmFreeTicket(rawToken: string, name: string, phone: string, origin: string): Promise<ClaimResult> {
   const fullName = (name || "").trim().replace(/\s+/g, " ").slice(0, 80);
-  const normPhone = normalizePhone(phone) ?? (phone || "").trim();
   if (!fullName) return { ok: false, error: "Enter your name." };
-  if (!normPhone) return { ok: false, error: "Enter a valid US phone number." };
+  if (!isValidUSPhone(phone)) return { ok: false, error: "Please enter a real phone number." };
+  const normPhone = normalizeUSPhone(phone)!;
 
   const hash = hashToken(rawToken || "");
   const claim = (await pool.query(
