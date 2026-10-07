@@ -61,7 +61,7 @@ export async function confirmFreeTicket(rawToken: string, name: string, phone: s
   if (!cyc) return { ok: false, error: "No open draw right now — try again soon." };
 
   // Create the $0 Shopify order, then mint directly (idempotent vs the webhook).
-  const order = await createCompedTicketOrder({ email });
+  const order = await createCompedTicketOrder({ email, fullName, phone: normPhone });
   const mint = await mintOne(
     { webhookId: `free-${order.orderId}`, order: { id: order.orderId, email, line_items: [{ id: order.lineId, ticket_count: 1 }] } },
     "seq",
