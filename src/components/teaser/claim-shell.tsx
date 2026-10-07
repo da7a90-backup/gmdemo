@@ -5,7 +5,9 @@ import { Logo } from "@/components/logo";
 import { RootDark } from "@/components/teaser/root-dark";
 
 function fmtPhone(raw: string) {
-  const d = raw.replace(/\D/g, "").slice(0, 10);
+  let d = raw.replace(/\D/g, "");
+  if (d.length > 10 && d.startsWith("1")) d = d.slice(1); // drop US country code so "1 305…" doesn't shift the area code
+  d = d.slice(0, 10);
   if (d.length < 4) return d;
   if (d.length < 7) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
   return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
@@ -80,7 +82,7 @@ export function ClaimShell({ token }: { token: string }) {
           <form onSubmit={submit} className="mt-10 text-left">
             <h1 className="text-center font-display text-2xl font-bold">Claim your free ticket 🎟️</h1>
             <p className="mt-3 text-center font-serif text-[15px] text-white/70">
-              Confirm your details — we print your name on the physical barrel ticket.
+              Confirm your details. We print your name on the physical barrel ticket.
             </p>
             <div className="mt-6 space-y-3">
               <input

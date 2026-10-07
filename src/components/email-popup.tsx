@@ -29,7 +29,9 @@ const SCROLL_PCT = 0.5;
 
 /** Format a US phone number as (XXX) XXX-XXXX while typing. */
 function formatPhone(raw: string): string {
-  const d = raw.replace(/\D/g, "").slice(0, 10);
+  let d = raw.replace(/\D/g, "");
+  if (d.length > 10 && d.startsWith("1")) d = d.slice(1); // drop US country code so "1 305…" doesn't shift the area code
+  d = d.slice(0, 10);
   if (d.length < 4) return d;
   if (d.length < 7) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
   return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
