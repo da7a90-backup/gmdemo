@@ -27,8 +27,11 @@ export function LanderSurvey() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ email, source: "Lander", claim: true, prize }),
       });
-      if ((await r.json())?.ok) setDone(true);
-      else setErr("Something went wrong — please try again.");
+      const j = await r.json();
+      if (j?.ok) {
+        if (j.data?.claim?.alreadyClaimed) setErr("This email has already claimed its free ticket.");
+        else setDone(true);
+      } else setErr("Something went wrong — please try again.");
     } catch {
       setErr("Network error — please try again.");
     } finally {

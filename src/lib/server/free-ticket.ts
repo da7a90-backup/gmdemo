@@ -5,6 +5,7 @@ import crypto from "node:crypto";
 import { pool } from "./db";
 import { mintOne } from "./ticketing";
 import { createCompedTicketOrder } from "./shopify-orders";
+import { subscribeSms } from "./subscribers";
 import { emitEmailEvent } from "./email-templates";
 import { isValidUSPhone, normalizeUSPhone } from "@/lib/phone";
 import { ticketRange } from "@/lib/ticket-format";
@@ -54,6 +55,10 @@ export async function confirmFreeTicket(rawToken: string, name: string, phone: s
   if ((await pool.query(`select 1 from free_ticket_claims where email = $1 and status = 'claimed' limit 1`, [email])).rowCount) {
     return { ok: false, error: "You've already claimed your free ticket." };
   }
+  // One free entry per phone, too — block a number that already claimed under any email.
+  if ((await pool.query(`select 1 from free_ticket_claims where phone = $1 and status = 'claimed' limit 1`, [normPhone])).rowCount) {
+    return { ok: false, error: "This phone number has already been used to claim a free ticket." };
+  }
 
   const cyc = (await pool.query(`select id, code, vehicle_label from cycles where status = 'open' order by code desc limit 1`)).rows[0] as
     | { id: number; code: string; vehicle_label: string | null }
@@ -86,6 +91,10 @@ export async function confirmFreeTicket(rawToken: string, name: string, phone: s
        cycle_id = $4, shopify_order_id = $5, ticket_numbers = $6, claimed_at = now() where id = $1`,
     [claim.id, fullName, normPhone, cyc.id, order.orderId, ticketNumbers],
   );
+
+  // Add the claimant's phone to Postscript (keyword double opt-in) + sms_subscribers. The
+  // email was already added to the SendGrid list at signup via subscribeEmail. Best-effort.
+  await subscribeSms(normPhone, "Free ticket claim").catch(() => {});
 
   // Dedicated "free ticket claimed" email carrying the real ticket number.
   await emitEmailEvent(
