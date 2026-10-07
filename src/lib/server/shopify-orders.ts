@@ -134,13 +134,13 @@ export async function createCompedTicketOrder(opts: { email: string; fullName?: 
 
   const done = await shopifyAdmin<{
     draftOrderComplete: {
-      draftOrder: { order: { legacyResourceId: string; name: string; lineItems: { edges: { node: { id: string } }[] } } | null } | null;
+      draftOrder: { order: { id: string; legacyResourceId: string; name: string; lineItems: { edges: { node: { id: string } }[] } } | null } | null;
       userErrors: { field: string[]; message: string }[];
     };
   }>(
     `mutation($id: ID!) {
       draftOrderComplete(id: $id, paymentPending: false) {
-        draftOrder { order { legacyResourceId name lineItems(first: 1) { edges { node { id } } } } }
+        draftOrder { order { id legacyResourceId name lineItems(first: 1) { edges { node { id } } } } }
         userErrors { field message }
       }
     }`,
@@ -152,5 +152,28 @@ export async function createCompedTicketOrder(opts: { email: string; fullName?: 
 
   const lineGid = order.lineItems.edges?.[0]?.node?.id;
   if (!lineGid) throw new Error("draftOrderComplete: no line item");
+
+  // A free entry has nothing to ship, so mark it fulfilled — otherwise every comped
+  // order sits in Shopify as "Unfulfilled". Best-effort: never block the claim on it.
+  await fulfillOrder(order.id).catch(() => {});
+
   return { orderId: Number(order.legacyResourceId), lineId: numericId(lineGid), name: order.name };
+}
+
+/** Fulfill all open fulfillment orders on an order (no customer notification). */
+async function fulfillOrder(orderGid: string): Promise<void> {
+  const q = await shopifyAdmin<{ order: { fulfillmentOrders: { edges: { node: { id: string; status: string } }[] } } | null }>(
+    `query($id: ID!) { order(id: $id) { fulfillmentOrders(first: 10) { edges { node { id status } } } } }`,
+    { id: orderGid },
+  );
+  const fos = (q.order?.fulfillmentOrders.edges ?? [])
+    .map((e) => e.node)
+    .filter((n) => n.status === "OPEN" || n.status === "IN_PROGRESS");
+  if (!fos.length) return;
+  await shopifyAdmin<{ fulfillmentCreate: { userErrors: { field: string[]; message: string }[] } }>(
+    `mutation($fulfillment: FulfillmentInput!) {
+      fulfillmentCreate(fulfillment: $fulfillment) { fulfillment { status } userErrors { field message } }
+    }`,
+    { fulfillment: { notifyCustomer: false, lineItemsByFulfillmentOrder: fos.map((n) => ({ fulfillmentOrderId: n.id })) } },
+  );
 }
