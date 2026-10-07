@@ -238,12 +238,12 @@ export function TicketsBuy() {
                         <span className="font-condensed uppercase tracking-[0.18em] text-[9px] text-ink-3 mt-0.5">
                           <Copy k="tickets.entriesPerCycle" />
                         </span>
-                        <span className="mt-1.5 flex items-baseline gap-1.5">
-                          <s className="font-condensed numeral text-ink-3 text-[13px]" aria-label={`Normal price ${usd(listValue)}`}>
+                        <span className="mt-1.5 flex items-baseline gap-1 whitespace-nowrap">
+                          <s className="font-condensed numeral text-ink-3 text-[11px]" aria-label={`Normal price ${usd(listValue)}`}>
                             {usd(listValue)}
                           </s>
-                          <span className="font-display font-bold text-lg text-ink leading-none">
-                            {usd(monthly)}<span className="text-ink-3 text-[11px] font-condensed"><Copy k="tickets.perMo" /></span>
+                          <span className="font-display font-bold text-sm text-ink leading-none">
+                            {usd(monthly)}<span className="text-ink-3 text-[9px] font-condensed"><Copy k="tickets.perMo" /></span>
                           </span>
                         </span>
                         <span className="mt-1 dateline on-paper"><Copy k="tickets.savePrefix" /> {pctOff}%</span>
