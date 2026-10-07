@@ -1,4 +1,5 @@
-import { ok, fail, readJson, normalizePhone } from "@/lib/server/http";
+import { ok, fail, readJson } from "@/lib/server/http";
+import { isValidUSPhone, normalizeUSPhone } from "@/lib/phone";
 import { subscribeSms } from "@/lib/server/subscribers";
 
 export const runtime = "nodejs";
@@ -6,8 +7,8 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   const b = await readJson<{ phone?: string; source?: string }>(req);
-  const phone = normalizePhone(b?.phone);
-  if (!phone) return fail("A valid US phone number is required.");
+  if (!isValidUSPhone(b?.phone)) return fail("Please enter a real phone number.");
+  const phone = normalizeUSPhone(b?.phone)!;
   try {
     return ok(await subscribeSms(phone, b?.source ?? "Popup"));
   } catch (e) {

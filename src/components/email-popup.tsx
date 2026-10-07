@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { X, ArrowRight, HeartHandshake, MessageSquareText, Smartphone } from "lucide-react";
 import { Copy, useCopy } from "@/components/copy";
+import { isValidUSPhone } from "@/lib/phone";
 
 /** Routes where the SMS popup should never appear (interrupts the buy / confirmation flow). */
 const SUPPRESS_PATHS = ["/checkout", "/thank-you", "/admin"];
@@ -47,6 +48,7 @@ export function EmailPopup() {
   const [open, setOpen] = useState(false);
   const [phone, setPhone] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [err, setErr] = useState("");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -95,7 +97,8 @@ export function EmailPopup() {
   const onClose = () => setOpen(false);
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (phone.replace(/\D/g, "").length !== 10) return;
+    if (!isValidUSPhone(phone)) { setErr("Please enter a real phone number."); return; }
+    setErr("");
     try {
       const r = await fetch("/api/subscribe/sms", {
         method: "POST",
@@ -105,8 +108,10 @@ export function EmailPopup() {
       if ((await r.json())?.ok) { // only confirm on a real subscribe
         setSubmitted(true);
         setTimeout(() => setOpen(false), 3200);
+      } else {
+        setErr("Please enter a real phone number.");
       }
-    } catch { /* leave the form up so they can retry */ }
+    } catch { setErr("Something went wrong — please try again."); }
   };
 
   if (!open) return null;
@@ -164,7 +169,7 @@ export function EmailPopup() {
                     autoComplete="tel-national"
                     required
                     value={phone}
-                    onChange={(e) => setPhone(formatPhone(e.target.value))}
+                    onChange={(e) => { setPhone(formatPhone(e.target.value)); if (err) setErr(""); }}
                     placeholder={t("popup.field.placeholder")}
                     className="ml-2 w-full h-11 sm:h-12 bg-transparent text-[16px] text-ink placeholder:text-ink-3 outline-none numeral"
                     autoFocus
@@ -177,6 +182,7 @@ export function EmailPopup() {
               >
                 <Copy k="popup.cta" /> <ArrowRight size={16} strokeWidth={2.5} />
               </button>
+              {err && <p className="mt-2 text-[12px] font-medium text-red-600">{err}</p>}
 
               {/* TCPA consent disclosure — must sit directly under the CTA, no gaps */}
               <p className="mt-2.5 text-[10px] sm:text-[11px] leading-snug text-ink-3">
