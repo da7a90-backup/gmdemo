@@ -4,7 +4,7 @@
 import { withClient, query } from "./db";
 import { addSmsSubscriber as postscriptAdd, sendSms } from "./providers/postscript";
 import { postscriptConfigured } from "./providers/postscript";
-import { sendBroadcast, addEmailContact } from "./providers/sendgrid";
+import { sendBroadcast } from "./providers/sendgrid";
 import { unsubscribeUrl } from "./unsubscribe";
 import { emitEmailEvent } from "./email-templates";
 
@@ -39,8 +39,6 @@ export async function subscribeEmail(email: string, source = "Footer", opts: { s
       const cyc = (await c.query(`select vehicle_label from cycles where status = 'open' order by code desc limit 1`).catch(() => null))?.rows?.[0];
       await emitEmailEvent("Newsletter Welcome", "newsletter_welcome", norm, { prize: cyc?.vehicle_label ?? "" }, `welcome-${norm}`).catch(() => {});
     }
-    // Add to the SendGrid marketing list (best-effort; needs a marketing-scoped key + SENDGRID_LIST_ID).
-    await addEmailContact(norm).catch(() => {});
     return { id: row.id, status: row.status, provider: { ok: true } };
   });
 }

@@ -14,46 +14,8 @@ const FROM_NAME = process.env.EMAIL_FROM_NAME || "Generous Motors";
 
 if (KEY) sgMail.setApiKey(KEY);
 
-// Marketing-contacts list(s) to drop captured emails into (comma-separated list ids).
-const LIST_IDS = (process.env.SENDGRID_LIST_ID || "").split(",").map((s) => s.trim()).filter(Boolean);
-
 export const sendgridConfigured = () => !!KEY;
 export const emailFrom = () => FROM_EMAIL;
-export const sendgridMarketingConfigured = () => !!KEY && LIST_IDS.length > 0;
-
-/**
- * Upsert a contact into our SendGrid marketing list(s) (SENDGRID_LIST_ID). Uses the
- * Marketing Contacts API, which needs an API key with the *Marketing* permission —
- * a send-only key gets 403. Import is async on SendGrid's side (202 = accepted).
- * Never throws; logs the real reason so a missing scope/list is obvious in the logs.
- */
-export async function addEmailContact(
-  email: string,
-  name?: { firstName?: string; lastName?: string },
-): Promise<ProviderResult> {
-  if (!KEY) return { ok: true, stubbed: true };
-  if (!LIST_IDS.length) return { ok: false, error: "SENDGRID_LIST_ID not set" };
-  const to = email.trim().toLowerCase();
-  if (!to) return { ok: false, error: "no email" };
-  try {
-    const contact: Record<string, unknown> = { email: to };
-    if (name?.firstName) contact.first_name = name.firstName;
-    if (name?.lastName) contact.last_name = name.lastName;
-    const res = await fetch("https://api.sendgrid.com/v3/marketing/contacts", {
-      method: "PUT",
-      headers: { authorization: `Bearer ${KEY}`, "content-type": "application/json" },
-      body: JSON.stringify({ list_ids: LIST_IDS, contacts: [contact] }),
-    });
-    if (!res.ok) {
-      const detail = (await res.text().catch(() => "")).slice(0, 200);
-      console.error(`[sendgrid] addEmailContact ${to} failed: ${res.status} ${detail}`);
-      return { ok: false, error: `sendgrid ${res.status}` };
-    }
-    return { ok: true };
-  } catch (e) {
-    return { ok: false, error: String(e) };
-  }
-}
 
 /**
  * Send one transactional email. `category` tags the send in SendGrid analytics
