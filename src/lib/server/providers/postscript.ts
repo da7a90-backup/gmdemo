@@ -1,39 +1,36 @@
-// Postscript (SMS). Enforced double opt-in: creating a subscriber starts Postscript's
-// confirm flow; the record stays 'pending' until Postscript confirms (opt-in webhook).
+// Postscript (SMS). Capture adds a subscriber tied to a keyword; the keyword's "reply"
+// action is the opt-in/welcome text the subscriber receives.
 // Stubs cleanly when POSTSCRIPT_API_KEY is absent so capture still works in dev.
-// Verified live (Aug 2026): create-subscriber needs `phone_number` + a REAL account
-// `keyword` (or `keyword_id`) + `origin` ∈ {website,social,other}; send is POST
-// /message_requests; webhooks are managed at /webhooks and signed with a shop token.
-// docs: https://developers.postscript.io/reference/
+// IMPORTANT: subscriber creation uses the *v1* endpoint — v1 fires the keyword's reply
+// SMS ("sends a reply based on which Keyword you specify"), whereas the v2
+// /api/v2/subscribers endpoint silently creates a pending record and sends NOTHING
+// (verified live 2026-10-12: v1 create → real SMS received; v2 → no text). Outbound
+// sends + webhooks still use v2. docs: https://developers.postscript.io/v1.0/reference/
 import crypto from "node:crypto";
 
 const KEY = process.env.POSTSCRIPT_API_KEY;
 const KEYWORD = process.env.POSTSCRIPT_KEYWORD;         // a keyword configured in Postscript
 const KEYWORD_ID = process.env.POSTSCRIPT_KEYWORD_ID;   // …or its id (either satisfies the API)
 const BASE = "https://api.postscript.io/api/v2";
+const V1_BASE = "https://api.postscript.io/v1";
 export const postscriptConfigured = () => !!KEY;
 const h = () => ({ authorization: `Bearer ${KEY}`, "content-type": "application/json" });
 
 export type ProviderResult = { ok: boolean; id?: string; stubbed?: boolean; error?: string };
 
-const ORIGINS = new Set(["website", "social", "other"]);
-
-/** Start a Postscript double opt-in. `source` maps to the API `origin` (falls back to
- * "website" for our website-captured sources like "Popup"). */
+/** Add a Postscript subscriber via the v1 endpoint, which fires the keyword's reply SMS
+ * (the opt-in/welcome text). `source` is attached as a tag for segmentation. */
 export async function addSmsSubscriber(phone: string, source = "website"): Promise<ProviderResult> {
   if (!KEY) return { ok: true, stubbed: true };
   if (!KEYWORD && !KEYWORD_ID) return { ok: false, error: "postscript keyword not set (POSTSCRIPT_KEYWORD or POSTSCRIPT_KEYWORD_ID)" };
   try {
-    const body: Record<string, unknown> = {
-      phone_number: phone,
-      origin: ORIGINS.has(source.toLowerCase()) ? source.toLowerCase() : "website",
-    };
+    const body: Record<string, unknown> = { phone_number: phone, metadata: { tags: [source] } };
     if (KEYWORD_ID) body.keyword_id = KEYWORD_ID;
     else body.keyword = KEYWORD;
-    const res = await fetch(`${BASE}/subscribers`, { method: "POST", headers: h(), body: JSON.stringify(body) });
+    const res = await fetch(`${V1_BASE}/subscribers`, { method: "POST", headers: h(), body: JSON.stringify(body) });
     if (!res.ok) return { ok: false, error: `postscript ${res.status}: ${await res.text().catch(() => "")}` };
-    const j = (await res.json().catch(() => ({}))) as { id?: string | number };
-    return { ok: true, id: j?.id != null ? String(j.id) : undefined };
+    const j = (await res.json().catch(() => ({}))) as { subscriber?: { id?: string | number } };
+    return { ok: true, id: j?.subscriber?.id != null ? String(j.subscriber.id) : undefined };
   } catch (e) {
     return { ok: false, error: String(e) };
   }
