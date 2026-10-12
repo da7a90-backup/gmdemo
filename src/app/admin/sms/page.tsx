@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import { ChevronDown, Trash2 } from "lucide-react";
+import { ChevronDown, Trash2, Download } from "lucide-react";
 import { adminGet, adminSend } from "@/lib/admin-api";
 import { CampaignDesk } from "@/components/campaign-desk";
 import { niceDate } from "@/lib/format";
 import { Label } from "@/components/sticker";
+import { toCsv, downloadCsv } from "@/lib/csv";
 
 type SmsSub = { id: string; phone: string; status: string; source: string; created_at: string };
 
@@ -14,6 +15,16 @@ export default function AdminSmsPage() {
 
   const load = () => adminGet<SmsSub[]>("/api/admin/subscribers?type=sms").then(setSubs).catch(() => setSubs([]));
   useEffect(() => { load(); }, []);
+
+  const exportCsv = () => downloadCsv(
+    `sms-subscribers-${new Date().toISOString().slice(0, 10)}.csv`,
+    toCsv(subs ?? [], [
+      { key: "phone", label: "Phone" },
+      { key: "status", label: "Status" },
+      { key: "source", label: "Source" },
+      { key: "created_at", label: "Joined" },
+    ]),
+  );
 
   if (!subs) return null;
 
@@ -36,14 +47,24 @@ export default function AdminSmsPage() {
 
       {/* Subscriber list — secondary, fed by the popup */}
       <div className="mt-8">
-        <button
-          type="button"
-          onClick={() => setShowSubs((v) => !v)}
-          className="inline-flex items-center gap-2 section-eyebrow on-paper section-eyebrow-rule"
-          aria-expanded={showSubs}
-        >
-          Subscriber list <ChevronDown size={13} className={`transition-transform ${showSubs ? "rotate-180" : ""}`} />
-        </button>
+        <div className="flex flex-wrap items-center gap-4">
+          <button
+            type="button"
+            onClick={() => setShowSubs((v) => !v)}
+            className="inline-flex items-center gap-2 section-eyebrow on-paper section-eyebrow-rule"
+            aria-expanded={showSubs}
+          >
+            Subscriber list <ChevronDown size={13} className={`transition-transform ${showSubs ? "rotate-180" : ""}`} />
+          </button>
+          <button
+            type="button"
+            onClick={exportCsv}
+            disabled={!subs.length}
+            className="inline-flex items-center gap-1.5 border border-ink/10 bg-paper-3 px-3 py-1.5 rounded-full dateline on-paper hover:bg-ink hover:text-paper transition-colors disabled:opacity-50"
+          >
+            <Download size={11} /> Export CSV
+          </button>
+        </div>
         {showSubs && (
           <ul className="mt-3 border border-ink/10 bg-paper-4 rounded-xl overflow-hidden divide-y divide-ink/10">
             {subs.map((s) => (
