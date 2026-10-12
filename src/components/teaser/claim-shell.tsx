@@ -113,7 +113,12 @@ export function ClaimShell({ token }: { token: string }) {
             >
               {busy ? "Claiming…" : "Claim my ticket"} <ArrowRight size={15} strokeWidth={2.5} />
             </button>
-            <p className="mt-4 text-center font-condensed text-[10px] uppercase tracking-[0.24em] text-white/40">
+            <p className="mt-3 text-center text-[10px] leading-snug text-white/40">
+              By entering your phone number you agree to receive recurring automated marketing text messages from
+              Generous Motors at the number provided. Consent is not a condition of entry. Msg &amp; data rates may apply.
+              Reply STOP to opt out, HELP for help.
+            </p>
+            <p className="mt-3 text-center font-condensed text-[10px] uppercase tracking-[0.24em] text-white/40">
               One free entry · No purchase necessary
             </p>
           </form>
