@@ -7,7 +7,7 @@ import { Copy, useCopy } from "@/components/copy";
 import { isValidUSPhone } from "@/lib/phone";
 
 /** Routes where the SMS popup should never appear (interrupts the buy / confirmation flow). */
-const SUPPRESS_PATHS = ["/checkout", "/thank-you", "/admin"];
+const SUPPRESS_PATHS = ["/checkout", "/thank-you", "/admin", "/claim"];
 
 /**
  * SMS list-grabber popup (phone capture).
