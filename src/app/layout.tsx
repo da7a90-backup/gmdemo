@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { SiteShell } from "@/components/site-shell";
 import { EmailPopup } from "@/components/email-popup";
+import { MetaPixel } from "@/components/meta-pixel";
 
 export const metadata: Metadata = {
   title: "Generous Motors — Drive the car. Fund the cause.",
@@ -23,6 +24,7 @@ export default function RootLayout({
         <link rel="preload" href="/fonts/general-sans-700.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
       <body className="min-h-full flex flex-col bg-paper text-ink">
+        <MetaPixel />
         <SiteShell>{children}</SiteShell>
         <EmailPopup />
       </body>
