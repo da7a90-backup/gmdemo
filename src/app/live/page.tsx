@@ -33,7 +33,7 @@ export default async function LivePage() {
       <div className="relative mx-auto max-w-[1400px] px-5 py-24 grid gap-10 lg:grid-cols-12 border-b border-paper/15">
         <div className="lg:col-span-7">
           <div className="flex items-center gap-3 flex-wrap mb-6">
-            <Label tone="accent" variant="outline">Cycle №{String(cycle).padStart(2, "0")}</Label>
+            <Label tone="accent" variant="outline">Giveaway №{String(cycle).padStart(2, "0")}</Label>
             <span className="inline-flex items-center gap-2 rounded-full bg-paper/10 px-3 py-1 font-condensed uppercase tracking-[0.22em] text-[11px] text-paper/85 border border-paper/15">
               <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" /> {copy["live.status"]}
             </span>

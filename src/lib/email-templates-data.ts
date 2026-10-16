@@ -18,7 +18,7 @@ export const EMAIL_TEMPLATES: EmailTemplateDef[] = [
   {
     key: "tickets_minted",
     metric: "Tickets Minted",
-    name: "Purchase receipt — “You're in”",
+    name: "Purchase receipt (You're in)",
     description: "Sent right after a paid order's tickets are minted (orders/paid webhook).",
     variables: [
       { name: "entries", example: "10" },
@@ -27,17 +27,17 @@ export const EMAIL_TEMPLATES: EmailTemplateDef[] = [
       { name: "ticket_prefix", example: "GM01-0004" },
       { name: "order_token", example: "0004" },
     ],
-    subject: "You're in — {{entries}} tickets for Cycle {{cycle}}",
+    subject: "You're in: {{entries}} tickets for the giveaway",
     body:
       `<h1 style="font-family:Georgia,serif">You're in.</h1>
-<p>We printed <strong>{{entries}}</strong> tickets for Cycle {{cycle}} — the {{prize}}.</p>
-<p>Your batch is <strong>{{ticket_prefix}}</strong> (order {{order_token}}). Every entry is in the drum for the live draw.</p>
-<p>Good luck — and thank you for funding the cause.</p>`,
+<p>We printed <strong>{{entries}}</strong> tickets for the giveaway.</p>
+<p>Your batch is <strong>{{ticket_prefix}}</strong> (order {{order_token}}). Every entry is in for the live draw.</p>
+<p>Good luck. Thank you for funding the cause.</p>`,
   },
   {
     key: "won_drawing",
     metric: "Won Drawing",
-    name: "Winner notification — “You won”",
+    name: "Winner notification (You won)",
     description: "Sent when a winner is recorded with an email (admin winners desk).",
     variables: [
       { name: "winner_name", example: "Sid B" },
@@ -48,14 +48,14 @@ export const EMAIL_TEMPLATES: EmailTemplateDef[] = [
     subject: "🎉 You won the {{prize}}!",
     body:
       `<h1 style="font-family:Georgia,serif">Congratulations, {{winner_name}}!</h1>
-<p>You won the <strong>{{prize}}</strong> in Cycle {{cycle}}.</p>
+<p>You won the <strong>{{prize}}</strong> in our giveaway.</p>
 <p>Your entry also helped fund <strong>{{charity}}</strong>. We'll reach out shortly to arrange delivery and the handover on stream.</p>`,
   },
   {
     key: "login_code",
     metric: "Login Code",
     name: "Sign-in code (email)",
-    description: "The one-time passcode for email login (self-hosted OTP — /api/auth/otp/start).",
+    description: "The one-time passcode for email login (self-hosted OTP, /api/auth/otp/start).",
     variables: [{ name: "code", example: "482913" }],
     subject: "Your Generous Motors sign-in code",
     body:
@@ -67,13 +67,13 @@ export const EMAIL_TEMPLATES: EmailTemplateDef[] = [
   {
     key: "free_ticket_confirm",
     metric: "Free Ticket Confirm",
-    name: "Free ticket — confirm to claim",
+    name: "Free ticket (confirm to claim)",
     description: "Sent when someone signs up on the teaser; links to the claim page to confirm their email and get one free entry.",
     variables: [{ name: "claim_url", example: "https://www.generousmotors.org/claim?token=abc123" }],
     subject: "Claim your free Generous Motors ticket 🎟️",
     body:
       `<h1 style="font-family:Georgia,serif">Your free ticket is waiting.</h1>
-<p>Thanks for signing up. Confirm your email to lock in <strong>one free entry</strong> into the current draw. No purchase necessary.</p>
+<p>Thanks for signing up. Confirm your email to lock in <strong>one free entry</strong> into our first giveaway. No purchase necessary.</p>
 <p style="margin:24px 0"><a href="{{claim_url}}" style="display:inline-block;background:#00d1bd;color:#0a0a0a;font-weight:bold;padding:12px 24px;border-radius:999px;text-decoration:none;font-family:Arial,sans-serif">Claim my free ticket →</a></p>
 <p style="font-size:13px;color:#8a8a8a">Or paste this link into your browser:<br/>{{claim_url}}</p>
 <p style="font-size:13px;color:#8a8a8a">This link expires in 72 hours.</p>`,
@@ -81,7 +81,7 @@ export const EMAIL_TEMPLATES: EmailTemplateDef[] = [
   {
     key: "free_ticket_claimed",
     metric: "Free Ticket Claimed",
-    name: "Free ticket — claimed (ticket number)",
+    name: "Free ticket (claimed, ticket number)",
     description: "Sent right after a free ticket is claimed on /claim, carrying the real ticket number.",
     variables: [
       { name: "ticket_numbers", example: "GM01-0007-0001" },
@@ -89,13 +89,13 @@ export const EMAIL_TEMPLATES: EmailTemplateDef[] = [
       { name: "prize", example: "2024 Chevrolet Corvette" },
       { name: "lookup_url", example: "https://www.generousmotors.org/beta/lookup?email=you@email.com" },
     ],
-    subject: "🎟️ Your free ticket is in — {{ticket_numbers}}",
+    subject: "🎟️ Your free ticket is in: {{ticket_numbers}}",
     body:
-      `<h1 style="font-family:Georgia,serif;margin:0 0 12px">You're in the drum.</h1>
-<p>Your <strong>free entry</strong> for Cycle {{cycle}} — the {{prize}} — is locked in.</p>
+      `<h1 style="font-family:Georgia,serif;margin:0 0 12px">You're in the drawing.</h1>
+<p>Your <strong>free entry</strong> for our first giveaway is confirmed.</p>
 <p style="margin:18px 0">Your ticket number:<br/><strong style="font-size:22px;letter-spacing:1px">{{ticket_numbers}}</strong></p>
 <p>It's printed and dropped in the barrel for the live draw. Track it any time from <a href="{{lookup_url}}" style="color:#00a89a">your tickets</a>.</p>
-<p>Good luck — and thank you for being part of the cause.</p>`,
+<p>Good luck. Thank you for being part of the cause.</p>`,
   },
   {
     key: "newsletter_welcome",
@@ -106,44 +106,44 @@ export const EMAIL_TEMPLATES: EmailTemplateDef[] = [
     subject: "Welcome to Generous Motors",
     body:
       `<h1 style="font-family:Georgia,serif">Welcome to the club.</h1>
-<p>You're on the list — we'll send you cycle updates, winner stories, and the occasional bonus-entry offer.</p>
-<p>Right now we're giving away the <strong>{{prize}}</strong>. Every ticket is printed and pulled on a live stream, and every dollar funds the cause.</p>
-<p>See you in the drum.</p>`,
+<p>You're on the list. We'll send you giveaway updates, winner stories, and the occasional bonus-entry offer.</p>
+<p>We're gearing up for our first giveaway. Every ticket is printed and pulled on a live stream, and every dollar funds the cause.</p>
+<p>See you soon.</p>`,
   },
   {
     key: "membership_started",
     metric: "Membership Started",
-    name: "Membership — welcome",
+    name: "Membership (welcome)",
     description: "Sent when a subscription first becomes active (subscription_contracts).",
     variables: [{ name: "prize", example: "2024 Chevrolet Corvette" }, { name: "cycle", example: "1" }],
     subject: "Your membership is live 🎉",
     body:
       `<h1 style="font-family:Georgia,serif">You're a member.</h1>
-<p>Your monthly entries are locked in — they'll be printed automatically every cycle, starting with Cycle {{cycle}} (the {{prize}}).</p>
+<p>Your monthly entries are locked in. They'll be printed automatically for every giveaway, starting with our first giveaway.</p>
 <p>Your loyalty multiplier grows the longer you stay. Thank you for funding the cause every single month.</p>`,
   },
   {
     key: "membership_payment_failed",
     metric: "Membership Payment Failed",
-    name: "Membership — payment failed",
+    name: "Membership (payment failed)",
     description: "Sent when a subscription billing attempt fails (dunning).",
     variables: [{ name: "prize", example: "2024 Chevrolet Corvette" }],
-    subject: "Action needed — your membership payment didn't go through",
+    subject: "Action needed: your membership payment didn't go through",
     body:
       `<h1 style="font-family:Georgia,serif">We couldn't process your payment.</h1>
-<p>Your latest membership charge didn't go through, so this cycle's entries are on hold. Please update your payment method to keep your streak — and your loyalty multiplier — going.</p>
+<p>Your latest membership charge didn't go through, so this giveaway's entries are on hold. Please update your payment method to keep your streak and your loyalty multiplier going.</p>
 <p>We'll retry automatically, or you can update your card from your account.</p>`,
   },
   {
     key: "membership_cancelled",
     metric: "Membership Cancelled",
-    name: "Membership — cancelled",
+    name: "Membership (cancelled)",
     description: "Sent when a subscription is cancelled or expires.",
     variables: [{ name: "prize", example: "2024 Chevrolet Corvette" }],
     subject: "Your membership was cancelled",
     body:
       `<h1 style="font-family:Georgia,serif">Your membership has ended.</h1>
-<p>Your monthly entries have stopped and your loyalty multiplier is paused. We're sorry to see you go — thank you for everything you funded while you were a member.</p>
+<p>Your monthly entries have stopped and your loyalty multiplier is paused. We're sorry to see you go. Thank you for everything you funded while you were a member.</p>
 <p>You can rejoin any time and pick your streak back up. One-time tickets are always open too.</p>`,
   },
 ];

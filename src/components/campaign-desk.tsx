@@ -95,7 +95,7 @@ export function CampaignDesk({ channel, recipients }: { channel: "email" | "sms"
           {isEmail && (
             <label className="block">
               <span className="dateline on-paper">Subject line</span>
-              <input type="text" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Cycle 12 closes Sunday — your 2X is waiting" className={`${input} h-11`} />
+              <input type="text" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Giveaway closes Sunday, your 2X is waiting" className={`${input} h-11`} />
             </label>
           )}
           <label className="block">

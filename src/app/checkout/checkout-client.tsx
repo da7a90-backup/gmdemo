@@ -65,7 +65,7 @@ export function CheckoutClient() {
       const m = membershipTiers.find((x) => x.id === tierId) ?? membershipTiers[1];
       return {
         name: `${m.name} Membership`,
-        sub: `${m.monthlyEntries} entries / cycle`,
+        sub: `${m.monthlyEntries} entries / giveaway`,
         priceUSD: m.monthlyUSD,
         recurring: true,
         entries: m.monthlyEntries,

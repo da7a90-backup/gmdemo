@@ -186,7 +186,7 @@ export default function AccountPage() {
                 </Label>
               </li>
             ))}
-            {view.past.length === 0 && <li className="px-5 py-6 text-center text-ink-3 font-serif italic">No past cycles yet.</li>}
+            {view.past.length === 0 && <li className="px-5 py-6 text-center text-ink-3 font-serif italic">No past giveaways yet.</li>}
           </ul>
         </div>
       </div>

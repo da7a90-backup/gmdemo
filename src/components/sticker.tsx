@@ -103,7 +103,7 @@ export function Byline({
 }) {
   return (
     <p className="dateline">
-      Cycle №{String(cycle).padStart(2, "0")} &nbsp;·&nbsp; {place} &nbsp;·&nbsp; {date}
+      Giveaway №{String(cycle).padStart(2, "0")} &nbsp;·&nbsp; {place} &nbsp;·&nbsp; {date}
     </p>
   );
 }

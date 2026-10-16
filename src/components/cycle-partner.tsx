@@ -23,7 +23,7 @@ export function CyclePartnerBadge({ dark = false }: { dark?: boolean }) {
     <span className="inline-flex items-center gap-2.5">
       <PartnerMark partner={partner} size="sm" dark={dark} />
       <span className={`font-condensed uppercase tracking-[0.18em] text-[10px] ${dark ? "text-paper-3/70" : "text-ink-3"}`}>
-        Official cycle partner
+        Official giveaway partner
       </span>
     </span>
   );

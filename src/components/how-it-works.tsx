@@ -46,7 +46,7 @@ export async function HowItWorks() {
           <YouTubeFacade
             videoId={videoId}
             poster={poster}
-            title="How a Generous Motors cycle runs"
+            title="How a Generous Motors giveaway runs"
           />
         </div>
       </div>

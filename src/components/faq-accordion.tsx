@@ -37,7 +37,7 @@ export function FAQAccordion() {
           <div>
             <p className="font-display font-bold text-ink leading-tight">The fine print is the point.</p>
             <p className="mt-1 text-[13px] text-ink-2 font-serif">
-              Every cycle runs under published Official Rules — conducted per Fla. Stat. § 849.0935.
+              Every giveaway runs under published Official Rules, conducted per Fla. Stat. § 849.0935.
               No purchase or contribution necessary.
             </p>
           </div>
