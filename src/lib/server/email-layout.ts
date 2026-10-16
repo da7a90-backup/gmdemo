@@ -23,8 +23,7 @@ export function renderBrandedEmail(opts: { subject?: string; bodyHtml: string; f
         </td></tr>
         <tr><td style="padding:4px 32px 0;"><div style="height:3px;background:#00d1bd;border-radius:2px;"></div></td></tr>
         <tr><td style="padding:18px 32px 30px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;color:#7a6f5c;">
-          <p style="margin:0 0 6px;"><strong style="color:#3d352c;">Generous Motors</strong> — a US 501(c)(3) car raffle.</p>
-          <p style="margin:0 0 6px;">Every ticket is printed and pulled on a live stream; 10% of every cycle funds the cause.</p>
+          <p style="margin:0 0 6px;"><strong style="color:#3d352c;">Generous Motors</strong> - US 501(c)(3) nonprofit. 100% of every purchase goes to charity and funds the cause.</p>
           <p style="margin:0;"><a href="${SITE_URL}" style="color:#00a89a;text-decoration:none;">generousmotors.org</a> · ${esc(footer)}</p>
         </td></tr>
       </table>

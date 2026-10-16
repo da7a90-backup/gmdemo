@@ -38,6 +38,10 @@ export async function sendEmail(opts: {
       from: { email: FROM_EMAIL, name: FROM_NAME },
       subject: opts.subject,
       html: opts.html,
+      // Disable click tracking: it rewrites links through SendGrid's branded-link
+      // domain (url####.generousmotors.org), which isn't SSL-provisioned and triggers
+      // a "site not secure" warning. Transactional links go straight to the secure URL.
+      trackingSettings: { clickTracking: { enable: false, enableText: false } },
       ...(opts.replyTo ? { replyTo: opts.replyTo } : {}),
       ...(opts.category ? { categories: [opts.category] } : {}),
       ...(opts.customArgs ? { customArgs: opts.customArgs } : {}),

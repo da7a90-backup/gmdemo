@@ -73,7 +73,7 @@ export const EMAIL_TEMPLATES: EmailTemplateDef[] = [
     subject: "Claim your free Generous Motors ticket 🎟️",
     body:
       `<h1 style="font-family:Georgia,serif">Your free ticket is waiting.</h1>
-<p>Thanks for signing up. Confirm your email to lock in <strong>one free entry</strong> into the current draw — no purchase necessary.</p>
+<p>Thanks for signing up. Confirm your email to lock in <strong>one free entry</strong> into the current draw. No purchase necessary.</p>
 <p style="margin:24px 0"><a href="{{claim_url}}" style="display:inline-block;background:#00d1bd;color:#0a0a0a;font-weight:bold;padding:12px 24px;border-radius:999px;text-decoration:none;font-family:Arial,sans-serif">Claim my free ticket →</a></p>
 <p style="font-size:13px;color:#8a8a8a">Or paste this link into your browser:<br/>{{claim_url}}</p>
 <p style="font-size:13px;color:#8a8a8a">This link expires in 72 hours.</p>`,
