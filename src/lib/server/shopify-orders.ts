@@ -93,18 +93,23 @@ async function ensureCustomer(email: string, firstName?: string, lastName?: stri
  * shows who claimed it — not just the email. Returns the numeric order id + line id
  * (for a deterministic direct mint) or throws.
  */
-export async function createCompedTicketOrder(opts: { email: string; fullName?: string; phone?: string }): Promise<CompedOrder> {
+export async function createCompedTicketOrder(opts: {
+  email: string; firstName?: string; lastName?: string; phone?: string; address?: string;
+}): Promise<CompedOrder> {
   if (!shopifyAdminConfigured()) throw new Error("Shopify admin not configured");
 
-  const fullName = (opts.fullName ?? "").trim().replace(/\s+/g, " ");
-  const [firstName, ...rest] = fullName ? fullName.split(" ") : [];
-  const lastName = rest.join(" ") || undefined;
+  // First/last come in already split from the claim form — don't re-split a combined
+  // string, which would mangle multi-word names and corrupt the Shopify customer record.
+  const firstName = (opts.firstName ?? "").trim().replace(/\s+/g, " ") || undefined;
+  const lastName = (opts.lastName ?? "").trim().replace(/\s+/g, " ") || undefined;
   const phone = opts.phone?.trim() || undefined;
-  const address = firstName || phone ? { firstName: firstName || undefined, lastName, phone } : undefined;
+  const address1 = opts.address?.trim().replace(/\s+/g, " ") || undefined;
+  const address =
+    firstName || phone || address1 ? { firstName, lastName, phone, ...(address1 ? { address1 } : {}) } : undefined;
 
   // Resolve a named customer first and link it by id — that (not the address) is what
   // populates the order's Customer card. Best-effort: on failure, null → email-only order.
-  const customerId = firstName || lastName || phone ? await ensureCustomer(opts.email, firstName || undefined, lastName, phone) : null;
+  const customerId = firstName || lastName || phone ? await ensureCustomer(opts.email, firstName, lastName, phone) : null;
 
   const input: Record<string, unknown> = {
     email: opts.email,

@@ -18,7 +18,9 @@ const input =
   "w-full rounded-xl border border-white/20 bg-white/5 px-4 py-3.5 text-[15px] text-white outline-none backdrop-blur placeholder:text-white/40 focus:border-[var(--color-accent-bright)]";
 
 export function ClaimShell({ token }: { token: string }) {
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -34,13 +36,13 @@ export function ClaimShell({ token }: { token: string }) {
       const r = await fetch("/api/free-ticket/confirm", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ token, name, phone }),
+        body: JSON.stringify({ token, firstName, lastName, phone, address }),
       });
       const j = await r.json();
       if (j?.ok) setDone(j.data);
-      else setError(j?.error || "Something went wrong — please try again.");
+      else setError(j?.error || "Something went wrong. Please try again.");
     } catch {
-      setError("Network error — please try again.");
+      setError("Network error. Please try again.");
     } finally {
       setBusy(false);
     }
@@ -55,7 +57,7 @@ export function ClaimShell({ token }: { token: string }) {
       />
 
       <div className="relative z-[1] w-full max-w-md text-center">
-        <Logo height={30} markColor="var(--color-accent-bright)" letterColor="#ffffff" className="mx-auto" />
+        <Logo height={56} markColor="var(--color-accent-bright)" letterColor="#ffffff" className="mx-auto" />
 
         {!token ? (
           <div className="mt-10">
@@ -67,9 +69,9 @@ export function ClaimShell({ token }: { token: string }) {
         ) : done ? (
           <div className="mt-10">
             <CheckCircle2 size={40} className="mx-auto text-[var(--color-accent-bright)]" />
-            <h1 className="mt-4 font-display text-2xl font-bold">You&apos;re in the drum.</h1>
+            <h1 className="mt-4 font-display text-2xl font-bold">You&apos;re in the drawing.</h1>
             <p className="mt-3 font-serif text-[15px] text-white/75">
-              Your free entry for Cycle {done.cycle} is locked in.
+              Your free entry for our first giveaway is confirmed.
             </p>
             {done.ticketNumbers && (
               <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 font-condensed text-[13px] font-bold tracking-[0.14em] text-white">
@@ -77,22 +79,40 @@ export function ClaimShell({ token }: { token: string }) {
               </p>
             )}
             <p className="mt-5 font-serif text-[14px] text-white/60">
-              We emailed your confirmation — good luck, and thanks for funding the cause.
+              We emailed your confirmation. Good luck, and thanks for funding the cause.
             </p>
           </div>
         ) : (
           <form onSubmit={submit} className="mt-10 text-left">
             <h1 className="text-center font-display text-2xl font-bold">Claim your free ticket 🎟️</h1>
             <p className="mt-3 text-center font-serif text-[15px] text-white/70">
-              Confirm your details. We print your name on the physical barrel ticket.
+              Confirm your details. We print your name on a physical ticket.
             </p>
             <div className="mt-6 space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  className={input}
+                  placeholder="First name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  autoComplete="given-name"
+                  required
+                />
+                <input
+                  className={input}
+                  placeholder="Last name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  autoComplete="family-name"
+                  required
+                />
+              </div>
               <input
                 className={input}
-                placeholder="Full name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                autoComplete="name"
+                placeholder="Mailing address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                autoComplete="street-address"
                 required
               />
               <input

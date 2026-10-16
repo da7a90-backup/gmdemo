@@ -35,12 +35,23 @@ export type ClaimResult =
   | { ok: true; ticketNumbers: string; cycle: string }
   | { ok: false; error: string };
 
-/** Confirm a claim: validate token, capture name + phone, create the $0 order, mint. */
-export async function confirmFreeTicket(rawToken: string, name: string, phone: string, origin: string): Promise<ClaimResult> {
-  const fullName = (name || "").trim().replace(/\s+/g, " ").slice(0, 80);
+export type ClaimDetails = { firstName?: string; lastName?: string; name?: string; phone: string; address?: string };
+
+/** Confirm a claim: validate token, capture name + phone + address, create the $0 order, mint. */
+export async function confirmFreeTicket(rawToken: string, details: ClaimDetails, origin: string): Promise<ClaimResult> {
+  let firstName = (details.firstName || "").trim().replace(/\s+/g, " ").slice(0, 40);
+  let lastName = (details.lastName || "").trim().replace(/\s+/g, " ").slice(0, 40);
+  if (!firstName && !lastName && details.name) {
+    // Backward-compat: split a single combined name into first/last.
+    const parts = details.name.trim().replace(/\s+/g, " ").split(" ");
+    firstName = (parts[0] || "").slice(0, 40);
+    lastName = parts.slice(1).join(" ").slice(0, 40);
+  }
+  const fullName = `${firstName} ${lastName}`.trim().slice(0, 80);
+  const address = (details.address || "").trim().replace(/\s+/g, " ").slice(0, 200) || undefined;
   if (!fullName) return { ok: false, error: "Enter your name." };
-  if (!isValidUSPhone(phone)) return { ok: false, error: "Please enter a real phone number." };
-  const normPhone = normalizeUSPhone(phone)!;
+  if (!isValidUSPhone(details.phone)) return { ok: false, error: "Please enter a real phone number." };
+  const normPhone = normalizeUSPhone(details.phone)!;
 
   const hash = hashToken(rawToken || "");
   const claim = (await pool.query(
@@ -66,7 +77,7 @@ export async function confirmFreeTicket(rawToken: string, name: string, phone: s
   if (!cyc) return { ok: false, error: "No open draw right now — try again soon." };
 
   // Create the $0 Shopify order, then mint directly (idempotent vs the webhook).
-  const order = await createCompedTicketOrder({ email, fullName, phone: normPhone });
+  const order = await createCompedTicketOrder({ email, firstName, lastName, phone: normPhone, address });
   const mint = await mintOne(
     { webhookId: `free-${order.orderId}`, order: { id: order.orderId, email, line_items: [{ id: order.lineId, ticket_count: 1 }] } },
     "seq",
