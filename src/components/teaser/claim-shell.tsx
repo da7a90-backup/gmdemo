@@ -4,6 +4,7 @@ import { CheckCircle2, ArrowRight, Ticket } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { RootDark } from "@/components/teaser/root-dark";
 import { isValidUSPhone } from "@/lib/phone";
+import { validateClaimAddress } from "@/lib/address";
 
 function fmtPhone(raw: string) {
   let d = raw.replace(/\D/g, "");
@@ -48,6 +49,8 @@ export function ClaimShell({ token }: { token: string }) {
     e.preventDefault();
     if (busy) return;
     if (!isValidUSPhone(phone)) { setError("Please enter a real phone number."); return; }
+    const addrErr = validateClaimAddress({ address1, city, state, zip });
+    if (addrErr) { setError(addrErr); return; }
     setBusy(true);
     setError("");
     try {

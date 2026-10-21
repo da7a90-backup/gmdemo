@@ -8,6 +8,7 @@ import { createCompedTicketOrder } from "./shopify-orders";
 import { subscribeSms } from "./subscribers";
 import { emitEmailEvent } from "./email-templates";
 import { isValidUSPhone, normalizeUSPhone } from "@/lib/phone";
+import { validateClaimAddress } from "@/lib/address";
 import { ticketRange } from "@/lib/ticket-format";
 
 const CLAIM_TTL_HOURS = 72;
@@ -57,6 +58,8 @@ export async function confirmFreeTicket(rawToken: string, details: ClaimDetails,
   if (!fullName) return { ok: false, error: "Enter your name." };
   if (!isValidUSPhone(details.phone)) return { ok: false, error: "Please enter a real phone number." };
   const normPhone = normalizeUSPhone(details.phone)!;
+  const addrErr = validateClaimAddress({ address1: address?.address1, city: address?.city, state: address?.province, zip: address?.zip });
+  if (addrErr) return { ok: false, error: addrErr };
 
   const hash = hashToken(rawToken || "");
   const claim = (await pool.query(
