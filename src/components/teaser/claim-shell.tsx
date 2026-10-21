@@ -17,10 +17,28 @@ function fmtPhone(raw: string) {
 const input =
   "w-full rounded-xl border border-white/20 bg-white/5 px-4 py-3.5 text-[15px] text-white outline-none backdrop-blur placeholder:text-white/40 focus:border-[var(--color-accent-bright)]";
 
+// US states + DC + territories (code → name) for the claim address so each field maps
+// to the right Shopify address field instead of a single free-text blob.
+const US_STATES: [string, string][] = [
+  ["AL", "Alabama"], ["AK", "Alaska"], ["AZ", "Arizona"], ["AR", "Arkansas"], ["CA", "California"],
+  ["CO", "Colorado"], ["CT", "Connecticut"], ["DE", "Delaware"], ["DC", "District of Columbia"], ["FL", "Florida"],
+  ["GA", "Georgia"], ["HI", "Hawaii"], ["ID", "Idaho"], ["IL", "Illinois"], ["IN", "Indiana"], ["IA", "Iowa"],
+  ["KS", "Kansas"], ["KY", "Kentucky"], ["LA", "Louisiana"], ["ME", "Maine"], ["MD", "Maryland"], ["MA", "Massachusetts"],
+  ["MI", "Michigan"], ["MN", "Minnesota"], ["MS", "Mississippi"], ["MO", "Missouri"], ["MT", "Montana"], ["NE", "Nebraska"],
+  ["NV", "Nevada"], ["NH", "New Hampshire"], ["NJ", "New Jersey"], ["NM", "New Mexico"], ["NY", "New York"],
+  ["NC", "North Carolina"], ["ND", "North Dakota"], ["OH", "Ohio"], ["OK", "Oklahoma"], ["OR", "Oregon"], ["PA", "Pennsylvania"],
+  ["RI", "Rhode Island"], ["SC", "South Carolina"], ["SD", "South Dakota"], ["TN", "Tennessee"], ["TX", "Texas"], ["UT", "Utah"],
+  ["VT", "Vermont"], ["VA", "Virginia"], ["WA", "Washington"], ["WV", "West Virginia"], ["WI", "Wisconsin"], ["WY", "Wyoming"],
+  ["PR", "Puerto Rico"], ["GU", "Guam"], ["VI", "U.S. Virgin Islands"], ["AS", "American Samoa"], ["MP", "Northern Mariana Islands"],
+];
+
 export function ClaimShell({ token }: { token: string }) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [address, setAddress] = useState("");
+  const [address1, setAddress1] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [zip, setZip] = useState("");
   const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -36,7 +54,7 @@ export function ClaimShell({ token }: { token: string }) {
       const r = await fetch("/api/free-ticket/confirm", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ token, firstName, lastName, phone, address }),
+        body: JSON.stringify({ token, firstName, lastName, phone, address1, city, state, zip }),
       });
       const j = await r.json();
       if (j?.ok) setDone(j.data);
@@ -109,12 +127,43 @@ export function ClaimShell({ token }: { token: string }) {
               </div>
               <input
                 className={input}
-                placeholder="Mailing address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                autoComplete="street-address"
+                placeholder="Street address"
+                value={address1}
+                onChange={(e) => setAddress1(e.target.value)}
+                autoComplete="address-line1"
                 required
               />
+              <input
+                className={input}
+                placeholder="City"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                autoComplete="address-level2"
+                required
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <select
+                  className={`${input} appearance-none`}
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                  autoComplete="address-level1"
+                  required
+                >
+                  <option value="" disabled>State</option>
+                  {US_STATES.map(([code, name]) => (
+                    <option key={code} value={code} className="text-black">{name}</option>
+                  ))}
+                </select>
+                <input
+                  className={input}
+                  placeholder="ZIP"
+                  value={zip}
+                  onChange={(e) => setZip(e.target.value.replace(/\D/g, "").slice(0, 5))}
+                  inputMode="numeric"
+                  autoComplete="postal-code"
+                  required
+                />
+              </div>
               <input
                 className={input}
                 placeholder="(555) 123-4567"

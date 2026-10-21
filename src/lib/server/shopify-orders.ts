@@ -94,7 +94,8 @@ async function ensureCustomer(email: string, firstName?: string, lastName?: stri
  * (for a deterministic direct mint) or throws.
  */
 export async function createCompedTicketOrder(opts: {
-  email: string; firstName?: string; lastName?: string; phone?: string; address?: string;
+  email: string; firstName?: string; lastName?: string; phone?: string;
+  address?: { address1?: string; city?: string; province?: string; zip?: string };
 }): Promise<CompedOrder> {
   if (!shopifyAdminConfigured()) throw new Error("Shopify admin not configured");
 
@@ -103,9 +104,21 @@ export async function createCompedTicketOrder(opts: {
   const firstName = (opts.firstName ?? "").trim().replace(/\s+/g, " ") || undefined;
   const lastName = (opts.lastName ?? "").trim().replace(/\s+/g, " ") || undefined;
   const phone = opts.phone?.trim() || undefined;
-  const address1 = opts.address?.trim().replace(/\s+/g, " ") || undefined;
+  // Structured address → the right Shopify fields (not one blob), with countryCode so the
+  // province resolves to the claimant's real state instead of defaulting to the shop's.
+  const a = opts.address;
+  const hasAddr = !!(a && (a.address1 || a.city || a.province || a.zip));
   const address =
-    firstName || phone || address1 ? { firstName, lastName, phone, ...(address1 ? { address1 } : {}) } : undefined;
+    firstName || phone || hasAddr
+      ? {
+          firstName, lastName, phone,
+          ...(a?.address1 ? { address1: a.address1 } : {}),
+          ...(a?.city ? { city: a.city } : {}),
+          ...(a?.province ? { province: a.province } : {}),
+          ...(a?.zip ? { zip: a.zip } : {}),
+          ...(hasAddr ? { countryCode: "US" } : {}),
+        }
+      : undefined;
 
   // Resolve a named customer first and link it by id — that (not the address) is what
   // populates the order's Customer card. Best-effort: on failure, null → email-only order.

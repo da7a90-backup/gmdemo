@@ -10,14 +10,18 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   const b = await readJson<{
-    token?: string; firstName?: string; lastName?: string; name?: string; phone?: string; address?: string;
+    token?: string; firstName?: string; lastName?: string; name?: string; phone?: string;
+    address1?: string; city?: string; state?: string; zip?: string;
   }>(req);
   if (!b?.token) return fail("Missing claim token.");
   const origin = process.env.PUBLIC_BASE_URL || new URL(req.url).origin;
   try {
     const r = await confirmFreeTicket(
       b.token,
-      { firstName: b.firstName, lastName: b.lastName, name: b.name, phone: b.phone ?? "", address: b.address },
+      {
+        firstName: b.firstName, lastName: b.lastName, name: b.name, phone: b.phone ?? "",
+        address: { address1: b.address1, city: b.city, province: b.state, zip: b.zip },
+      },
       origin,
     );
     if (!r.ok) return fail(r.error, 400);

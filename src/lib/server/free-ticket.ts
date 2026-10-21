@@ -35,7 +35,8 @@ export type ClaimResult =
   | { ok: true; ticketNumbers: string; cycle: string }
   | { ok: false; error: string };
 
-export type ClaimDetails = { firstName?: string; lastName?: string; name?: string; phone: string; address?: string };
+export type ClaimAddress = { address1?: string; city?: string; province?: string; zip?: string };
+export type ClaimDetails = { firstName?: string; lastName?: string; name?: string; phone: string; address?: ClaimAddress };
 
 /** Confirm a claim: validate token, capture name + phone + address, create the $0 order, mint. */
 export async function confirmFreeTicket(rawToken: string, details: ClaimDetails, origin: string): Promise<ClaimResult> {
@@ -48,7 +49,11 @@ export async function confirmFreeTicket(rawToken: string, details: ClaimDetails,
     lastName = parts.slice(1).join(" ").slice(0, 40);
   }
   const fullName = `${firstName} ${lastName}`.trim().slice(0, 80);
-  const address = (details.address || "").trim().replace(/\s+/g, " ").slice(0, 200) || undefined;
+  const clean = (s: string | undefined, n: number) => (s || "").trim().replace(/\s+/g, " ").slice(0, n) || undefined;
+  const a = details.address;
+  const address = a
+    ? { address1: clean(a.address1, 120), city: clean(a.city, 60), province: clean(a.province, 10), zip: clean(a.zip, 12) }
+    : undefined;
   if (!fullName) return { ok: false, error: "Enter your name." };
   if (!isValidUSPhone(details.phone)) return { ok: false, error: "Please enter a real phone number." };
   const normPhone = normalizeUSPhone(details.phone)!;
