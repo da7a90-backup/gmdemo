@@ -9,6 +9,7 @@ import { subscribeSms } from "./subscribers";
 import { emitEmailEvent } from "./email-templates";
 import { isValidUSPhone, normalizeUSPhone } from "@/lib/phone";
 import { validateClaimAddress } from "@/lib/address";
+import { verifyStreetAddress } from "./address-verify";
 import { ticketRange } from "@/lib/ticket-format";
 
 const CLAIM_TTL_HOURS = 72;
@@ -34,10 +35,13 @@ export async function startFreeTicketClaim(email: string, origin: string): Promi
 
 export type ClaimResult =
   | { ok: true; ticketNumbers: string; cycle: string }
-  | { ok: false; error: string };
+  | { ok: false; error: string; addressUnverified?: boolean };
 
 export type ClaimAddress = { address1?: string; city?: string; province?: string; zip?: string };
-export type ClaimDetails = { firstName?: string; lastName?: string; name?: string; phone: string; address?: ClaimAddress };
+export type ClaimDetails = {
+  firstName?: string; lastName?: string; name?: string; phone: string; address?: ClaimAddress;
+  confirmAddress?: boolean; // user chose to submit an address the verifier couldn't match
+};
 
 /** Confirm a claim: validate token, capture name + phone + address, create the $0 order, mint. */
 export async function confirmFreeTicket(rawToken: string, details: ClaimDetails, origin: string): Promise<ClaimResult> {
@@ -77,6 +81,20 @@ export async function confirmFreeTicket(rawToken: string, details: ClaimDetails,
   // One free entry per phone, too — block a number that already claimed under any email.
   if ((await pool.query(`select 1 from free_ticket_claims where phone = $1 and status = 'claimed' limit 1`, [normPhone])).rowCount) {
     return { ok: false, error: "This phone number has already been used to claim a free ticket." };
+  }
+
+  // Verify the street address resolves to a real place (free US Census geocoder). Only
+  // block on an explicit non-match, and let the user override (confirmAddress) since the
+  // geocoder has coverage gaps — so a real-but-unlisted address is never permanently stuck.
+  if (!details.confirmAddress) {
+    const v = await verifyStreetAddress({ address1: address?.address1, city: address?.city, state: address?.province, zip: address?.zip });
+    if (v.checked && !v.matched) {
+      return {
+        ok: false,
+        error: "We couldn't verify that street address. Please double-check it — or tap Claim again to submit it as entered.",
+        addressUnverified: true,
+      };
+    }
   }
 
   const cyc = (await pool.query(`select id, code, vehicle_label from cycles where status = 'open' order by code desc limit 1`)).rows[0] as

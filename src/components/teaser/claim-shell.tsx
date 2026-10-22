@@ -43,6 +43,7 @@ export function ClaimShell({ token }: { token: string }) {
   const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [confirmAddr, setConfirmAddr] = useState(false); // true after the verifier couldn't match and the user chose to submit anyway
   const [done, setDone] = useState<{ ticketNumbers: string; cycle: string } | null>(null);
 
   async function submit(e: React.FormEvent) {
@@ -57,10 +58,11 @@ export function ClaimShell({ token }: { token: string }) {
       const r = await fetch("/api/free-ticket/confirm", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ token, firstName, lastName, phone, address1, city, state, zip }),
+        body: JSON.stringify({ token, firstName, lastName, phone, address1, city, state, zip, confirmAddress: confirmAddr }),
       });
       const j = await r.json();
       if (j?.ok) setDone(j.data);
+      else if (j?.addressUnverified) { setError(j.error || "We couldn't verify that address."); setConfirmAddr(true); }
       else setError(j?.error || "Something went wrong. Please try again.");
     } catch {
       setError("Network error. Please try again.");
@@ -132,7 +134,7 @@ export function ClaimShell({ token }: { token: string }) {
                 className={input}
                 placeholder="Street address"
                 value={address1}
-                onChange={(e) => setAddress1(e.target.value)}
+                onChange={(e) => { setAddress1(e.target.value); setConfirmAddr(false); }}
                 autoComplete="address-line1"
                 required
               />
@@ -140,7 +142,7 @@ export function ClaimShell({ token }: { token: string }) {
                 className={input}
                 placeholder="City"
                 value={city}
-                onChange={(e) => setCity(e.target.value)}
+                onChange={(e) => { setCity(e.target.value); setConfirmAddr(false); }}
                 autoComplete="address-level2"
                 required
               />
@@ -148,7 +150,7 @@ export function ClaimShell({ token }: { token: string }) {
                 <select
                   className={`${input} appearance-none`}
                   value={state}
-                  onChange={(e) => setState(e.target.value)}
+                  onChange={(e) => { setState(e.target.value); setConfirmAddr(false); }}
                   autoComplete="address-level1"
                   required
                 >
@@ -161,7 +163,7 @@ export function ClaimShell({ token }: { token: string }) {
                   className={input}
                   placeholder="ZIP"
                   value={zip}
-                  onChange={(e) => setZip(e.target.value.replace(/\D/g, "").slice(0, 5))}
+                  onChange={(e) => { setZip(e.target.value.replace(/\D/g, "").slice(0, 5)); setConfirmAddr(false); }}
                   inputMode="numeric"
                   autoComplete="postal-code"
                   required

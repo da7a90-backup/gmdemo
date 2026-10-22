@@ -2,6 +2,7 @@
 // confirm a teaser signup's free ticket: validates the token, captures the holder's
 // name + phone + mailing address, creates the $0 order + mints. `name` (combined) is
 // still accepted for backward compatibility.
+import { NextResponse } from "next/server";
 import { ok, fail, readJson } from "@/lib/server/http";
 import { confirmFreeTicket } from "@/lib/server/free-ticket";
 
@@ -11,7 +12,7 @@ export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   const b = await readJson<{
     token?: string; firstName?: string; lastName?: string; name?: string; phone?: string;
-    address1?: string; city?: string; state?: string; zip?: string;
+    address1?: string; city?: string; state?: string; zip?: string; confirmAddress?: boolean;
   }>(req);
   if (!b?.token) return fail("Missing claim token.");
   const origin = process.env.PUBLIC_BASE_URL || new URL(req.url).origin;
@@ -21,10 +22,15 @@ export async function POST(req: Request) {
       {
         firstName: b.firstName, lastName: b.lastName, name: b.name, phone: b.phone ?? "",
         address: { address1: b.address1, city: b.city, province: b.state, zip: b.zip },
+        confirmAddress: b.confirmAddress,
       },
       origin,
     );
-    if (!r.ok) return fail(r.error, 400);
+    if (!r.ok) {
+      // Surface the "couldn't verify address" flag so the form can offer "submit as entered".
+      if (r.addressUnverified) return NextResponse.json({ ok: false, error: r.error, addressUnverified: true }, { status: 400 });
+      return fail(r.error, 400);
+    }
     return ok(r);
   } catch (e) {
     return fail(String((e as Error)?.message ?? e), 500);
