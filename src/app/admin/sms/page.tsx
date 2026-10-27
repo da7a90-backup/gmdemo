@@ -26,6 +26,22 @@ export default function AdminSmsPage() {
     ]),
   );
 
+  // Postscript "Subscriber List Upload" format: phone + opt-in status + consent timestamp.
+  // Excludes anyone who opted out (never re-upload an opt-out as "Opted In").
+  const exportPostscript = () => downloadCsv(
+    `postscript-optin-${new Date().toISOString().slice(0, 10)}.csv`,
+    toCsv(
+      (subs ?? [])
+        .filter((s) => s.status !== "unsubscribed")
+        .map((s) => ({ phone: s.phone, optin: "Opted In", consent: s.created_at })),
+      [
+        { key: "phone", label: "Phone" },
+        { key: "optin", label: "Opt-in Status" },
+        { key: "consent", label: "SMS Consent Timestamp" },
+      ],
+    ),
+  );
+
   if (!subs) return null;
 
   return (
@@ -63,6 +79,15 @@ export default function AdminSmsPage() {
             className="inline-flex items-center gap-1.5 border border-ink/10 bg-paper-3 px-3 py-1.5 rounded-full dateline on-paper hover:bg-ink hover:text-paper transition-colors disabled:opacity-50"
           >
             <Download size={11} /> Export CSV
+          </button>
+          <button
+            type="button"
+            onClick={exportPostscript}
+            disabled={!subs.length}
+            title="Phone + Opt-in Status + consent timestamp, formatted for Postscript's Subscriber List Upload"
+            className="inline-flex items-center gap-1.5 border border-ink/10 bg-paper-3 px-3 py-1.5 rounded-full dateline on-paper hover:bg-ink hover:text-paper transition-colors disabled:opacity-50"
+          >
+            <Download size={11} /> Postscript opt-in CSV
           </button>
         </div>
         {showSubs && (
