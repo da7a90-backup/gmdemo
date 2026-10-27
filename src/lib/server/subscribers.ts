@@ -70,8 +70,22 @@ export async function subscribeSms(phone: string, source = "Popup"): Promise<Sub
 export async function listEmailSubscribers() {
   return (await query(`select id, email, status, source, created_at from email_subscribers order by created_at desc`)).rows;
 }
-export async function listSmsSubscribers() {
-  return (await query(`select id, phone, status, source, created_at from sms_subscribers order by created_at desc`)).rows;
+const SMS_STATUSES = ["subscribed", "pending", "unsubscribed"];
+
+/** Paginated + status-filtered SMS subscribers (the list can be 100k+, so never fetch all). */
+export async function listSmsSubscribers(opts: { page?: number; pageSize?: number; status?: string } = {}) {
+  const pageSize = Math.min(Math.max(Number(opts.pageSize) || 50, 1), 200);
+  const page = Math.max(Number(opts.page) || 1, 1);
+  const status = opts.status && SMS_STATUSES.includes(opts.status) ? opts.status : null;
+  const where = status ? "where status = $1" : "";
+  const params = status ? [status] : [];
+  const total = Number((await query(`select count(*)::int n from sms_subscribers ${where}`, params)).rows[0].n);
+  const rows = (await query(
+    `select id, phone, status, source, created_at from sms_subscribers ${where}
+     order by created_at desc limit ${pageSize} offset ${(page - 1) * pageSize}`,
+    params,
+  )).rows;
+  return { rows, total, page, pageSize };
 }
 export async function removeEmailSubscriber(id: number) {
   await query(`delete from email_subscribers where id = $1`, [id]);

@@ -5,9 +5,17 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
-  const type = new URL(req.url).searchParams.get("type");
+  const sp = new URL(req.url).searchParams;
+  const type = sp.get("type");
   try {
-    return ok(type === "sms" ? await listSmsSubscribers() : await listEmailSubscribers());
+    if (type === "sms") {
+      return ok(await listSmsSubscribers({
+        page: Number(sp.get("page")) || 1,
+        pageSize: Number(sp.get("pageSize")) || 50,
+        status: sp.get("status") || undefined,
+      }));
+    }
+    return ok(await listEmailSubscribers());
   } catch (e) { return fail(errMsg(e), 500); }
 }
 export async function DELETE(req: Request) {
