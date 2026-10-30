@@ -11,10 +11,10 @@ export function renderBrandedEmail(opts: { subject?: string; bodyHtml: string; f
   const footer = opts.footerNote ?? "You received this because you have an entry or account with Generous Motors.";
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="color-scheme" content="light only"/><meta name="supported-color-schemes" content="light"/><title>${esc(opts.subject ?? "Generous Motors")}</title></head>
-<body style="margin:0;padding:0;background:#e6dcc0;-webkit-text-size-adjust:100%;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#e6dcc0;">
+<body style="margin:0;padding:0;background:#eef0f1;-webkit-text-size-adjust:100%;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef0f1;">
     <tr><td align="center" style="padding:28px 12px;">
-      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:100%;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e0d9c6;">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:100%;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e5e8ea;">
         <tr><td align="center" style="background:#16110f;padding:22px 24px;">
           <img src="${LOGO_URL}" alt="Generous Motors" width="220" height="130" style="display:block;width:220px;max-width:70%;height:auto;border:0;outline:none;text-decoration:none;" />
         </td></tr>

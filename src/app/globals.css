@@ -12,10 +12,11 @@
 @font-face { font-family: "General Sans"; font-style: normal; font-weight: 700; font-display: swap; src: url("/fonts/general-sans-700.woff2") format("woff2"); }
 
 @theme {
-  /* CREAM-FIRST MAXIMALIST with GM teal as accent */
-  --color-paper: #f1e9d3;
-  --color-paper-2: #e6dcc0;
-  --color-paper-3: #f7f0db;
+  /* WHITE-FIRST with GM teal as accent (was cream-first; backgrounds neutralised
+     to white + cool grays, keeping the same light→dark surface ordering). */
+  --color-paper: #ffffff;
+  --color-paper-2: #eef0f1;
+  --color-paper-3: #f7f8f9;
   --color-paper-4: #ffffff;
 
   --color-ink: #16110f;
@@ -23,7 +24,7 @@
   --color-ink-3: #7a6f5c;
   --color-ink-raised: #241c15; /* warm charcoal card surface on ink sections */
   --color-rule: #16110f;
-  --color-rule-soft: #c8b98e;
+  --color-rule-soft: #dfe3e6;
 
   /* Dark surfaces (used sparingly: header, footer, occasional bands) */
   --color-bg-dark: #0a0a0a;
@@ -43,23 +44,23 @@
   --color-charity-hover: #0f3520;
   --color-charity-soft: #d2decb;
 
-  /* Neon yellow — high-vis secondary paired with the teal accent.
+  /* Secondary accent — now the brand teal (was neon yellow).
      "brass" name kept as an alias so existing usages keep working.
-     Yellow carries dark ink text only — never white. */
-  --color-brass: #fff200;       /* neon yellow */
-  --color-brass-hover: #d9ce00;  /* darker neon for hover states */
-  --color-brass-soft: #fffbc2;   /* pale tint for soft backgrounds */
-  --color-brass-deep: #6f6a00;   /* legible olive for small text on cream */
+     Bright teal carries dark ink text only — never white. */
+  --color-brass: #00d1bd;        /* brand-bright teal (fills, markers, big display) */
+  --color-brass-hover: #00a89a;  /* darker teal for hover states */
+  --color-brass-soft: #c5f0e9;   /* pale teal tint for soft backgrounds */
+  --color-brass-deep: #007a6e;   /* legible teal for small text on white */
 
   --color-navy: #163252;
   --color-navy-soft: #cfd6df;
 
   /* legacy aliases */
-  --color-bg: #f1e9d3;
-  --color-bg-2: #e6dcc0;
+  --color-bg: #ffffff;
+  --color-bg-2: #eef0f1;
   --color-bg-3: #2e261f;
-  --color-bg-alt: #e6dcc0;
-  --color-surface: #f7f0db;
+  --color-bg-alt: #eef0f1;
+  --color-surface: #f7f8f9;
   --color-ink-muted: #3d352c;
   --color-ink-subtle: #7a6f5c;
   --color-divider: #16110f;
@@ -76,18 +77,18 @@
   /* Launch lander ("/") design tokens — shadcn-style names used by the .gm-lander
      markup (1:1 with generousmotors-lander). --color-accent is intentionally NOT
      redefined here (the site's accent stays #00a89a). */
-  --color-background: #f1e9d3;
+  --color-background: #ffffff;
   --color-foreground: #16110f;
-  --color-card: #fbf7ec;
+  --color-card: #ffffff;
   --color-card-foreground: #16110f;
   --color-primary: #00d1bd;
   --color-primary-foreground: #16110f;
   --color-primary-ink: #007a6e;
-  --color-muted: #f7f0db;
+  --color-muted: #f7f8f9;
   --color-muted-foreground: #3d352c;
   --color-border: #16110f24;
   --color-ring: #00a89a;
-  --color-cta: #fff200;
+  --color-cta: #00d1bd;
   --color-cta-foreground: #16110f;
 
   /* Single-typeface system: General Sans everywhere.
